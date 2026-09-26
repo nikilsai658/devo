@@ -6,6 +6,8 @@
 
   <div class="domain-container">
 
+    <app-breadcrumb class="page-breadcrumb" [items]="breadcrumb"></app-breadcrumb>
+
     <div class="domain-toolbar">
 
       <!-- TITLE -->
@@ -310,7 +312,7 @@
 
           <button
             type="button"
-            (click)="view(item.domainId)"
+            (click)="view(item.domainId, item.domainName)"
             class="view-button">
 
             <span>

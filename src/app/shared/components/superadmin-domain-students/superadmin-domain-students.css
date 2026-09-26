@@ -1,0 +1,359 @@
+/* =============================================================
+   COLLEGE TRACKING › DOMAIN › STUDENTS — matches Colleges / Domains.
+   Neutral surfaces, the accent colour (--accent) only on accents.
+   Dark theme: pure black.  Light theme (app-wide invert): pure white.
+============================================================= */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color-scheme: dark;
+}
+
+/* ---------------- PAGE ---------------- */
+
+.tracking-page {
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+}
+
+.tracking-inner {
+  @apply mx-auto max-w-7xl;
+}
+
+/* ---------------- BREADCRUMB ---------------- */
+
+.breadcrumb {
+  @apply mb-6 flex flex-wrap items-center gap-2 text-sm;
+}
+
+.crumb-link {
+  @apply inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0
+         font-medium text-zinc-400 transition-colors duration-200 hover:text-white;
+}
+
+.crumb-link svg {
+  @apply h-4 w-4;
+}
+
+.crumb-sep {
+  @apply text-zinc-700;
+}
+
+.crumb-current {
+  @apply font-medium text-white;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.tracking-header {
+  @apply mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between;
+}
+
+.eyebrow {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border border-white/10
+         px-3 py-1 text-xs font-semibold tracking-wide text-zinc-300;
+}
+
+.eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+}
+
+.header-text h1 {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.header-text p {
+  @apply mt-2 text-sm text-zinc-400;
+}
+
+.header-text p strong {
+  @apply font-semibold text-zinc-200;
+}
+
+.print-btn {
+  @apply inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg border-0
+         bg-(--accent) px-5 py-2.5 text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-(--accent)
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-black;
+}
+
+.print-btn svg {
+  @apply h-5 w-5;
+}
+
+/* ---------------- STATS ---------------- */
+
+.stats {
+  @apply mb-6 grid grid-cols-2 gap-3 border-b border-white/10 pb-6 lg:grid-cols-4;
+}
+
+.stat-card {
+  @apply flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-950 px-5 py-4;
+}
+
+.stat-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--accent) text-(--on-accent);
+}
+
+.stat-icon svg {
+  @apply h-5 w-5;
+}
+
+.stat-label {
+  @apply block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.stat-value {
+  @apply mt-0.5 block text-2xl font-bold leading-7 text-white tabular-nums;
+}
+
+/* ---------------- TABLE CARD ---------------- */
+
+.table-card {
+  @apply overflow-hidden rounded-2xl border border-white/10 bg-zinc-950;
+}
+
+.table-toolbar {
+  @apply flex flex-col gap-4 border-b border-white/10 px-5 py-4
+         lg:flex-row lg:items-center lg:justify-between;
+}
+
+.toolbar-left {
+  @apply flex items-center gap-3;
+}
+
+.toolbar-left h2 {
+  @apply text-lg font-semibold text-white;
+}
+
+.count-chip {
+  @apply rounded-full border border-white/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-zinc-400;
+}
+
+.toolbar-right {
+  @apply flex flex-col gap-3 sm:flex-row;
+}
+
+.search-box {
+  @apply relative w-full sm:w-80;
+}
+
+.search-box svg {
+  @apply pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500;
+}
+
+.search-box input,
+.year-select {
+  @apply h-10 w-full rounded-lg border border-white/10 bg-black text-sm text-white outline-none
+         transition-colors duration-200 hover:border-white/20 focus:border-(--accent);
+}
+
+.search-box input {
+  @apply pl-11 pr-4 placeholder:text-zinc-600;
+}
+
+.year-select {
+  @apply cursor-pointer px-3 sm:w-36;
+}
+
+.year-select option {
+  @apply bg-zinc-950 text-white;
+}
+
+/* ---------------- TABLE ---------------- */
+
+.table-scroll {
+  @apply overflow-x-auto;
+}
+
+table {
+  @apply w-full min-w-[1100px] border-collapse text-sm;
+}
+
+thead th {
+  @apply whitespace-nowrap border-b border-white/10 bg-black/40 px-5 py-3 text-left
+         text-[11px] font-semibold uppercase tracking-wider text-zinc-500;
+}
+
+th.c,
+td.c {
+  @apply text-center;
+}
+
+tbody tr {
+  @apply border-b border-white/5 transition-colors duration-150 last:border-b-0;
+}
+
+tbody tr:hover {
+  @apply bg-white/[0.03];
+}
+
+tbody td {
+  @apply px-5 py-4 align-middle text-zinc-300;
+}
+
+td.strong {
+  @apply font-semibold text-white tabular-nums;
+}
+
+/* Student cell */
+
+.student-cell {
+  @apply flex items-center gap-3;
+}
+
+.student-avatar {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--accent)
+         text-xs font-bold text-(--on-accent);
+}
+
+.student-name {
+  @apply truncate font-medium text-white;
+}
+
+.student-email {
+  @apply truncate text-xs text-zinc-500;
+}
+
+.mono {
+  @apply font-mono text-[13px] text-zinc-300;
+}
+
+.muted {
+  @apply text-zinc-600;
+}
+
+.year-chip {
+  @apply inline-flex whitespace-nowrap rounded-md border border-white/10 px-2 py-0.5 text-xs font-medium text-zinc-300;
+}
+
+/* Progress */
+
+.progress-cell {
+  @apply w-44;
+}
+
+.progress-labels {
+  @apply mb-1.5 flex justify-between text-[11px] font-medium tabular-nums;
+}
+
+.progress-labels .done {
+  @apply text-emerald-400;
+}
+
+.progress-labels .pending {
+  @apply text-amber-400;
+}
+
+.progress-track {
+  @apply h-1.5 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.progress-fill {
+  @apply block h-full rounded-full bg-emerald-500 transition-[width] duration-500;
+}
+
+/* Score */
+
+.score {
+  @apply inline-flex min-w-10 justify-center rounded-md border border-white/10 px-2 py-1
+         text-sm font-bold tabular-nums text-white;
+}
+
+/* Actions */
+
+.actions {
+  @apply flex items-center justify-center gap-2;
+}
+
+.btn-primary-sm,
+.btn-outline-sm {
+  @apply cursor-pointer whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold
+         transition duration-200 active:scale-[0.97];
+}
+
+.btn-primary-sm {
+  @apply border border-(--accent) bg-(--accent) text-(--on-accent) hover:bg-(--accent-hover);
+}
+
+.btn-outline-sm {
+  @apply border border-white/15 bg-transparent text-zinc-300 hover:border-(--accent) hover:text-white;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.skeleton-row {
+  @apply flex items-center gap-6 border-b border-white/5 px-5 py-4 last:border-b-0;
+}
+
+.skeleton-avatar {
+  @apply h-9 w-9 shrink-0 animate-pulse rounded-full bg-white/10;
+}
+
+.skeleton-line {
+  @apply h-3 animate-pulse rounded-full bg-white/10;
+}
+
+/* ---------------- EMPTY STATES ---------------- */
+
+.empty-state {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/10 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.empty-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--accent) text-(--on-accent);
+}
+
+.empty-icon svg {
+  @apply h-7 w-7;
+}
+
+.empty-state h2 {
+  @apply text-lg font-semibold text-white;
+}
+
+.empty-state p,
+.no-matches p {
+  @apply mt-1 text-sm text-zinc-500;
+}
+
+.no-matches {
+  @apply flex flex-col items-center px-6 py-14 text-center;
+}
+
+.btn-outline {
+  @apply mt-5 cursor-pointer rounded-lg border border-(--accent) bg-transparent px-4 py-2
+         text-sm font-semibold text-white transition duration-200 hover:bg-(--accent);
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 640px) {
+  .header-text h1 {
+    @apply text-2xl;
+  }
+
+  .print-btn {
+    @apply w-full;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .print-btn,
+  .btn-primary-sm,
+  .btn-outline-sm,
+  .progress-fill,
+  .skeleton-avatar,
+  .skeleton-line {
+    @apply transition-none;
+    animation: none;
+  }
+}

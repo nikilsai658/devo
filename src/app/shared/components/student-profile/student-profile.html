@@ -1,186 +1,227 @@
 <div class="profile-page" *ngIf="user() as u">
 
-  <!-- ================= Header ================= -->
+  <div class="profile-container">
 
-  <div class="page-header">
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
 
-    <div>
+    <div class="page-toolbar">
 
-      <h1 class="page-title">
-        My Profile
-      </h1>
+      <div>
 
-      <p class="page-subtitle">
-        Manage your profile and academic information.
-      </p>
+        <h1 class="page-title">
+          My Profile
+        </h1>
+
+        <p class="page-subtitle">
+          Manage your profile and academic information.
+        </p>
+
+      </div>
 
     </div>
 
-  </div>
 
-  <!-- ================= Main Layout ================= -->
+    <!-- =========================================================
+         PROFILE HERO
+    ========================================================== -->
 
-  <div class="profile-layout">
+    <section class="hero-card">
 
-    <!-- ================= Left Profile Card ================= -->
+      <div class="hero-body">
 
-    <div class="left-card">
+        <!-- Avatar -->
 
-      <!-- Profile Image -->
-
-      <div class="image-section">
-
-        <div class="profile-image-box">
+        <div class="avatar">
 
           <img
             *ngIf="selectedImage"
             [src]="selectedImage"
-            class="profile-image">
+            alt="Profile photo">
 
-          <div
-            *ngIf="!selectedImage"
-            class="profile-placeholder">
+          <span *ngIf="!selectedImage">
+            {{ u.name?.charAt(0)?.toUpperCase() }}
+          </span>
 
-            {{u.name.charAt(0).toUpperCase()}}
+        </div>
+
+
+        <!-- Identity -->
+
+        <div class="identity">
+
+          <div class="identity-name">
+
+            <h2>{{ u.name }}</h2>
+
+            <span class="status-badge">
+              <span class="status-dot"></span>
+              Active Student
+            </span>
+
+          </div>
+
+          <p class="identity-email">
+            {{ u.email }}
+          </p>
+
+          <div class="identity-meta">
+
+            <span class="meta-chip">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 21h18"/>
+                <path d="M5 21V8l7-4 7 4v13"/>
+                <path d="M9 21v-6h6v6"/>
+              </svg>
+              {{ u.collegeName || '—' }}
+            </span>
+
+            <span class="meta-chip">
+              <svg viewBox="0 0 24 24">
+                <path d="M22 10 12 5 2 10l10 5 10-5Z"/>
+                <path d="M6 12v5c3 2 9 2 12 0v-5"/>
+              </svg>
+              {{ u.branchName || '—' }}
+            </span>
+
+            <span class="meta-chip">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M16 3v4M8 3v4M3 11h18"/>
+              </svg>
+              Year {{ u.yearNumber || '—' }} · Sem {{ u.semester || '—' }}
+            </span>
 
           </div>
 
         </div>
 
-      </div>
 
-      <!-- Name -->
+        <!-- Actions -->
 
-      <h2 class="student-name">
+        <div class="hero-actions">
 
-        {{u.name}}
+          <a
+            routerLink="/main/change_password"
+            class="btn btn-primary">
 
-      </h2>
+            <svg viewBox="0 0 24 24">
+              <rect x="4" y="11" width="16" height="9" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
 
-      <!-- Badge -->
+            <span>Change Password</span>
 
-      <span class="status-badge">
-
-        Active Student
-
-      </span>
-
-
-    </div>
-
-    <div class="right-section">
-
-      <!-- ================= Personal Information ================= -->
-
-      <div class="info-card">
-
-        <h2 class="card-title">
-
-          Personal Information
-
-        </h2>
-
-        <div class="info-grid">
-
-          <div class="input-group">
-
-            <label>Name</label>
-
-            <input
-              [value]="u.name"
-              readonly>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>Email</label>
-
-            <input
-              [value]="u.email"
-              readonly>
-
-          </div>
-
-          <div class="input-group">
-
-            <label>Role</label>
-
-            <input
-              [value]="u.role"
-              readonly>
-
-          </div>
+          </a>
 
         </div>
 
       </div>
 
-      <!-- ================= Academic ================= -->
+    </section>
 
-      <div class="info-card" >
 
-        <h2 class="card-title">
+    <!-- =========================================================
+         DETAILS
+    ========================================================== -->
 
-          Academic Information
+    <div class="details-grid">
 
-        </h2>
+      <!-- Personal Information -->
 
-        <div class="info-grid">
+      <section class="info-card">
 
-          <div class="input-group">
+        <header class="info-header">
 
-            <label>College</label>
-
-            <input
-              [value]="u.collegeName"
-              readonly>
-
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 21a8 8 0 0 1 16 0"/>
+            </svg>
           </div>
 
-          <div class="input-group">
-
-            <label>Department</label>
-
-            <input
-              [value]="u.departmentName"
-              readonly>
-
+          <div>
+            <h3>Personal Information</h3>
+            <p>Your account details</p>
           </div>
 
-          <div class="input-group">
+        </header>
 
-            <label>Branch</label>
+        <dl class="info-list">
 
-            <input
-              [value]="u.branchName"
-              readonly>
-
+          <div class="info-row">
+            <dt>Full Name</dt>
+            <dd>{{ u.name || '—' }}</dd>
           </div>
 
-          <div class="input-group">
-
-            <label>Year</label>
-
-            <input
-              [value]="u.yearNumber"
-              readonly>
-
+          <div class="info-row">
+            <dt>Email Address</dt>
+            <dd>{{ u.email || '—' }}</dd>
           </div>
 
-          <div class="input-group">
-
-            <label>Semester</label>
-
-            <input
-              [value]="u.semester"
-              readonly>
-
+          <div class="info-row">
+            <dt>Role</dt>
+            <dd>
+              <span class="role-pill">{{ u.role || '—' }}</span>
+            </dd>
           </div>
 
-        </div>
+        </dl>
 
-      </div>
+      </section>
+
+
+      <!-- Academic Information -->
+
+      <section class="info-card">
+
+        <header class="info-header">
+
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M22 10 12 5 2 10l10 5 10-5Z"/>
+              <path d="M6 12v5c3 2 9 2 12 0v-5"/>
+            </svg>
+          </div>
+
+          <div>
+            <h3>Academic Information</h3>
+            <p>Your enrollment details</p>
+          </div>
+
+        </header>
+
+        <dl class="info-list">
+
+          <div class="info-row">
+            <dt>College</dt>
+            <dd>{{ u.collegeName || '—' }}</dd>
+          </div>
+
+          <div class="info-row">
+            <dt>Department</dt>
+            <dd>{{ u.departmentName || '—' }}</dd>
+          </div>
+
+          <div class="info-row">
+            <dt>Branch</dt>
+            <dd>{{ u.branchName || '—' }}</dd>
+          </div>
+
+          <div class="info-row info-row-half">
+            <dt>Year</dt>
+            <dd>{{ u.yearNumber || '—' }}</dd>
+          </div>
+
+          <div class="info-row info-row-half">
+            <dt>Semester</dt>
+            <dd>{{ u.semester || '—' }}</dd>
+          </div>
+
+        </dl>
+
+      </section>
 
     </div>
 

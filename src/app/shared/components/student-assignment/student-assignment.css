@@ -1,376 +1,295 @@
+/* =============================================================
+   ASSIGNMENT WORKSPACE — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Matches the My Courses / My Assignments pages.
+============================================================= */
 @import "tailwindcss";
 
-/* ===========================
-   Root
-=========================== */
+/* ---------------- ROOT ---------------- */
 
 :host {
-    @apply block h-screen overflow-hidden bg-gray-100;
+  @apply block h-screen overflow-hidden bg-black;
+  background-color: #000;
 }
 
 .coding-platform {
-    @apply flex flex-col h-screen bg-gray-100;
+  @apply flex h-screen flex-col bg-black text-white antialiased;
+  background-color: #000;
 }
 
-/* ===========================
-   Header
-=========================== */
+/* ---------------- HEADER ---------------- */
 
 .platform-header {
-    @apply flex flex-col sm:flex-row
-           justify-between
-           items-start sm:items-center
-           gap-4
-           px-4 sm:px-6
-           py-3
-           bg-[#2F3E46]
-           text-white
-           shadow-md
-           border-b border-gray-700;
+  @apply flex flex-col items-start justify-between gap-4
+         border-b border-white/10 bg-zinc-950 px-4 py-3
+         sm:flex-row sm:items-center sm:px-6;
 }
 
 .header-left {
-    @apply flex items-center gap-3 min-w-0;
+  @apply flex min-w-0 items-center gap-3;
 }
 
 .back-btn {
-    @apply w-10 h-10 flex items-center justify-center
-           rounded-lg bg-white/10 hover:bg-white/20
-           transition cursor-pointer text-lg flex-shrink-0;
+  @apply flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center
+         rounded-lg border border-white/10 bg-white/5 text-lg text-zinc-300
+         transition duration-200
+         hover:border-(--accent)/60 hover:bg-(--accent)/15 hover:text-white;
 }
 
 .problem-name {
-    @apply text-lg sm:text-xl lg:text-2xl
-           font-bold
-           break-words;
+  @apply break-words text-lg font-bold tracking-tight text-white sm:text-xl lg:text-2xl;
 }
 
 .problem-id {
-    @apply text-xs text-gray-300;
+  @apply mt-0.5 font-mono text-xs text-zinc-500;
 }
 
 .header-right {
-    @apply flex flex-wrap items-center gap-4 sm:gap-6;
+  @apply flex flex-wrap items-center gap-3 sm:gap-4;
 }
 
 .header-box {
-    @apply flex flex-col items-center;
+  @apply flex flex-col items-center rounded-lg border border-white/10
+         bg-black px-3 py-1.5;
 }
 
 .header-label {
-    @apply text-[10px] sm:text-xs uppercase tracking-wide text-gray-300;
+  @apply text-[10px] font-medium uppercase tracking-wide text-zinc-500;
 }
 
 .header-value {
-    @apply text-base sm:text-lg font-bold;
+  @apply text-base font-bold text-white;
 }
 
-/* ===========================
-   Proctoring
-=========================== */
-
-.fullscreen-warning {
-    @apply flex flex-col sm:flex-row
-           items-center justify-center
-           gap-3
-           px-4 py-3
-           bg-red-600
-           text-white
-           text-sm font-semibold
-           text-center
-           relative z-50;
-}
-
-.resume-btn {
-    @apply px-4 py-1.5
-           rounded-lg
-           bg-white
-           text-red-600
-           font-bold
-           hover:bg-red-50
-           transition cursor-pointer;
-}
-
-/* ===========================
-   Difficulty
-=========================== */
-
-.difficulty-badge {
-    @apply px-3 py-1 rounded-full text-xs font-semibold;
-}
-
-.easy {
-    @apply bg-green-500 text-white;
-}
-
-.medium {
-    @apply bg-yellow-400 text-black;
-}
-
-.hard {
-    @apply bg-red-500 text-white;
-}
-
-/* ===========================
-   Body
-=========================== */
-
-.platform-body {
-    @apply flex flex-col lg:flex-row flex-1 overflow-hidden;
-}
-
-/* Left */
-
-.problem-panel {
-    @apply w-full lg:w-2/5
-           bg-white
-           border-b lg:border-b-0
-           lg:border-r
-           border-gray-200
-           overflow-y-auto;
-}
-
-/* Right */
-
-.editor-panel {
-    @apply w-full lg:w-3/5
-           flex flex-col
-           bg-[#1E1E1E]
-           min-h-[400px]
-           overflow-y-auto;
-}
-
-.problem-content {
-    @apply p-4 sm:p-6 lg:p-8
-           space-y-6;
-}
-
-/* ===========================
-   Sections
-=========================== */
-
-.problem-section {
-    @apply pb-6 border-b border-gray-200;
-}
-
-.section-heading {
-    @apply text-lg sm:text-xl
-           font-bold
-           text-gray-800
-           mb-3;
-}
-
-.section-text {
-    @apply text-sm sm:text-[15px]
-           leading-7
-           text-gray-600
-           break-words;
-}
-
-/* ===========================
-   Info Grid
-=========================== */
-
-.info-grid {
-    @apply grid
-           grid-cols-1
-           sm:grid-cols-2
-           gap-4;
-}
-
-.info-item {
-    @apply bg-gray-50
-           rounded-xl
-           border
-           border-gray-200
-           p-4
-           shadow-sm;
-}
-
-.info-item label {
-    @apply block
-           text-xs
-           uppercase
-           tracking-wide
-           text-gray-500
-           mb-2;
-}
-
-.info-item span {
-    @apply font-semibold
-           text-gray-800
-           break-words;
-}
-
-/* ===========================
-   Constraints
-=========================== */
-
-.constraint-list {
-    @apply list-disc
-           pl-5
-           space-y-2
-           text-gray-700
-           text-sm
-           sm:text-base;
-}
-
-.constraint-list strong {
-    @apply text-black;
-}
-
-/* ===========================
-   Test Cases
-=========================== */
-
-.testcase-list {
-    @apply flex flex-col gap-4;
-}
-
-.testcase-card {
-    @apply bg-gray-50
-           rounded-xl
-           border
-           border-gray-200
-           p-4
-           shadow-sm;
-}
-
-.testcase-card-title {
-    @apply text-xs
-           font-semibold
-           uppercase
-           tracking-wide
-           text-gray-500
-           mb-3;
-}
-
-.testcase-block {
-    @apply mb-3;
-}
-
-.testcase-block:last-child {
-    @apply mb-0;
-}
-
-.testcase-block label {
-    @apply block
-           text-xs
-           uppercase
-           tracking-wide
-           text-gray-500
-           mb-1;
-}
-
-.testcase-block pre {
-    @apply m-0
-           whitespace-pre-wrap
-           break-words
-           font-mono
-           text-sm
-           text-gray-800
-           bg-white
-           border border-gray-200
-           rounded-lg
-           p-3;
-}
-
-/* ===========================
-   Output Panel
-=========================== */
-
-.output-panel {
-    @apply border-t border-gray-700
-           bg-[#252526];
-}
-
-.output-header {
-    @apply px-4 py-2
-           text-xs
-           font-semibold
-           uppercase
-           tracking-wide
-           text-gray-400
-           border-b border-gray-700;
-}
-
-.output-body {
-    @apply p-4
-           text-sm
-           text-gray-300
-           max-h-48
-           overflow-y-auto;
-}
-
-/* ===========================
-   Tablet
-=========================== */
-
-@media (max-width:1024px){
-
-    .platform-body{
-        @apply flex-col;
-    }
-
-    .problem-panel{
-        width:100%;
-        height:45%;
-    }
-
-    .editor-panel{
-        width:100%;
-        height:55%;
-    }
-
-}
-
-/* ===========================
-   Mobile
-=========================== */
-
-@media (max-width:640px){
-
-    .platform-header{
-        @apply px-3 py-3;
-    }
-
-    .header-right{
-        @apply w-full justify-between;
-    }
-
-    .problem-panel{
-        height:50%;
-    }
-
-    .editor-panel{
-        height:50%;
-    }
-
-}
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+/* ---------------- NAVIGATION BUTTONS ---------------- */
 
 .navigation-btn {
-  padding: 9px 16px;
-  border: 1px solid #24c0c5;
-  border-radius: 8px;
-  background: transparent;
-  color: #24c0c5;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.navigation-btn:hover:not(:disabled) {
-  background: #24c0c5;
-  color: #ffffff;
+  @apply inline-flex cursor-pointer items-center justify-center rounded-lg
+         border-0 bg-(--accent) px-4 py-2 text-sm font-semibold text-(--on-accent)
+         transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         disabled:cursor-not-allowed disabled:opacity-40
+         disabled:hover:bg-(--accent) disabled:active:scale-100;
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .navigation-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------------- PROCTORING ---------------- */
+
+.fullscreen-warning {
+  @apply relative z-50 flex flex-col items-center justify-center gap-3
+         border-b border-rose-500/40 bg-rose-950 px-4 py-3
+         text-center text-sm font-semibold text-rose-200
+         sm:flex-row;
+}
+
+.resume-btn {
+  @apply cursor-pointer rounded-lg border-0 bg-(--accent) px-4 py-1.5
+         text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover);
+}
+
+/* ---------------- DIFFICULTY ---------------- */
+
+.difficulty-badge {
+  @apply rounded-md border border-white/10 bg-white/5 px-2 py-0.5
+         text-[11px] font-medium text-zinc-300;
+}
+
+.difficulty-badge.easy {
+  @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-300;
+}
+
+.difficulty-badge.medium {
+  @apply border-amber-500/30 bg-amber-500/10 text-amber-300;
+}
+
+.difficulty-badge.hard {
+  @apply border-rose-500/30 bg-rose-500/10 text-rose-300;
+}
+
+/* ---------------- BODY ---------------- */
+
+.platform-body {
+  @apply flex flex-1 flex-col overflow-hidden lg:flex-row;
+}
+
+.problem-panel {
+  @apply w-full overflow-y-auto border-b border-white/10 bg-black
+         lg:w-2/5 lg:border-b-0 lg:border-r;
+}
+
+.editor-panel {
+  @apply flex min-h-[400px] w-full flex-col overflow-y-auto bg-zinc-950 lg:w-3/5;
+}
+
+.editor-container {
+  @apply flex h-full flex-col;
+}
+
+.problem-content {
+  @apply space-y-6 p-4 sm:p-6 lg:p-8;
+}
+
+/* ---------------- SECTIONS ---------------- */
+
+.problem-section {
+  @apply border-b border-white/10 pb-6;
+}
+
+.problem-section:last-child {
+  @apply border-b-0;
+}
+
+.section-heading {
+  @apply mb-3 flex items-center gap-2 text-base font-semibold text-white sm:text-lg;
+}
+
+.section-heading::before {
+  content: "";
+  @apply h-4 w-[3px] rounded-full bg-(--accent);
+}
+
+.section-text {
+  @apply break-words text-sm leading-7 text-zinc-400 sm:text-[15px];
+}
+
+/* ---------------- CONSTRAINTS ---------------- */
+
+.constraint-list {
+  @apply list-disc space-y-2 pl-5 text-sm text-zinc-400 marker:text-(--accent) sm:text-base;
+}
+
+.constraint-list strong {
+  @apply text-white;
+}
+
+/* ---------------- TEST CASES ---------------- */
+
+.testcase-list {
+  @apply flex flex-col gap-4;
+}
+
+.testcase-card {
+  @apply rounded-xl border border-white/10 bg-zinc-950 p-4
+         transition duration-300 hover:border-(--accent)/60;
+}
+
+.testcase-card-title {
+  @apply mb-3 inline-flex rounded-md border border-(--accent)/40 bg-(--accent)/10
+         px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-(--accent-text);
+}
+
+.testcase-block {
+  @apply mb-3;
+}
+
+.testcase-block:last-child {
+  @apply mb-0;
+}
+
+.testcase-block label {
+  @apply mb-1 block text-[11px] font-medium uppercase tracking-wide text-zinc-500;
+}
+
+.testcase-block pre {
+  @apply m-0 whitespace-pre-wrap break-words rounded-lg border border-white/10
+         bg-black p-3 font-mono text-sm text-zinc-200;
+}
+
+/* ---------------- LANGUAGES ---------------- */
+
+.language-list {
+  @apply flex flex-wrap gap-2;
+}
+
+.language-chip {
+  @apply rounded-md border border-white/10 bg-white/5 px-2.5 py-1
+         text-xs font-medium text-zinc-300;
+}
+
+/* ---------------- CHALLENGE LINK ---------------- */
+
+.challenge-link {
+  @apply break-all text-sm font-medium text-(--accent-text) underline
+         decoration-(--accent)/50 underline-offset-4
+         transition hover:text-white hover:decoration-(--accent);
+}
+
+/* ---------------- SCROLLBARS ---------------- */
+
+.problem-panel::-webkit-scrollbar,
+.editor-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.problem-panel::-webkit-scrollbar-thumb,
+.editor-panel::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-white/10;
+}
+
+.problem-panel::-webkit-scrollbar-thumb:hover,
+.editor-panel::-webkit-scrollbar-thumb:hover {
+  @apply bg-(--accent)/60;
+}
+
+/* ---------------- TABLET ---------------- */
+
+@media (max-width: 1024px) {
+  .platform-body {
+    @apply flex-col;
+  }
+
+  .problem-panel {
+    width: 100%;
+    height: 45%;
+  }
+
+  .editor-panel {
+    width: 100%;
+    height: 55%;
+  }
+}
+
+/* ---------------- MOBILE ---------------- */
+
+@media (max-width: 640px) {
+  .platform-header {
+    @apply px-3 py-3;
+  }
+
+  .header-right {
+    @apply w-full justify-between;
+  }
+
+  .problem-panel {
+    height: 50%;
+  }
+
+  .editor-panel {
+    height: 50%;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .back-btn,
+  .navigation-btn,
+  .resume-btn,
+  .testcase-card,
+  .challenge-link {
+    @apply transition-none;
+  }
+}
+
+/* Breadcrumb navigation */
+.header-breadcrumb {
+  display: block;
+  margin-bottom: 0.25rem;
 }

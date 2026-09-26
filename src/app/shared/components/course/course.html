@@ -1,27 +1,27 @@
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-black p-6">
 
   <!-- ================= Header ================= -->
 
   <div class="flex flex-col lg:flex-row justify-between items-center gap-5 mb-8">
 
     <div>
-      <h1 class="text-3xl font-bold text-[#2F3E46]">
+      <h1 class="text-3xl font-bold text-white">
         Course Management
       </h1>
 
-      <p class="text-gray-500 mt-1">
+      <p class="text-zinc-400 mt-1">
         Create, Update and Manage Courses
       </p>
     </div>
 
     <div class="flex items-center gap-4">
 
-      <div class="bg-white rounded-xl shadow px-6 py-4">
-        <p class="text-sm text-gray-500">
+      <div class="bg-zinc-950 rounded-xl shadow px-6 py-4">
+        <p class="text-sm text-zinc-400">
           Total Courses
         </p>
 
-        <h2 class="text-3xl font-bold text-[#24c0c5]">
+        <h2 class="text-3xl font-bold text-white">
           {{ courses.length }}
         </h2>
       </div>
@@ -30,8 +30,7 @@
         *ngIf="auth.hasPermission('CREATE_COURSE')"
         type="button"
         (click)="openAddModal()"
-        style="background-color:#2F3E46"
-        class="flex items-center gap-2 hover:opacity-90 text-white px-5 py-3 rounded-xl font-semibold shadow-sm transition-opacity h-full">
+        class="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-opacity h-full bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
         <span class="text-lg leading-none">+</span>
         Add Course
       </button>
@@ -43,10 +42,10 @@
   <!-- ================= TABLE ================= -->
 
   <div
-    class="bg-white rounded-2xl shadow-lg overflow-hidden"
+    class="bg-zinc-950 rounded-2xl shadow-lg overflow-hidden"
     *ngIf="auth.hasPermission('VIEW_COURSE')">
 
-    <div style="background-color:#2F3E46" class="text-white px-6 py-4">
+    <div style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white px-6 py-4">
 
       <h2 class="text-xl font-bold">
         Course List
@@ -58,7 +57,7 @@
 
       <table class="min-w-full">
 
-        <thead class="bg-gray-100">
+        <thead class="bg-zinc-900">
 
           <tr>
 
@@ -79,7 +78,7 @@
 
           <tr
             *ngFor="let course of courses; let i = index"
-            class="border-b hover:bg-gray-50">
+            class="border-b hover:bg-white/[0.04] border-white/10">
 
             <td class="px-5 py-4">
               {{ i + 1 }}
@@ -103,7 +102,7 @@
                 <button
                   *ngIf="auth.hasPermission('UPDATE_COURSE')"
                   (click)="editCourse(course)"
-                  class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white">
+                  class="px-4 py-2 rounded-lg bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer">
 
                   Edit
 
@@ -114,7 +113,7 @@
                 <button
                   *ngIf="auth.hasPermission('DELETE_COURSE')"
                   (click)="deleteCourse(course.id)"
-                  class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white">
+                  class="px-4 py-2 rounded-lg bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer">
 
                   Delete
 
@@ -130,7 +129,7 @@
 
             <td
               [attr.colspan]="(auth.hasPermission('UPDATE_COURSE') || auth.hasPermission('DELETE_COURSE')) ? 4 : 3"
-              class="text-center py-10 text-gray-500">
+              class="text-center py-10 text-zinc-400">
 
               No Courses Found
 
@@ -150,33 +149,37 @@
 
   <div
     *ngIf="showModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+    class="dlg-overlay">
 
-    <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-modal">
+    <div class="dlg">
 
       <!-- Dialog Header -->
 
-      <div class="flex items-center justify-between px-6 py-4" style="background-color:#2F3E46">
-        <h3 class="text-white text-lg font-semibold">
-          {{ isEditMode ? 'Edit Course' : 'Add Course' }}
-        </h3>
+      <div class="dlg-header">
+        <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Course' : 'Add Course' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'Fill in the details below to add a new record.' }}</p>
+                    </div>
+                </div>
         <button
           type="button"
           (click)="closeModal()"
-          class="text-white/80 hover:text-white text-xl leading-none">
-          &times;
-        </button>
+          class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
       </div>
 
       <!-- Dialog Body -->
 
-      <form [formGroup]="courseForm" class="px-6 py-6">
+      <form [formGroup]="courseForm" class="dlg-body">
 
         <!-- Course Name -->
 
-        <div class="mb-4">
+        <div class="dlg-field">
 
-          <label class="block mb-1.5 text-sm font-medium text-gray-700">
+          <label class="dlg-label">
             Course Name
           </label>
 
@@ -184,10 +187,10 @@
             type="text"
             formControlName="name"
             placeholder="Enter Course Name"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+            class="dlg-input">
 
           <p
-            class="text-xs text-red-500 mt-1"
+            class="dlg-error"
             *ngIf="courseForm.get('name')?.touched && courseForm.get('name')?.invalid">
 
             Course Name is required
@@ -198,9 +201,9 @@
 
         <!-- Description -->
 
-        <div class="mb-2">
+        <div class="dlg-field">
 
-          <label class="block mb-1.5 text-sm font-medium text-gray-700">
+          <label class="dlg-label">
             Description
           </label>
 
@@ -208,10 +211,10 @@
             rows="4"
             formControlName="description"
             placeholder="Enter Description"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent"></textarea>
+            class="dlg-input"></textarea>
 
           <p
-            class="text-xs text-red-500 mt-1"
+            class="dlg-error"
             *ngIf="courseForm.get('description')?.touched && courseForm.get('description')?.invalid">
 
             Description is required
@@ -224,12 +227,12 @@
 
       <!-- Dialog Footer -->
 
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+      <div class="dlg-footer">
 
         <button
           type="button"
           (click)="closeModal()"
-          class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors">
+          class="dlg-btn dlg-btn-secondary">
           Cancel
         </button>
 
@@ -237,7 +240,7 @@
           *ngIf="!isEditMode"
           type="button"
           (click)="createCourse()"
-          class="px-5 py-2 rounded-lg font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+          class="dlg-btn dlg-btn-primary">
           Save
         </button>
 
@@ -245,7 +248,7 @@
           *ngIf="isEditMode"
           type="button"
           (click)="updateCourse()"
-          class="px-5 py-2 rounded-lg font-medium text-white bg-amber-500 hover:bg-amber-600 transition-colors">
+          class="dlg-btn dlg-btn-primary">
           Update
         </button>
 

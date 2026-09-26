@@ -9,6 +9,9 @@ import {
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
+import { Router } from '@angular/router';
+
+type SubmissionFilter = 'all' | 'submitted' | 'notSubmitted';
 
 @Component({
   selector: 'app-superadmin-student-tasks',
@@ -26,14 +29,32 @@ export class SuperadminStudentTasks implements OnInit {
 
   // taskId currently being downloaded
   downloadingId: any = null;
+  // taskId whose last download failed
+  failedId: any = null;
 
   collegeId!: number;
   domainId!: number;
   studentId!: string;
 
+  studentName = '';
+  studentEmail = '';
+  registerNumber = '';
+  domainName = '';
+  collegeName = '';
+
+  search = '';
+  submissionFilter: SubmissionFilter = 'all';
+
+  readonly filters: { key: SubmissionFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'submitted', label: 'Submitted' },
+    { key: 'notSubmitted', label: 'Not submitted' },
+  ];
+
   constructor(
     private api: Superadmin,
     private cd: ChangeDetectorRef,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -45,6 +66,11 @@ export class SuperadminStudentTasks implements OnInit {
     this.collegeId = history.state.collegeId;
     this.domainId = history.state.domainId;
     this.studentId = history.state.studentId;
+    this.studentName = history.state.studentName ?? '';
+    this.studentEmail = history.state.studentEmail ?? '';
+    this.registerNumber = history.state.registerNumber ?? '';
+    this.domainName = history.state.domainName ?? '';
+    this.collegeName = history.state.collegeName ?? '';
 
     if (
       this.collegeId &&
@@ -71,8 +97,6 @@ export class SuperadminStudentTasks implements OnInit {
 
         next: (res: any) => {
 
-          console.log('Student Tasks Response:', res);
-
           this.tasks = res?.data ?? [];
 
           this.loading = false;
@@ -97,6 +121,7 @@ export class SuperadminStudentTasks implements OnInit {
   download(task: any): void {
 
     this.downloadingId = task.taskId;
+    this.failedId = null;
     this.cd.markForCheck();
 
     this.api
@@ -130,11 +155,75 @@ export class SuperadminStudentTasks implements OnInit {
           console.error('Error downloading task:', error);
 
           this.downloadingId = null;
+          this.failedId = task.taskId;
 
           this.cd.markForCheck();
         }
 
       });
+  }
+
+  // ---------------- Filtering & summary ----------------
+
+  isSubmitted(task: any): boolean {
+    return !!task.submittedOn;
+  }
+
+  private matchesFilter(task: any, filter: SubmissionFilter): boolean {
+    if (filter === 'submitted') return this.isSubmitted(task);
+    if (filter === 'notSubmitted') return !this.isSubmitted(task);
+    return true;
+  }
+
+  filterCount(filter: SubmissionFilter): number {
+    return this.tasks.filter(t => this.matchesFilter(t, filter)).length;
+  }
+
+  get filteredTasks(): any[] {
+    const term = this.search.trim().toLowerCase();
+    return this.tasks.filter(t =>
+      this.matchesFilter(t, this.submissionFilter) &&
+      (!term ||
+        (t.taskTitle || t.title || '').toLowerCase().includes(term) ||
+        (t.courseName || '').toLowerCase().includes(term))
+    );
+  }
+
+  get courseCount(): number {
+    return new Set(this.tasks.map(t => t.courseName).filter(Boolean)).size;
+  }
+
+  initials(name?: string): string {
+    const words = (name || 'S').trim().split(/\s+/);
+    return words.slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('');
+  }
+
+  clearFilters(): void {
+    this.search = '';
+    this.submissionFilter = 'all';
+  }
+
+  // ---------------- Navigation ----------------
+
+  backToColleges(): void {
+    this.router.navigate(['/main/superamin-colleges']);
+  }
+
+  backToDomains(): void {
+    this.router.navigate(['/main/superadmin-domains'], {
+      state: { collegeId: this.collegeId, collegeName: this.collegeName }
+    });
+  }
+
+  backToStudents(): void {
+    this.router.navigate(['/main/superadmin-domain-students'], {
+      state: {
+        collegeId: this.collegeId,
+        collegeName: this.collegeName,
+        domainId: this.domainId,
+        domainName: this.domainName
+      }
+    });
   }
 
 }

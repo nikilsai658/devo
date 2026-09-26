@@ -26,7 +26,7 @@
     right: 0;
     width: 100%;
     z-index: 100;
-    background: white;
+    background: #000;
 }
 
 /* Routed content: fixed frame below the header, only this area scrolls.
@@ -40,4 +40,7 @@
     bottom: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    /* Dark behind every page, so short pages and overscroll never show white */
+    background-color: #000;
+    overscroll-behavior-y: contain;
 }

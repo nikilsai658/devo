@@ -1,390 +1,215 @@
+/* =============================================================
+   MY COURSES — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Numbered list layout (distinct from the Domains card grid).
+============================================================= */
 @import "tailwindcss";
 
-/* =========================================================
-   COURSES PAGE
-========================================================= */
+/* ---------------- PAGE ---------------- */
 
-@layer components {
+:host {
+  @apply block min-h-screen bg-black;
+  background-color: #000;
+}
 
-  .courses-page {
-    @apply min-h-screen bg-[#f8fafb] px-[22px] pt-[44px] pb-[35px];
+.courses-page {
+  @apply min-h-screen w-full bg-black text-white antialiased;
+  background-color: #000;
+}
+
+.courses-container {
+  @apply mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.courses-header {
+  @apply mb-8 flex flex-col gap-5 border-b border-white/10 pb-6
+         sm:flex-row sm:items-end sm:justify-between;
+}
+
+.page-label {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-(--accent-text);
+}
+
+.page-label::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.courses-title {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.courses-subtitle {
+  @apply mt-2 text-sm text-zinc-400;
+}
+
+.courses-count {
+  @apply flex items-baseline gap-1.5 self-start rounded-xl border border-white/10
+         bg-zinc-950 px-4 py-2.5 sm:self-auto;
+}
+
+.courses-count strong {
+  @apply text-2xl font-bold text-white;
+}
+
+.courses-count span {
+  @apply text-sm text-zinc-400;
+}
+
+/* ---------------- LIST ---------------- */
+
+.course-list {
+  @apply flex flex-col gap-3;
+}
+
+.course-row {
+  @apply relative flex flex-col gap-4 overflow-hidden rounded-xl border border-white/10
+         bg-zinc-950 p-4 transition duration-300
+         hover:border-white/20 hover:bg-zinc-900
+         sm:flex-row sm:items-center sm:gap-5 sm:p-5;
+}
+
+/* Accent bar on hover */
+.course-row::before {
+  content: "";
+  @apply absolute inset-y-0 left-0 w-[3px] bg-(--accent) opacity-0 transition-opacity duration-300;
+}
+
+.course-row:hover::before {
+  @apply opacity-100;
+}
+
+.course-index {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-lg
+         border border-(--accent)/40 bg-(--accent)/10
+         font-mono text-sm font-semibold text-(--accent-text)
+         transition duration-300;
+}
+
+.course-row:hover .course-index {
+  @apply border-(--accent) bg-(--accent) text-(--on-accent);
+}
+
+.course-content {
+  @apply min-w-0 flex-1;
+}
+
+.course-top {
+  @apply flex flex-wrap items-center gap-x-3 gap-y-2;
+}
+
+.course-name {
+  @apply truncate text-base font-semibold text-white sm:text-lg;
+}
+
+.course-tags {
+  @apply flex gap-1.5;
+}
+
+.course-tag {
+  @apply rounded-md border border-white/10 bg-white/5 px-2 py-0.5
+         text-[11px] font-medium text-zinc-300;
+}
+
+.course-description {
+  @apply mt-1.5 line-clamp-2 text-sm leading-relaxed text-zinc-400;
+}
+
+/* ---------------- BUTTON ---------------- */
+
+.view-course-btn {
+  @apply inline-flex w-full shrink-0 cursor-pointer items-center justify-center gap-2
+         rounded-lg border-0 bg-(--accent) px-4 py-2.5
+         text-sm font-semibold text-(--on-accent)
+         transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         sm:w-auto;
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
+}
+
+.view-course-btn svg {
+  @apply h-4 w-4 transition-transform duration-200;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.view-course-btn:hover svg {
+  @apply translate-x-1;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.course-skeleton {
+  @apply flex items-center gap-5 rounded-xl border border-white/10 bg-zinc-950 p-5;
+}
+
+.skeleton-index,
+.skeleton-line,
+.skeleton-button {
+  @apply animate-pulse bg-zinc-800/80;
+}
+
+.skeleton-index  { @apply h-11 w-11 shrink-0 rounded-lg; }
+.skeleton-lines  { @apply flex flex-1 flex-col gap-2; }
+.skeleton-line   { @apply h-4 rounded-md; }
+.skeleton-button { @apply hidden h-10 w-32 rounded-lg bg-(--accent)/30 sm:block; }
+
+/* ---------------- EMPTY STATE ---------------- */
+
+.no-courses {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/15 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.no-courses-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl
+         bg-(--accent)/15 text-(--accent-text);
+}
+
+.no-courses-icon svg {
+  @apply h-7 w-7;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.no-courses-title {
+  @apply text-lg font-semibold text-white;
+}
+
+.no-courses-text {
+  @apply mt-2 max-w-sm text-sm text-zinc-400;
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .course-row,
+  .course-row::before,
+  .course-index,
+  .view-course-btn,
+  .view-course-btn svg,
+  .skeleton-index,
+  .skeleton-line,
+  .skeleton-button {
+    @apply animate-none transition-none;
   }
-
-
-  /* =======================================================
-     HEADER
-  ======================================================= */
-
-  .courses-header {
-    @apply flex items-center justify-between
-           border-b border-[#e4e9ed]
-           pb-[28px] mb-[36px];
-  }
-
-  .courses-header-content {
-    @apply flex flex-col;
-  }
-
-  .courses-title {
-    @apply m-0
-           text-[32px]
-           leading-[38px]
-           font-bold
-           tracking-[-0.7px]
-           text-[#243746];
-  }
-
-  .courses-subtitle {
-    @apply mt-[6px]
-           mb-0
-           text-[13px]
-           leading-[20px]
-           text-[#55708a];
-  }
-
-  .courses-count {
-    @apply flex items-center
-           rounded-full
-           border border-[#dbe3e8]
-           bg-white
-           px-[14px]
-           py-[5px]
-           text-[12px]
-           font-medium
-           text-[#243746]
-           whitespace-nowrap;
-  }
-
-  .courses-count::before {
-    content: "";
-    @apply mr-[8px]
-           h-[7px]
-           w-[7px]
-           rounded-full
-           bg-[#2f3e46];
-  }
-
-
-  /* =======================================================
-     COURSES GRID
-  ======================================================= */
-
-  .courses-grid {
-    @apply grid
-           grid-cols-1
-           gap-[28px];
-  }
-
-  @media (min-width: 768px) {
-    .courses-grid {
-      @apply grid-cols-2;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .courses-grid {
-      @apply grid-cols-3;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .courses-grid {
-      @apply grid-cols-3;
-    }
-  }
-
-
-  /* =======================================================
-     COURSE CARD
-  ======================================================= */
-
-  .course-card {
-    @apply relative
-           overflow-hidden
-           rounded-[10px]
-           border border-[#e0e6ea]
-           bg-white
-           shadow-[0_1px_2px_rgba(15,23,42,0.04)]
-           transition-all
-           duration-200;
-  }
-
-  .course-card:hover {
-    @apply shadow-[0_8px_24px_rgba(15,23,42,0.08)];
-  }
-
-
-  /* =======================================================
-     CARD HEADER
-  ======================================================= */
-
-  .course-card-header {
-    @apply relative
-           h-[127px]
-           bg-[#2f3e46]
-           px-[21px]
-           pt-[21px];
-  }
-
-  .course-card-icon {
-    @apply flex
-           h-[31px]
-           w-[31px]
-           items-center
-           justify-center
-           rounded-[5px]
-           bg-[rgba(255,255,255,0.12)]
-           text-[16px]
-           text-white;
-  }
-
-  .course-card-icon span {
-    @apply leading-none;
-  }
-
-
-  /* =======================================================
-     CARD BODY
-  ======================================================= */
-
-  .course-card-body {
-    @apply relative
-           min-h-[198px]
-           bg-white
-           px-[21px]
-           pt-[22px]
-           pb-[22px];
-  }
-
-
-  /* =======================================================
-     COURSE NAME
-     
-     Positioned over the dark header to match screenshot
-  ======================================================= */
-
-  .course-name {
-    @apply absolute
-           left-[21px]
-           top-[-48px]
-           m-0
-           max-w-[calc(100%-42px)]
-           overflow-hidden
-           text-ellipsis
-           whitespace-nowrap
-           text-[17px]
-           leading-[23px]
-           font-semibold
-           tracking-[-0.25px]
-           text-white;
-  }
-
-
-  /* =======================================================
-     DESCRIPTION
-  ======================================================= */
-
-  .course-description {
-    @apply m-0
-           min-h-[42px]
-           text-[13px]
-           leading-[19px]
-           text-[#55708a];
-  }
-
-
-  /* =======================================================
-     INFORMATION ROW
-  ======================================================= */
-
-  .course-info {
-    @apply mt-[22px]
-           grid
-           grid-cols-2
-           gap-[8px];
-  }
-
-  .course-info-row {
-    @apply flex
-           items-center
-           justify-between
-           rounded-[7px]
-           border border-[#e0e7ec]
-           bg-[#f8fafb]
-           px-[13px]
-           py-[10px];
-  }
-
-  .course-info-label {
-    @apply text-[10px]
-           font-medium
-           uppercase
-           tracking-[0.4px]
-           text-[#7b8ea0];
-  }
-
-  .course-info-value {
-    @apply text-[12px]
-           font-medium
-           text-[#243746];
-  }
-
-
-  /* =======================================================
-     VIEW COURSE BUTTON
-  ======================================================= */
-
-  .view-course-btn {
-    @apply mt-[21px]
-           flex
-           h-[36px]
-           w-full
-           bg-[#2F3E46]
-           items-center
-           justify-center
-           gap-[8px]
-           rounded-[7px]
-           border border-[#2f3e46]
-           px-[15px]
-           text-[11px]
-           font-semibold
-           uppercase
-           tracking-[0.1px]
-           text-white
-           transition-all
-           duration-200
-           cursor-pointer;
-  }
-
-  .view-course-btn::after {
-    content: "→";
-    @apply text-[17px]
-           font-normal
-           leading-none;
-  }
-
-  .view-course-btn:hover {
-    @apply bg-[#2f3e46]
-           text-white;
-  }
-
-
-  /* =======================================================
-     HOVER STATE
-     Gives the same filled-button appearance shown on the
-     third card in your screenshot.
-  ======================================================= */
-
-  .course-card:hover .view-course-btn {
-    @apply bg-[#2f3e46]
-           text-white;
-  }
-
-
-  /* =======================================================
-     LOADING SKELETON
-  ======================================================= */
-
-  .courses-grid-loading {
-    @apply grid
-           grid-cols-1
-           gap-[28px];
-  }
-
-  @media (min-width: 768px) {
-    .courses-grid-loading {
-      @apply grid-cols-2;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .courses-grid-loading {
-      @apply grid-cols-3;
-    }
-  }
-
-  .course-skeleton {
-    @apply h-[327px]
-           animate-pulse
-           rounded-[10px]
-           border border-[#e0e6ea]
-           bg-white;
-  }
-
-
-  /* =======================================================
-     NO COURSES
-  ======================================================= */
-
-  .no-courses {
-    @apply flex
-           min-h-[250px]
-           flex-col
-           items-center
-           justify-center
-           rounded-[10px]
-           border border-[#e0e6ea]
-           bg-white
-           text-center;
-  }
-
-  .no-courses-title {
-    @apply m-0
-           text-[20px]
-           font-semibold
-           text-[#2f3e46];
-  }
-
-  .no-courses-text {
-    @apply mt-[7px]
-           mb-0
-           text-[13px]
-           text-[#55708a];
-  }
-
-
-  /* =======================================================
-     RESPONSIVE
-  ======================================================= */
-
-  @media (max-width: 767px) {
-
-    .courses-page {
-      @apply px-[15px]
-             pt-[25px];
-    }
-
-    .courses-header {
-      @apply items-start
-             gap-[15px]
-             pb-[22px]
-             mb-[25px];
-    }
-
-    .courses-title {
-      @apply text-[27px]
-             leading-[32px];
-    }
-
-    .courses-subtitle {
-      @apply max-w-[230px]
-             text-[12px]
-             leading-[18px];
-    }
-
-    .courses-count {
-      @apply px-[10px]
-             py-[5px]
-             text-[11px];
-    }
-
-    .course-card-header {
-      @apply h-[125px];
-    }
-
-    .course-card-body {
-      @apply min-h-[200px];
-    }
-  }
-
+}
+
+/* Breadcrumb navigation */
+.page-breadcrumb {
+  display: block;
+  margin-bottom: 1.5rem;
 }

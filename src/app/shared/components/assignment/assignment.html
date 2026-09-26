@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-white/5 p-6">
 
   <!-- Header -->
 
@@ -10,7 +10,7 @@
         Assignment Management
       </h1>
 
-      <p class="text-gray-500">
+      <p class="text-zinc-400">
         Create, Update and Manage Assignments
       </p>
 
@@ -20,9 +20,9 @@
 
       <div
         *ngIf="auth.hasPermission('VIEW_ASSIGNMENT')"
-        class="bg-white rounded-xl shadow px-6 py-4">
+        class="bg-zinc-950 rounded-xl shadow px-6 py-4">
 
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-zinc-400">
           Total Assignments
         </p>
 
@@ -49,7 +49,7 @@
   <!-- ================= TABLE ================= -->
 
   <div
-    class="bg-white rounded-2xl shadow-lg overflow-hidden"
+    class="bg-zinc-950 rounded-2xl shadow-lg overflow-hidden"
     *ngIf="auth.hasPermission('VIEW_ASSIGNMENT')">
 
     <div style="background-color:#2F3E46" class="text-white px-6 py-4">
@@ -66,7 +66,7 @@
 
       <table class="min-w-full">
 
-        <thead class="bg-gray-100">
+        <thead class="bg-white/5">
 
           <tr>
 
@@ -88,7 +88,7 @@
 
           <tr
             *ngFor="let assignment of assignments; let i=index"
-            class="border-b hover:bg-gray-50">
+            class="border-b border-white/10 hover:bg-white/5">
 
             <td class="px-4 py-3">
               {{ i + 1 }}
@@ -158,7 +158,7 @@
           <tr *ngIf="assignments.length === 0">
 
             <td [attr.colspan]="(auth.hasPermission('UPDATE_ASSIGNMENT') || auth.hasPermission('DELETE_ASSIGNMENT')) ? 8 : 7"
-                class="text-center py-8 text-gray-500">
+                class="text-center py-8 text-zinc-400">
 
               No Assignments Found
 
@@ -178,22 +178,26 @@
 
   <div
     *ngIf="showModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+    class="dlg-overlay">
 
-    <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden animate-modal flex flex-col max-h-[90vh]">
+    <div class="dlg max-w-3xl">
 
       <!-- Dialog Header -->
 
-      <div class="flex items-center justify-between px-6 py-4 shrink-0" style="background-color:#2F3E46">
-        <h3 class="text-white text-lg font-semibold">
-          {{ isEditMode ? 'Edit Assignment' : 'Add Assignment' }}
-        </h3>
+      <div class="dlg-header">
+        <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Assignment' : 'Add Assignment' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'Fill in the details below to add a new record.' }}</p>
+                    </div>
+                </div>
         <button
           type="button"
           (click)="closeModal()"
-          class="text-white/80 hover:text-white text-xl leading-none">
-          &times;
-        </button>
+          class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
       </div>
 
       <!-- Dialog Body -->
@@ -201,7 +205,7 @@
       <form
         [formGroup]="assignmentForm"
         (ngSubmit)="isEditMode ? updateAssignment() : createAssignment()"
-        class="px-6 py-6 overflow-y-auto">
+        class="dlg-body">
 
         <div class="grid md:grid-cols-2 gap-5">
 
@@ -209,16 +213,16 @@
 
           <div class="md:col-span-2">
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Title
             </label>
 
             <input
               type="text"
               formControlName="title"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
-            <p class="text-xs text-red-500 mt-1"
+            <p class="dlg-error"
                *ngIf="assignmentForm.get('title')?.invalid && assignmentForm.get('title')?.touched">
               Title is required
             </p>
@@ -229,14 +233,14 @@
 
           <div class="md:col-span-2">
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Description
             </label>
 
             <textarea
               rows="3"
               formControlName="description"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent"></textarea>
+              class="dlg-input"></textarea>
 
           </div>
 
@@ -244,16 +248,16 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Question Id
             </label>
 
             <input
               type="text"
               formControlName="questionId"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
-            <p class="text-xs text-red-500 mt-1"
+            <p class="dlg-error"
                *ngIf="assignmentForm.get('questionId')?.invalid && assignmentForm.get('questionId')?.touched">
               Question Id is required
             </p>
@@ -264,7 +268,7 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Platform
             </label>
 
@@ -272,9 +276,9 @@
               type="text"
               formControlName="platform"
               placeholder="Technex, LeetCode, HackerRank..."
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
-            <p class="text-xs text-red-500 mt-1"
+            <p class="dlg-error"
                *ngIf="assignmentForm.get('platform')?.invalid && assignmentForm.get('platform')?.touched">
               Platform is required
             </p>
@@ -285,14 +289,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Contest Id
             </label>
 
             <input
               type="text"
               formControlName="contestId"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -300,14 +304,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Challenge URL
             </label>
 
             <input
               type="text"
               formControlName="challengeUrl"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -315,13 +319,13 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Difficulty
             </label>
 
             <select
               formControlName="difficulty"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
               <option value="">Select Difficulty</option>
               <option value="Easy">Easy</option>
@@ -330,7 +334,7 @@
 
             </select>
 
-            <p class="text-xs text-red-500 mt-1"
+            <p class="dlg-error"
                *ngIf="assignmentForm.get('difficulty')?.invalid && assignmentForm.get('difficulty')?.touched">
               Difficulty is required
             </p>
@@ -341,14 +345,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Score
             </label>
 
             <input
               type="number"
               formControlName="score"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -356,7 +360,7 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Language Support
             </label>
 
@@ -364,7 +368,7 @@
               type="text"
               formControlName="languageSupport"
               placeholder="Java, C#, Python..."
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -372,14 +376,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Iframe URL
             </label>
 
             <input
               type="text"
               formControlName="iframeUrl"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -387,14 +391,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Time Limit (Minutes)
             </label>
 
             <input
               type="number"
               formControlName="timeLimit"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -402,14 +406,14 @@
 
           <div>
 
-            <label class="block mb-1.5 text-sm font-medium text-gray-700">
+            <label class="dlg-label">
               Memory Limit (MB)
             </label>
 
             <input
               type="number"
               formControlName="memoryLimit"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
+              class="dlg-input">
 
           </div>
 
@@ -417,12 +421,12 @@
 
           <div class="flex items-center">
 
-            <label class="flex items-center gap-3 text-sm font-medium text-gray-700">
+            <label class="dlg-check-label">
 
               <input
                 type="checkbox"
                 formControlName="isActive"
-                class="w-4 h-4 accent-[#2F3E46]">
+                class="dlg-check">
 
               Active
 
@@ -438,15 +442,14 @@
 
           <div class="flex justify-between items-center mb-3">
 
-            <label class="font-semibold text-gray-700">
+            <label class="dlg-label">
               Test Cases
             </label>
 
             <button
               type="button"
               (click)="addTestCase()"
-              style="background-color:#2F3E46"
-              class="text-sm hover:opacity-90 text-white px-3 py-1.5 rounded-lg transition-opacity">
+              class="dlg-btn-sm dlg-btn-soft">
               + Add Test Case
             </button>
 
@@ -455,55 +458,55 @@
           <div
             *ngFor="let tc of testCases.controls; let i = index"
             [formGroupName]="i"
-            class="border border-gray-200 rounded-lg p-4 mb-3 bg-gray-50">
+            class="dlg-section">
 
             <div class="flex justify-between items-center mb-3">
 
-              <span class="font-semibold text-sm text-gray-600">
+              <span class="font-semibold text-sm text-zinc-400">
                 Test Case #{{ i + 1 }}
               </span>
 
               <button
                 type="button"
                 (click)="removeTestCase(i)"
-                class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors">
+                class="dlg-btn-sm dlg-btn-danger">
                 Remove
               </button>
 
             </div>
 
-            <div class="mb-3">
+            <div class="dlg-field">
 
-              <label class="text-sm font-medium text-gray-700">
+              <label class="dlg-label">
                 Input
               </label>
 
               <textarea
                 rows="2"
                 formControlName="input"
-                class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent"></textarea>
+                class="dlg-input"></textarea>
 
             </div>
 
-            <div class="mb-3">
+            <div class="dlg-field">
 
-              <label class="text-sm font-medium text-gray-700">
+              <label class="dlg-label">
                 Expected Output
               </label>
 
               <textarea
                 rows="2"
                 formControlName="expectedOutput"
-                class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent"></textarea>
+                class="dlg-input"></textarea>
 
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-gray-700">
+            <label class="dlg-check-label">
 
               <input
                 type="checkbox"
                 formControlName="isSample"
-                class="w-4 h-4 accent-[#2F3E46]">
+                class="dlg-check">
 
               Sample Test Case
 
@@ -517,12 +520,12 @@
 
       <!-- Dialog Footer -->
 
-      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+      <div class="dlg-footer">
 
         <button
           type="button"
           (click)="closeModal()"
-          class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors">
+          class="dlg-btn dlg-btn-secondary">
           Cancel
         </button>
 
@@ -530,7 +533,7 @@
           *ngIf="!isEditMode && auth.hasPermission('CREATE_ASSIGNMENT')"
           type="button"
           (click)="createAssignment()"
-          class="px-5 py-2 rounded-lg font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+          class="dlg-btn dlg-btn-primary">
           Save
         </button>
 
@@ -538,7 +541,7 @@
           *ngIf="isEditMode && auth.hasPermission('UPDATE_ASSIGNMENT')"
           type="button"
           (click)="updateAssignment()"
-          class="px-5 py-2 rounded-lg font-medium text-white bg-amber-500 hover:bg-amber-600 transition-colors">
+          class="dlg-btn dlg-btn-primary">
           Update
         </button>
 

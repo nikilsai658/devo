@@ -1,10 +1,10 @@
-<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+<div class="min-h-screen bg-black p-4 md:p-6">
 
   <!-- Page Container -->
   <div
     class="mx-auto max-w-5xl overflow-hidden
-           rounded-xl border border-gray-200
-           bg-white shadow-sm">
+           rounded-xl border border-white/10
+           bg-zinc-950 shadow-sm">
 
 
     <!-- ====================================== -->
@@ -13,8 +13,8 @@
 
     <div
       class="flex items-center justify-between
-             border-b border-gray-200
-             bg-white px-5 py-5">
+             border-b border-white/10
+             bg-zinc-950 px-5 py-5">
 
 
       <!-- Title -->
@@ -22,14 +22,14 @@
 
         <h1
           class="text-xl font-semibold
-                 text-gray-800">
+                 text-zinc-200">
 
           Conversation
 
         </h1>
 
         <p
-          class="mt-1 text-sm text-gray-500">
+          class="mt-1 text-sm text-zinc-400">
 
           Chat with the support team
 
@@ -45,11 +45,11 @@
         [disabled]="messagesLoading"
         class="flex items-center gap-1.5
                rounded-lg border
-               border-gray-200
-               bg-white px-4 py-2
-               text-sm text-gray-600
+               border-white/10
+               bg-zinc-950 px-4 py-2
+               text-sm text-zinc-400
                transition
-               hover:bg-gray-50
+               hover:bg-white/5
                disabled:cursor-not-allowed
                disabled:opacity-50">
 
@@ -70,7 +70,7 @@
 
     <div
       class="chat-messages h-[500px]
-             overflow-y-auto bg-gray-50
+             overflow-y-auto bg-white/[0.03]
              px-5 py-5">
 
 
@@ -88,12 +88,12 @@
           <div
             class="mx-auto mb-3 h-7 w-7
                    animate-spin rounded-full
-                   border-4 border-gray-200
+                   border-4 border-white/10
                    border-t-cyan-500">
           </div>
 
           <p
-            class="text-sm text-gray-500">
+            class="text-sm text-zinc-400">
 
             Loading conversation...
 
@@ -118,7 +118,7 @@
           <div
             class="mx-auto mb-3 flex h-12 w-12
                    items-center justify-center
-                   rounded-full bg-gray-100
+                   rounded-full bg-white/5
                    text-xl">
 
             💬
@@ -126,14 +126,14 @@
           </div>
 
           <p
-            class="font-medium text-gray-600">
+            class="font-medium text-zinc-400">
 
             No messages yet
 
           </p>
 
           <p
-            class="mt-1 text-sm text-gray-400">
+            class="mt-1 text-sm text-zinc-500">
 
             Start the conversation below.
 
@@ -176,7 +176,7 @@
             <!-- Sender -->
             <div
               class="mb-1 px-1 text-xs
-                     text-gray-400"
+                     text-zinc-500"
               [ngClass]="{
 
                 'text-right':
@@ -199,10 +199,10 @@
             <div
   class="px-4 py-3 shadow-sm"
   [ngClass]="{
-    'rounded-2xl rounded-br-sm bg-cyan-500 text-white':
+    'rounded-2xl rounded-br-sm bg-(--accent) text-white':
       isMyMessage(msg),
 
-    'rounded-2xl rounded-bl-sm border border-gray-200 bg-white text-gray-700':
+    'rounded-2xl rounded-bl-sm border border-white/10 bg-zinc-950 text-zinc-300':
       isAdminMessage(msg)
   }">
 
@@ -220,7 +220,7 @@
 
             <div
               class="mt-1 px-1 text-[11px]
-                     text-gray-400"
+                     text-zinc-500"
               [ngClass]="{
 
                 'text-right':
@@ -250,10 +250,10 @@
 
     <div
       *ngIf="ticket?.status?.toLowerCase() === 'closed'"
-      class="border-t border-gray-200
-             bg-gray-50 px-5 py-5
+      class="border-t border-white/10
+             bg-white/[0.03] px-5 py-5
              text-center text-sm
-             text-gray-500">
+             text-zinc-400">
 
       This ticket is closed. You can no longer send replies.
 
@@ -266,8 +266,8 @@
 
     <div
       *ngIf="ticket?.status?.toLowerCase() !== 'closed'"
-      class="border-t border-gray-200
-             bg-white px-5 py-5">
+      class="border-t border-white/10
+             bg-zinc-950 px-5 py-5">
 
 
       <div
@@ -284,16 +284,16 @@
           (keydown.enter)="sendOnEnter($event)"
           class="min-h-[82px] flex-1
                  resize-none rounded-xl
-                 border border-gray-300
+                 border border-white/15
                  px-4 py-4 text-sm
-                 text-gray-700 outline-none
+                 text-zinc-300 outline-none
                  transition
-                 placeholder:text-gray-400
-                 focus:border-cyan-500
+                 placeholder:text-zinc-600
+                 focus:border-(--accent)
                  focus:ring-2
-                 focus:ring-cyan-100
+                 focus:ring-(--accent)/25
                  disabled:cursor-not-allowed
-                 disabled:bg-gray-100"></textarea>
+                 disabled:bg-white/5"></textarea>
 
 
         <!-- Send Button -->
@@ -308,13 +308,13 @@
           class="flex h-[82px]
                  min-w-[140px]
                  items-center justify-center
-                 rounded-xl bg-cyan-500
+                 rounded-xl bg-(--accent)
                  px-5 text-sm
-                 font-semibold text-white
+                 font-semibold text-(--on-accent)
                  transition
-                 hover:bg-cyan-600
+                 hover:bg-(--accent-hover)
                  disabled:cursor-not-allowed
-                 disabled:bg-gray-300">
+                 disabled:bg-white/10">
 
 
           <!-- Sending -->
@@ -324,7 +324,7 @@
             <span
               class="mr-2 h-4 w-4
                      animate-spin rounded-full
-                     border-2 border-white
+                     border-2 border-black
                      border-t-transparent">
             </span>
 
@@ -352,7 +352,7 @@
                justify-between">
 
         <p
-          class="text-xs text-gray-400">
+          class="text-xs text-zinc-500">
 
           Your reply will be sent to the support team.
 
@@ -362,10 +362,10 @@
           class="text-xs"
           [ngClass]="{
 
-            'text-red-500':
+            'text-rose-400':
               message.length >= maxMessageLength,
 
-            'text-gray-400':
+            'text-zinc-500':
               message.length < maxMessageLength
 
           }">

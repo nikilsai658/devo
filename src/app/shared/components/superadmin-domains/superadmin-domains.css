@@ -1,0 +1,318 @@
+/* =============================================================
+   COLLEGE TRACKING › DOMAINS — matches the Colleges page.
+   Neutral surfaces, the accent colour (--accent) only on accents.
+   Dark theme: pure black.  Light theme (app-wide invert): pure white.
+============================================================= */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color-scheme: dark;
+}
+
+/* ---------------- PAGE ---------------- */
+
+.tracking-page {
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+}
+
+.tracking-inner {
+  @apply mx-auto max-w-7xl;
+}
+
+/* ---------------- BREADCRUMB ---------------- */
+
+.breadcrumb {
+  @apply mb-6 flex items-center gap-2 text-sm;
+}
+
+.crumb-link {
+  @apply inline-flex cursor-pointer items-center gap-1 rounded-md border-0 bg-transparent p-0
+         font-medium text-zinc-400 transition-colors duration-200 hover:text-white;
+}
+
+.crumb-link svg {
+  @apply h-4 w-4;
+}
+
+.crumb-sep {
+  @apply text-zinc-700;
+}
+
+.crumb-current {
+  @apply font-medium text-white;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.tracking-header {
+  @apply mb-8 flex flex-col gap-6 border-b border-white/10 pb-6
+         lg:flex-row lg:items-end lg:justify-between;
+}
+
+.eyebrow {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border border-white/10
+         px-3 py-1 text-xs font-semibold tracking-wide text-zinc-300;
+}
+
+.eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+}
+
+.header-text h1 {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.header-text p {
+  @apply mt-2 max-w-xl text-sm text-zinc-400;
+}
+
+/* Stats */
+
+.stats {
+  @apply grid shrink-0 grid-cols-2 gap-3;
+}
+
+.stat-card {
+  @apply flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-950 px-5 py-4;
+}
+
+.stat-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--accent) text-(--on-accent);
+}
+
+.stat-icon svg {
+  @apply h-5 w-5;
+}
+
+.stat-label {
+  @apply block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.stat-value {
+  @apply mt-0.5 block text-2xl font-bold leading-7 text-white tabular-nums;
+}
+
+/* ---------------- TOOLBAR ---------------- */
+
+.toolbar {
+  @apply mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.search-box {
+  @apply relative w-full sm:max-w-sm;
+}
+
+.search-box svg {
+  @apply pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500;
+}
+
+.search-box input {
+  @apply h-11 w-full rounded-xl border border-white/10 bg-zinc-950 pl-11 pr-4
+         text-sm text-white outline-none transition-colors duration-200
+         placeholder:text-zinc-600 hover:border-white/20 focus:border-(--accent);
+}
+
+.result-count {
+  @apply text-xs text-zinc-500;
+}
+
+.result-count strong {
+  @apply font-semibold text-zinc-300;
+}
+
+/* ---------------- GRID ---------------- */
+
+.domain-grid {
+  @apply grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3;
+}
+
+/* ---------------- DOMAIN CARD ---------------- */
+
+.domain-card {
+  @apply relative flex cursor-pointer flex-col overflow-hidden rounded-2xl
+         border border-white/10 bg-zinc-950 p-6 transition duration-300;
+}
+
+/* Accent line that draws across the top on hover */
+.domain-card::before {
+  content: "";
+  @apply absolute inset-x-0 top-0 h-0.75 origin-left scale-x-0 bg-(--accent)
+         transition-transform duration-300;
+}
+
+.domain-card:hover {
+  @apply -translate-y-1 border-white/20;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+.domain-card:hover::before {
+  @apply scale-x-100;
+}
+
+/* Top row */
+
+.card-top {
+  @apply flex items-start justify-between;
+}
+
+.domain-avatar {
+  @apply flex h-12 w-12 items-center justify-center rounded-xl bg-(--accent)
+         text-base font-bold tracking-wide text-(--on-accent);
+}
+
+.status-chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1
+         text-[11px] font-semibold text-zinc-300;
+}
+
+.status-dot {
+  @apply h-1.5 w-1.5 rounded-full bg-emerald-500;
+}
+
+/* Name + description */
+
+.domain-name {
+  @apply mt-5 truncate text-lg font-semibold text-white;
+}
+
+.domain-id {
+  @apply mt-0.5 block text-[11px] font-medium tabular-nums text-zinc-500;
+}
+
+.domain-desc {
+  @apply mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-zinc-400;
+}
+
+/* Students panel */
+
+.students-panel {
+  @apply mt-5 rounded-xl border border-white/10 bg-black p-4;
+}
+
+.students-row {
+  @apply flex items-end justify-between;
+}
+
+.students-label {
+  @apply block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.students-value {
+  @apply mt-0.5 block text-2xl font-bold leading-7 text-white tabular-nums;
+}
+
+.share-value {
+  @apply text-sm font-semibold tabular-nums text-zinc-300;
+}
+
+.share-value small {
+  @apply text-[11px] font-normal text-zinc-500;
+}
+
+.share-track {
+  @apply mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.share-fill {
+  @apply block h-full rounded-full bg-(--accent) transition-[width] duration-500;
+}
+
+/* View button */
+
+.view-btn {
+  @apply mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg
+         border-0 bg-(--accent) px-4 py-2.5 text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950;
+}
+
+.view-btn svg {
+  @apply h-4 w-4 transition-transform duration-200;
+}
+
+.domain-card:hover .view-btn svg {
+  @apply translate-x-0.5;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.skeleton-card {
+  @apply space-y-3 rounded-2xl border border-white/10 bg-zinc-950 p-6;
+}
+
+.skeleton-avatar {
+  @apply mb-5 h-12 w-12 animate-pulse rounded-xl bg-white/10;
+}
+
+.skeleton-line {
+  @apply h-3 animate-pulse rounded-full bg-white/10;
+}
+
+.skeleton-block {
+  @apply h-20 animate-pulse rounded-xl bg-white/5;
+}
+
+/* ---------------- EMPTY STATE ---------------- */
+
+.empty-state {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/10 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.empty-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--accent) text-(--on-accent);
+}
+
+.empty-icon svg {
+  @apply h-7 w-7;
+}
+
+.empty-state h2 {
+  @apply text-lg font-semibold text-white;
+}
+
+.empty-state p {
+  @apply mt-1 text-sm text-zinc-500;
+}
+
+.btn-outline {
+  @apply mt-5 cursor-pointer rounded-lg border border-(--accent) bg-transparent px-4 py-2
+         text-sm font-semibold text-white transition duration-200 hover:bg-(--accent);
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 640px) {
+  .header-text h1 {
+    @apply text-2xl;
+  }
+
+  .stats {
+    @apply w-full grid-cols-1;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .domain-card,
+  .domain-card::before,
+  .view-btn,
+  .view-btn svg,
+  .share-fill,
+  .skeleton-avatar,
+  .skeleton-line,
+  .skeleton-block {
+    @apply transition-none;
+    animation: none;
+  }
+
+  .domain-card:hover {
+    @apply translate-y-0;
+  }
+}

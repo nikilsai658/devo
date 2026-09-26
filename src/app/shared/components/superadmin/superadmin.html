@@ -1,200 +1,150 @@
-<div class="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+<div class="tracking-page">
 
-  <div class="mx-auto max-w-7xl">
+  <div class="tracking-inner">
 
-    <!-- Header -->
-    <div class="mb-8">
-      <div>
-        <h1 class="text-3xl font-bold text-slate-800">
-          Colleges
-        </h1>
+    <!-- ================= HEADER ================= -->
+    <header class="tracking-header">
 
-        <p class="mt-2 text-sm text-slate-500">
-          Manage and view all registered colleges.
-        </p>
-      </div>
-    </div>
-
-
-    <!-- Loading -->
-    <div
-      *ngIf="loading"
-      class="flex min-h-[300px] items-center justify-center"
-    >
-
-      <div class="text-center">
-
-        <div
-          class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-cyan-500"
-        ></div>
-
-        <p class="mt-4 text-sm text-slate-500">
-          Loading colleges...
-        </p>
-
+      <div class="header-text">
+        <span class="eyebrow">College Tracking</span>
+        <h1>Colleges</h1>
+        <p>Track every registered college and drill into its domains, students and progress.</p>
       </div>
 
-    </div>
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 21h18M4 18h16M5 18V9l7-4 7 4v9M9 18v-5h6v5" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Total Colleges</span>
+          <strong class="stat-value">{{ loading ? '—' : colleges.length }}</strong>
+        </div>
+      </div>
 
+    </header>
 
-    <!-- Empty State -->
-    <div
-      *ngIf="!loading && colleges.length === 0"
-      class="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm"
-    >
+    <!-- ================= TOOLBAR ================= -->
+    <div class="toolbar" *ngIf="!loading && colleges.length > 0">
 
-      <div
-        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100"
-      >
-
-        <svg
-          class="h-8 w-8 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 14l9-5-9-5-9 5 9 5z"
-          />
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 14l6.16-3.42A12.083 12.083 0 0118 15.5c0 1.93-2.69 3.5-6 3.5s-6-1.57-6-3.5c0-.67.17-1.3.48-1.86L12 14z"
-          />
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
         </svg>
-
+        <input
+          type="text"
+          placeholder="Search colleges..."
+          [value]="search"
+          (input)="search = $any($event.target).value" />
       </div>
 
-      <h2 class="text-lg font-semibold text-slate-700">
-        No colleges found
-      </h2>
-
-      <p class="mt-1 text-sm text-slate-500">
-        There are currently no colleges available.
-      </p>
+      <span class="result-count">
+        Showing <strong>{{ filteredColleges.length }}</strong> of {{ colleges.length }}
+      </span>
 
     </div>
 
-
-    <!-- College Cards -->
-    <div
-      *ngIf="!loading && colleges.length > 0"
-      class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-    >
-
-      <div
-        *ngFor="let college of colleges"
-        class="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-      >
-
-        <!-- Card Header -->
-        <div
-          class="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-800 to-slate-700"
-        >
-
-          <!-- Decorative circles -->
-          <div
-            class="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-400/10"
-          ></div>
-
-          <div
-            class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-cyan-400/10"
-          ></div>
-
-
-          <!-- College Icon -->
-          <div
-            class="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-400 shadow-lg shadow-cyan-400/20"
-          >
-
-            <svg
-              class="h-8 w-8 text-slate-900"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 21h18M4 18h16M5 18V9l7-4 7 4v9M9 18v-5h6v5"
-              />
-
-            </svg>
-
-          </div>
-
-        </div>
-
-
-        <!-- Card Content -->
-        <div class="p-5">
-
-          <!-- College Name -->
-          <h2
-            class="truncate text-xl font-bold text-slate-800"
-            [title]="college.name || college.collegeName"
-          >
-            {{ college.name || college.collegeName || 'Unnamed College' }}
-          </h2>
-
-
-          <!-- Description -->
-          <p class="mt-2 min-h-[48px] text-sm leading-6 text-slate-500">
-            {{ college.description || 'View college departments, students and other details.' }}
-          </p>
-
-
-          <!-- Footer -->
-          <div
-            class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4"
-          >
-
-            <span
-              class="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700"
-            >
-              College
-            </span>
-
-
-            <!-- View Button -->
-            <button
-              type="button"
-              (click)="View(college.id || college.collegeId)"
-              class="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-cyan-500 hover:text-slate-900"
-            >
-
-              View
-
-              <svg
-                class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-
-              </svg>
-
-            </button>
-
-          </div>
-
-        </div>
-
+    <!-- ================= LOADING (skeleton cards) ================= -->
+    <div *ngIf="loading" class="college-grid">
+      <div *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8]" class="skeleton-card">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-line w-3/4"></div>
+        <div class="skeleton-line w-full"></div>
+        <div class="skeleton-line w-2/3"></div>
       </div>
+    </div>
+
+    <!-- ================= EMPTY STATE ================= -->
+    <div *ngIf="!loading && colleges.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 21h18M4 18h16M5 18V9l7-4 7 4v9M9 18v-5h6v5" />
+        </svg>
+      </span>
+      <h2>No colleges found</h2>
+      <p>There are currently no colleges available.</p>
+    </div>
+
+    <!-- ================= NO SEARCH RESULTS ================= -->
+    <div *ngIf="!loading && colleges.length > 0 && filteredColleges.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+        </svg>
+      </span>
+      <h2>No matching colleges</h2>
+      <p>Nothing matches “{{ search }}”.</p>
+      <button type="button" class="btn-outline" (click)="search = ''">Clear search</button>
+    </div>
+
+    <!-- ================= COLLEGE CARDS ================= -->
+    <div *ngIf="!loading && filteredColleges.length > 0" class="college-grid">
+
+      <article
+        *ngFor="let college of filteredColleges; let i = index"
+        class="college-card"
+        (click)="View(college.id || college.collegeId, college.name || college.collegeName)">
+
+        <!-- Top row: avatar + index + open arrow -->
+        <div class="card-top">
+          <span class="college-avatar">
+            {{ initials(college.name || college.collegeName) }}
+          </span>
+
+          <div class="card-top-right">
+            <span class="card-index">#{{ (i + 1).toString().padStart(2, '0') }}</span>
+            <span class="open-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17 17 7M8 7h9v9" />
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Name + description -->
+        <h2 class="college-name" [title]="college.name || college.collegeName">
+          {{ college.name || college.collegeName || 'Unnamed College' }}
+        </h2>
+
+        <p class="college-desc">
+          {{ college.description || 'View college domains, students and their progress.' }}
+        </p>
+
+        <!-- Meta chips -->
+        <div class="card-meta">
+          <span class="meta-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M3 21h18M4 18h16M5 18V9l7-4 7 4v9" />
+            </svg>
+            College
+          </span>
+          <span class="meta-chip" *ngIf="college.id || college.collegeId">
+            ID {{ college.id || college.collegeId }}
+          </span>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer">
+          <span class="footer-hint">Domains · Students · Progress</span>
+
+          <button
+            type="button"
+            class="view-btn"
+            (click)="$event.stopPropagation(); View(college.id || college.collegeId, college.name || college.collegeName)">
+            View
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+      </article>
 
     </div>
 

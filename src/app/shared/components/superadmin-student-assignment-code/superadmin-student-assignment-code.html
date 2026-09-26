@@ -1,319 +1,166 @@
-<div class="assignment-code-page">
+<div class="tracking-page">
 
-  <!-- =====================================================
-       PAGE HEADER
-  ====================================================== -->
+  <div class="tracking-inner">
 
-  <div class="page-header">
-
-    <div class="header-content">
-
-      <button class="back-btn" type="button" onclick="history.back()">
-        <span class="back-icon">&larr;</span>
-        Back
+    <!-- ================= BREADCRUMB ================= -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="crumb-link" (click)="backToColleges()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Colleges
       </button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToDomains()">{{ collegeName || 'Domains' }}</button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToStudents()">{{ domainName || 'Students' }}</button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToAssignments()">{{ studentName || 'Assignments' }}</button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ title }}</span>
+    </nav>
 
-      <div class="header-title">
-        <span class="eyebrow">ASSIGNMENT SUBMISSION</span>
+    <!-- ================= HEADER ================= -->
+    <header class="page-header">
 
-        <h1>
-          {{ assignmentCode?.data?.title || 'Assignment Source Code' }}
-        </h1>
-
-        <p>
-          View the source code submitted for this assignment.
+      <div class="header-main">
+        <span class="eyebrow">Submitted Code</span>
+        <h1>{{ title }}</h1>
+        <p class="header-meta">
+          <span *ngIf="assignmentId" class="mono">Assignment #{{ assignmentId }}</span>
+          <span *ngIf="domainName">{{ domainName }}</span>
+          <span *ngIf="collegeName">{{ collegeName }}</span>
         </p>
       </div>
 
-    </div>
+      <div class="student-card" *ngIf="studentName">
+        <span class="student-avatar">{{ initials(studentName) }}</span>
+        <div class="min-w-0">
+          <p class="student-name">{{ studentName }}</p>
+          <p class="student-email">{{ studentEmail || registerNumber }}</p>
+        </div>
+      </div>
 
-    <div class="header-status" *ngIf="assignmentCode?.isFailure === false">
-      <span class="status-dot"></span>
-      Source Code Available
-    </div>
+    </header>
 
-  </div>
+    <!-- ================= LOADING ================= -->
+    <section class="code-panel" *ngIf="loading">
+      <div class="panel-bar">
+        <div class="skeleton-line w-32"></div>
+      </div>
+      <div class="skeleton-code">
+        <div class="skeleton-line" *ngFor="let w of ['w-1/3', 'w-1/2', 'w-2/5', 'w-3/4', 'w-1/4', 'w-2/3', 'w-1/2', 'w-1/3']" [ngClass]="w"></div>
+      </div>
+    </section>
 
-  <!-- =====================================================
-       LOADING STATE
-  ====================================================== -->
-
-  <div class="loading-card" *ngIf="loading">
-
-    <div class="loading-spinner"></div>
-
-    <div>
-      <h3>Loading assignment code</h3>
-      <p>Please wait while the source code is being fetched.</p>
-    </div>
-
-  </div>
-
-  <!-- =====================================================
-       ERROR STATE
-  ====================================================== -->
-
-  <div class="error-card" *ngIf="!loading && error">
-
-    <div class="error-icon">!</div>
-
-    <div>
-      <h3>Unable to load assignment</h3>
+    <!-- ================= ERROR ================= -->
+    <div class="state-card" *ngIf="!loading && error">
+      <span class="state-icon is-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+        </svg>
+      </span>
+      <h2>Unable to load the code</h2>
       <p>{{ error }}</p>
+      <div class="state-actions">
+        <button type="button" class="btn-outline" (click)="studentId ? backToAssignments() : backToColleges()">
+          {{ studentId ? 'Back to Assignments' : 'Back to Colleges' }}
+        </button>
+        <button type="button" class="btn-primary" *ngIf="assignmentId" (click)="getAssignmentCode()">Try again</button>
+      </div>
     </div>
 
-    <button class="retry-btn" type="button" (click)="getAssignmentCode()">
-      Try Again
-    </button>
+    <!-- ================= CONTENT ================= -->
+    <ng-container *ngIf="!loading && !error && data">
+
+      <!-- Meta strip -->
+      <section class="meta-strip">
+        <div class="meta">
+          <span class="meta-label">Language</span>
+          <span class="meta-value">
+            <span class="lang-dot"></span>{{ language.name }}
+          </span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Lines</span>
+          <span class="meta-value">{{ sourceCode ? codeLines.length : 0 }}</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Size</span>
+          <span class="meta-value">{{ sizeLabel }}</span>
+        </div>
+        <div class="meta">
+          <span class="meta-label">Assignment ID</span>
+          <span class="meta-value mono">#{{ data.assignmentId || assignmentId }}</span>
+        </div>
+      </section>
+
+      <!-- Code panel -->
+      <section class="code-panel">
+
+        <div class="panel-bar">
+          <div class="file-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14" />
+            </svg>
+            {{ fileName }}
+          </div>
+
+          <div class="panel-actions">
+            <button type="button" class="tool-btn" [class.active]="wrap" (click)="wrap = !wrap" [attr.aria-pressed]="wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h13a3 3 0 0 1 0 6h-4m0 0 2-2m-2 2 2 2M4 18h6" />
+              </svg>
+              Wrap
+            </button>
+
+            <button type="button" class="tool-btn" [disabled]="!sourceCode" (click)="downloadCode()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16" />
+              </svg>
+              Download
+            </button>
+
+            <button type="button" class="btn-primary btn-sm" [disabled]="!sourceCode" (click)="copyCode()">
+              <svg *ngIf="!copied" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="9" y="9" width="11" height="11" rx="2" stroke-width="1.8" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <svg *ngIf="copied" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7" />
+              </svg>
+              {{ copied ? 'Copied' : copyFailed ? 'Copy failed' : 'Copy code' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Code -->
+        <div class="code-body" *ngIf="sourceCode; else noCode" [class.wrap]="wrap">
+          <div class="code-lines">
+            <div class="code-line" *ngFor="let line of codeLines; let i = index">
+              <span class="ln">{{ i + 1 }}</span>
+              <span class="lc">{{ line || ' ' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noCode>
+          <div class="no-code">
+            <p>No source code was submitted for this assignment.</p>
+          </div>
+        </ng-template>
+
+        <div class="panel-footer">
+          <span>{{ language.name }}</span>
+          <span>UTF-8</span>
+          <span>{{ sourceCode ? codeLines.length : 0 }} lines</span>
+          <span class="read-only">Read only</span>
+        </div>
+
+      </section>
+
+    </ng-container>
 
   </div>
-
-  <!-- =====================================================
-       MAIN CONTENT
-  ====================================================== -->
-
-  <main
-    class="assignment-container"
-    *ngIf="!loading && !error && assignmentCode?.data"
-  >
-
-    <!-- ===================================================
-         ASSIGNMENT INFORMATION
-    ==================================================== -->
-    <section class="assignment-info-card">
-
-      <div class="assignment-info-main">
-
-        <div class="assignment-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8 6h8M8 10h8M8 14h5M6 3h9l3 3v15H6V3Z"
-            />
-          </svg>
-        </div>
-
-        <div class="assignment-details">
-
-          <span class="section-label">
-            ASSIGNMENT
-          </span>
-
-          <h2>
-            {{ assignmentCode.data.title }}
-          </h2>
-
-          <p>
-            Assignment ID:
-            <strong>#{{ assignmentCode.data.assignmentId }}</strong>
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <div class="assignment-meta">
-
-        <div class="meta-item">
-
-          <span class="meta-label">
-            Language
-          </span>
-
-          <span class="language-badge">
-            Python
-          </span>
-
-        </div>
-
-        <div class="meta-item">
-
-          <span class="meta-label">
-            Language ID
-          </span>
-
-          <span class="language-id">
-            {{ assignmentCode.data.languageId }}
-          </span>
-
-        </div>
-
-        <div class="meta-item">
-
-          <span class="meta-label">
-            Status
-          </span>
-
-          <span class="success-badge">
-            <span></span>
-            Available
-          </span>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         SOURCE CODE CARD
-    ==================================================== -->
-    <section class="code-card">
-
-      <!-- Code Header -->
-      <div class="code-header">
-
-        <div class="code-title">
-
-          <div class="code-icon">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m8 9-3 3 3 3M16 9l3 3-3 3M14 5l-4 14"
-              />
-            </svg>
-          </div>
-
-          <div>
-            <h3>Source Code</h3>
-            <p>Student's submitted solution</p>
-          </div>
-
-        </div>
-
-
-        <div class="code-actions">
-
-          <span class="python-badge">
-            Python
-          </span>
-
-          <button
-            class="copy-btn"
-            type="button"
-            (click)="copyCode()"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <rect
-                x="9"
-                y="9"
-                width="11"
-                height="11"
-                rx="2"
-              />
-
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-              />
-            </svg>
-
-            {{ copied ? 'Copied' : 'Copy Code' }}
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <!-- Code Window -->
-      <div class="code-window">
-
-        <div class="code-window-header">
-
-          <div class="window-left">
-
-            <span class="window-dot"></span>
-            <span class="window-dot"></span>
-            <span class="window-dot"></span>
-
-            <span class="file-name">
-              solution.py
-            </span>
-
-          </div>
-
-          <span class="code-language">
-            PYTHON
-          </span>
-
-        </div>
-
-
-        <div class="code-content">
-
-          <div class="line-numbers">
-
-            <span
-              *ngFor="
-                let line of (assignmentCode.data.sourceCode || '').split('\n');
-                let i = index
-              "
-            >
-              {{ i + 1 }}
-            </span>
-
-          </div>
-
-
-          <pre><code>{{ assignmentCode.data.sourceCode }}</code></pre>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         RESPONSE INFORMATION
-    ==================================================== -->
-    <section class="response-card">
-
-      <div class="response-icon">
-        &#10003;
-      </div>
-
-      <div class="response-content">
-
-        <h3>
-          Assignment source code fetched successfully
-        </h3>
-
-        <p>
-          The student's source code was retrieved successfully from
-          the assignment service.
-        </p>
-
-      </div>
-
-      <div class="response-code">
-        <span>Response Code</span>
-        <strong>{{ assignmentCode.errorCode }}</strong>
-      </div>
-
-    </section>
-
-  </main>
 
 </div>

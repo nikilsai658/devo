@@ -1,147 +1,270 @@
-<div class="assignment-page">
+<div class="assignments-page">
 
-  <!-- Header -->
-  <div class="page-header" *ngIf="!loading">
+  <div class="assignments-container">
 
-    <div>
-      <h1 class="page-title">{{ assignments.length==0 && tasks.length>0 ? 'Tasks' : 'Assignments' }}</h1>
-      <p class="page-subtitle">
-        {{ assignments.length==0 && tasks.length>0 ? 'Open a task to view its question and submit your work.' : 'Complete assignments to unlock the next challenge.' }}
-      </p>
-    </div>
+    <app-breadcrumb class="page-breadcrumb" [items]="breadcrumb"></app-breadcrumb>
 
-    <div class="total-card">
-      <span>{{ assignments.length==0 && tasks.length>0 ? 'Total Tasks :' : 'Total Assignments :' }}</span>
-      <strong>{{ assignments.length==0 && tasks.length>0 ? tasks.length : assignments.length }}</strong>
-    </div>
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
 
-  </div>
+    <div class="assignments-header">
 
-  <!-- Assignment Card -->
+      <div class="assignments-header-content">
 
-  <div
-    class="assignment-card"
-    *ngFor="let assignment of assignments; let i=index">
+        <span class="page-label">
+          {{ showAssignments ? 'ASSIGNMENTS' : showTasks ? 'TASKS' : 'COURSE' }}
+        </span>
 
-    <div class="card-left">
+        <h1 class="assignments-title">
+          {{ showAssignments ? 'My Assignments' : showTasks ? 'My Tasks' : (loading ? 'Loading…' : 'Course Content') }}
+        </h1>
 
-      <div class="assignment-number">
-        {{ i + 1 }}
+        <p class="assignments-subtitle">
+          {{ showAssignments
+              ? 'Complete assignments to unlock the next challenge.'
+              : showTasks
+                ? 'Open a task to view its question and submit your work.'
+                : (loading ? 'Fetching your course content…' : 'Nothing has been added to this course yet.') }}
+        </p>
+
       </div>
 
-      <div class="assignment-content">
+      <div class="assignments-count" *ngIf="showAssignments || showTasks">
 
-        <h2>
-          {{ assignment.title }}
-        </h2>
+        <strong>{{ showTasks ? tasks.length : assignments.length }}</strong>
 
-        <div class="assignment-info">
+        <span *ngIf="showTasks">{{ tasks.length === 1 ? 'Task' : 'Tasks' }}</span>
+        <span *ngIf="!showTasks">{{ assignments.length === 1 ? 'Assignment' : 'Assignments' }}</span>
 
-          <div class="info-item">
-            <span>Score</span>
-            <strong>{{ assignment.score }}</strong>
+      </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         LOADING
+    ========================================================== -->
+
+    <div *ngIf="loading" class="assignment-list">
+
+      <div
+        *ngFor="let x of [1,2,3,4]"
+        class="assignment-skeleton">
+
+        <div class="skeleton-index"></div>
+
+        <div class="skeleton-lines">
+          <div class="skeleton-line w-1/3"></div>
+          <div class="skeleton-line w-2/3"></div>
+        </div>
+
+        <div class="skeleton-button"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         EMPTY STATE
+    ========================================================== -->
+
+    <div
+      *ngIf="!loading && assignments.length == 0 && tasks.length == 0"
+      class="no-assignments">
+
+      <div class="no-assignments-icon">
+
+        <svg viewBox="0 0 24 24">
+          <path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z"/>
+          <path d="M8 6H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/>
+          <path d="M9 13h6M9 17h4"/>
+        </svg>
+
+      </div>
+
+      <h3 class="no-assignments-title">
+        No Assignments or Tasks Available
+      </h3>
+
+      <p class="no-assignments-text">
+        Assignments and tasks will appear here once they are added to this course.
+      </p>
+
+    </div>
+
+
+    <!-- =========================================================
+         ASSIGNMENT LIST
+    ========================================================== -->
+
+    <div
+      *ngIf="showAssignments"
+      class="assignment-list">
+
+      <article
+        *ngFor="let assignment of assignments; let i = index"
+        class="assignment-row">
+
+        <!-- Index -->
+
+        <div class="assignment-index">
+          {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }}
+        </div>
+
+
+        <!-- Content -->
+
+        <div class="assignment-content">
+
+          <div class="assignment-top">
+
+            <h3 class="assignment-name">
+              {{ assignment.title }}
+            </h3>
+
+            <div class="assignment-tags">
+
+              <span
+                class="assignment-tag difficulty"
+                [ngClass]="{
+                  'easy': assignment.difficulty == 'Easy',
+                  'medium': assignment.difficulty == 'Medium',
+                  'hard': assignment.difficulty == 'Hard'
+                }">
+                {{ assignment.difficulty }}
+              </span>
+
+              <span
+                class="assignment-tag status"
+                [ngClass]="{
+                  'pending': (assignment.status || 'Pending') == 'Pending',
+                  'started': assignment.status == 'Started',
+                  'completed': assignment.status == 'Completed'
+                }">
+                {{ assignment.status || 'Pending' }}
+              </span>
+
+            </div>
+
           </div>
 
-          <div class="info-item">
-            <span>Platform</span>
-            <strong>{{ assignment.platform || 'Internal' }}</strong>
-          </div>
+          <div class="assignment-meta">
 
-          <div class="info-item">
-            <span>Difficulty</span>
+            <span>
+              <em>Score</em>
+              {{ assignment.score }}
+            </span>
 
-            <span
-              class="difficulty"
-              [ngClass]="{
-                'easy': assignment.difficulty=='Easy',
-                'medium': assignment.difficulty=='Medium',
-                'hard': assignment.difficulty=='Hard'
-              }">
-
-              {{ assignment.difficulty }}
-
+            <span>
+              <em>Platform</em>
+              {{ assignment.platform || 'Internal' }}
             </span>
 
           </div>
 
-          <div class="info-item">
-            <span>Status</span>
-            <strong
-              [ngClass]="{
-                'pending': (assignment.status || 'Pending') == 'Pending',
-                'started': assignment.status == 'Started',
-                'completed': assignment.status == 'Completed'
-              }">
-              {{ assignment.status || 'Pending' }}
-            </strong>
+        </div>
+
+
+        <!-- Action -->
+
+        <button
+          type="button"
+          (click)="startAssignment(assignment.assignmentId)"
+          class="primary-btn">
+
+          <span>Start Assignment</span>
+
+          <svg viewBox="0 0 24 24">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+
+        </button>
+
+      </article>
+
+    </div>
+
+
+    <!-- =========================================================
+         TASK LIST (only when the course has no assignments)
+    ========================================================== -->
+
+    <div
+      *ngIf="!loading && showTasks"
+      class="assignment-list">
+
+      <article
+        *ngFor="let task of tasks; let i = index"
+        class="assignment-row">
+
+        <!-- Index -->
+
+        <div class="assignment-index">
+          {{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }}
+        </div>
+
+
+        <!-- Content -->
+
+        <div class="assignment-content">
+
+          <div class="assignment-top">
+
+            <h3 class="assignment-name">
+              {{ task.taskTitle }}
+            </h3>
+
+            <div class="assignment-tags">
+
+              <span
+                class="assignment-tag status"
+                [ngClass]="{
+                  'pending': (task.status || 'Pending') == 'Pending',
+                  'completed': (task.status || 'Pending') != 'Pending'
+                }">
+                {{ task.status || 'Pending' }}
+              </span>
+
+            </div>
+
+          </div>
+
+          <p class="assignment-description" *ngIf="task.question">
+            {{ task.question }}
+          </p>
+
+          <div class="assignment-meta" *ngIf="task.hasSubmission">
+            <span class="task-file">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 12.5 12.5 21a5 5 0 0 1-7-7L14 5.5a3.5 3.5 0 0 1 5 5L10.5 19a2 2 0 0 1-3-3L15 8.5"/>
+              </svg>
+              {{ task.fileName }}
+            </span>
           </div>
 
         </div>
 
-      </div>
 
-    </div>
+        <!-- Action -->
 
-    <div class="card-right">
+        <button
+          type="button"
+          (click)="openTask(task)"
+          class="primary-btn">
 
-      <button
-        class="start-btn"
-        (click)="startAssignment(assignment.assignmentId)">
+          <span>{{ task.hasSubmission ? 'View Submission' : 'Open Task' }}</span>
 
-        Start Assignment
+          <svg viewBox="0 0 24 24">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
 
-      </button>
-
-    </div>
-
-  </div>
-
-  <!-- Tasks (only when the course has no assignments) -->
-
-  <div class="task-grid" *ngIf="assignments.length==0 && tasks.length>0">
-
-    <div class="task-card" *ngFor="let task of tasks; let i=index">
-
-      <div class="task-top">
-
-        <span class="task-index">Task {{ i + 1 }}</span>
-
-        <span
-          class="task-status"
-          [ngClass]="{
-            'is-pending': (task.status || 'Pending') == 'Pending',
-            'is-done': (task.status || 'Pending') != 'Pending'
-          }">
-          {{ task.status || 'Pending' }}
-        </span>
-
-      </div>
-
-      <h2 class="task-title">{{ task.taskTitle }}</h2>
-
-      <p class="task-question" *ngIf="task.question">{{ task.question }}</p>
-
-      <div class="task-meta" *ngIf="task.hasSubmission">
-        <span class="task-file">&#128206; {{ task.fileName }}</span>
-      </div>
-
-      <div class="task-footer">
-        <button class="task-btn" (click)="openTask(task)">
-          {{ task.hasSubmission ? 'View Submission' : 'Open Task' }}
         </button>
-      </div>
+
+      </article>
 
     </div>
-
-  </div>
-
-  <!-- Empty -->
-
-  <div
-    class="empty-card"
-    *ngIf="!loading && assignments.length==0 && tasks.length==0">
-
-    No Assignments or Tasks Available
 
   </div>
 

@@ -1,0 +1,52 @@
+/* Breadcrumb — dark theme, #6B21D0 accent. Shared by the student learning pages. */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+}
+
+.breadcrumb ol {
+  @apply m-0 flex list-none flex-wrap items-center gap-1.5 p-0 text-sm;
+}
+
+.breadcrumb li {
+  @apply flex min-w-0 items-center gap-1.5;
+}
+
+.sep {
+  @apply h-3.5 w-3.5 shrink-0 text-zinc-600;
+}
+
+.crumb-link {
+  @apply inline-flex max-w-[14rem] cursor-pointer items-center gap-1.5 rounded-md border-0
+         bg-transparent px-1.5 py-1 font-medium text-zinc-400 transition-colors duration-200
+         hover:bg-white/5 hover:text-white
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent);
+}
+
+.crumb-link span,
+.crumb-current span {
+  @apply truncate;
+}
+
+.home {
+  @apply h-4 w-4 shrink-0 text-(--accent-soft);
+}
+
+.crumb-current {
+  @apply inline-flex max-w-[18rem] items-center gap-1.5 px-1.5 py-1 font-semibold text-white;
+}
+
+/* Compact: smaller text for tight headers */
+.compact ol {
+  @apply gap-1 text-xs;
+}
+
+.compact .crumb-link,
+.compact .crumb-current {
+  @apply px-1 py-0.5;
+}
+
+.compact .home {
+  @apply h-3.5 w-3.5;
+}

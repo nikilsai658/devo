@@ -1,515 +1,298 @@
-.assignment-code-page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+/* =============================================================
+   COLLEGE TRACKING › STUDENT › SUBMITTED CODE
+   Dark theme: pure black background, neutral surfaces,
+   the accent colour (--accent) only on buttons and small accents.
+============================================================= */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color-scheme: dark;
 }
 
-/* =====================================================
-   PAGE HEADER
-====================================================== */
+/* ---------------- PAGE ---------------- */
+
+.tracking-page {
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+}
+
+.tracking-inner {
+  @apply mx-auto max-w-6xl;
+}
+
+.mono {
+  @apply font-mono;
+}
+
+/* ---------------- BREADCRUMB ---------------- */
+
+.breadcrumb {
+  @apply mb-6 flex flex-wrap items-center gap-2 text-sm;
+}
+
+.crumb-link {
+  @apply inline-flex max-w-52 cursor-pointer items-center gap-1 truncate border-0 bg-transparent p-0
+         font-medium text-zinc-400 transition-colors duration-200 hover:text-white;
+}
+
+.crumb-link svg {
+  @apply h-4 w-4 shrink-0;
+}
+
+.crumb-sep {
+  @apply text-zinc-700;
+}
+
+.crumb-current {
+  @apply max-w-72 truncate font-medium text-white;
+}
+
+/* ---------------- HEADER ---------------- */
 
 .page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  @apply mb-6 flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between;
 }
 
-.header-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
+.header-main {
+  @apply min-w-0;
 }
 
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  cursor: pointer;
-  transition: background 0.15s ease;
+.eyebrow {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border border-white/10
+         px-3 py-1 text-xs font-semibold tracking-wide text-zinc-300;
 }
 
-.back-btn:hover {
-  background: #f5f5f5;
+.eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
 }
 
-.back-icon {
-  font-size: 16px;
+.header-main h1 {
+  @apply break-words text-3xl font-bold tracking-tight text-white sm:text-4xl;
 }
 
-.header-title .eyebrow {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #7c3aed;
-  margin-bottom: 4px;
+.header-meta {
+  @apply mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-400;
 }
 
-.header-title h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
+.header-meta span + span::before {
+  content: "•";
+  @apply mr-4 text-zinc-700;
 }
 
-.header-title p {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: #666;
+.student-card {
+  @apply flex min-w-0 shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 lg:max-w-xs;
 }
 
-.header-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 600;
+.student-avatar {
+  @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--accent) text-sm font-bold text-(--on-accent);
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10b981;
+.student-name {
+  @apply truncate text-sm font-semibold text-white;
 }
 
-/* =====================================================
-   LOADING / ERROR STATES
-====================================================== */
-
-.loading-card,
-.error-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 24px;
+.student-email {
+  @apply truncate text-xs text-zinc-500;
 }
 
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e5e5e5;
-  border-top-color: #7c3aed;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
+/* ---------------- META STRIP ---------------- */
+
+.meta-strip {
+  @apply mb-4 grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 sm:grid-cols-4;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.meta {
+  @apply border-white/10 px-5 py-4;
 }
 
-.loading-card h3,
-.error-card h3 {
-  margin: 0 0 4px;
-  font-size: 15px;
-  color: #1a1a1a;
-}
-
-.loading-card p,
-.error-card p {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-}
-
-.error-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #fee2e2;
-  color: #dc2626;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.retry-btn {
-  margin-left: auto;
-  background: #7c3aed;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.retry-btn:hover {
-  background: #6d28d9;
-}
-
-/* =====================================================
-   MAIN CONTENT
-====================================================== */
-
-.assignment-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Assignment info card */
-
-.assignment-info-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.assignment-info-main {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.assignment-icon {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: #f3e8ff;
-  color: #7c3aed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.assignment-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.section-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #999;
-}
-
-.assignment-details h2 {
-  margin: 2px 0 4px;
-  font-size: 18px;
-  color: #1a1a1a;
-}
-
-.assignment-details p {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-}
-
-.assignment-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 16px;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.meta:not(:last-child) {
+  @apply border-b sm:border-b-0 sm:border-r;
 }
 
 .meta-label {
-  font-size: 11px;
-  color: #999;
-  font-weight: 600;
-  text-transform: uppercase;
+  @apply mb-1 block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
 }
 
-.language-badge,
-.python-badge {
-  display: inline-block;
-  width: fit-content;
-  background: #eff6ff;
-  color: #2563eb;
-  border-radius: 6px;
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 600;
+.meta-value {
+  @apply inline-flex items-center gap-2 text-base font-semibold text-white tabular-nums;
 }
 
-.language-id {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1a;
+.lang-dot {
+  @apply h-2 w-2 rounded-full bg-(--accent);
 }
 
-.success-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #059669;
+/* ---------------- CODE PANEL ---------------- */
+
+.code-panel {
+  @apply overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0d];
 }
 
-.success-badge span:first-child {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10b981;
+.panel-bar {
+  @apply flex flex-col gap-3 border-b border-white/10 bg-zinc-950 px-4 py-3
+         sm:flex-row sm:items-center sm:justify-between;
 }
 
-/* =====================================================
-   SOURCE CODE CARD (black background code viewer)
-====================================================== */
-
-.code-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  overflow: hidden;
+.file-tab {
+  @apply inline-flex items-center gap-2 font-mono text-sm text-zinc-200;
 }
 
-.code-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
-  flex-wrap: wrap;
+.file-tab svg {
+  @apply h-4 w-4 text-zinc-500;
 }
 
-.code-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.panel-actions {
+  @apply flex flex-wrap items-center gap-2;
 }
 
-.code-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #111827;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.tool-btn {
+  @apply inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-transparent
+         px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors duration-200
+         hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-40;
 }
 
-.code-icon svg {
-  width: 18px;
-  height: 18px;
+.tool-btn.active {
+  @apply border-(--accent) text-white;
 }
 
-.code-title h3 {
-  margin: 0;
-  font-size: 15px;
-  color: #1a1a1a;
+.tool-btn svg {
+  @apply h-4 w-4;
 }
 
-.code-title p {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: #666;
+.btn-primary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border-0 bg-(--accent)
+         px-4 py-2 text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-(--accent)
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950;
 }
 
-.code-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.btn-primary svg {
+  @apply h-4 w-4;
 }
 
-.copy-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #111827;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease;
+.btn-sm {
+  @apply px-3 py-1.5 text-xs;
 }
 
-.copy-btn:hover {
-  background: #1f2937;
+/* Code body */
+
+.code-body {
+  @apply max-h-[65vh] overflow-auto py-3;
 }
 
-.copy-btn svg {
-  width: 14px;
-  height: 14px;
+.code-lines {
+  @apply min-w-max font-mono text-[13px] leading-6;
 }
 
-.code-window {
-  background: #0d1117;
-  color: #e6edf3;
+.code-body.wrap .code-lines {
+  @apply min-w-0;
 }
 
-.code-window-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: #161b22;
-  border-bottom: 1px solid #21262d;
+.code-line {
+  @apply flex;
 }
 
-.window-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.code-line:hover {
+  @apply bg-white/[0.03];
 }
 
-.window-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #30363d;
+.ln {
+  @apply sticky left-0 w-14 shrink-0 select-none bg-[#0b0b0d] pr-4 text-right text-zinc-600;
 }
 
-.window-dot:nth-child(1) { background: #ff5f56; }
-.window-dot:nth-child(2) { background: #ffbd2e; }
-.window-dot:nth-child(3) { background: #27c93f; }
-
-.file-name {
-  margin-left: 8px;
-  font-size: 12px;
-  color: #8b949e;
-  font-family: 'Fira Code', Consolas, monospace;
+.code-line:hover .ln {
+  @apply text-zinc-400;
 }
 
-.code-language {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #8b949e;
+.lc {
+  @apply whitespace-pre pr-6 text-zinc-200;
 }
 
-.code-content {
-  display: flex;
-  align-items: stretch;
-  max-height: 500px;
-  overflow: auto;
-  background: #0d1117;
+.code-body.wrap .lc {
+  @apply whitespace-pre-wrap break-all;
 }
 
-.line-numbers {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 12px;
-  color: #484f58;
-  font-family: 'Fira Code', Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  text-align: right;
-  user-select: none;
-  border-right: 1px solid #21262d;
-  flex-shrink: 0;
+.no-code {
+  @apply px-6 py-16 text-center text-sm text-zinc-500;
 }
 
-.code-content pre {
-  margin: 0;
-  padding: 16px 20px;
-  flex: 1;
-  overflow-x: auto;
+.panel-footer {
+  @apply flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-white/10 bg-zinc-950 px-4 py-2
+         font-mono text-[11px] text-zinc-500;
 }
 
-.code-content code {
-  font-family: 'Fira Code', Consolas, monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  color: #e6edf3;
-  white-space: pre;
+.read-only {
+  @apply ml-auto;
 }
 
-/* =====================================================
-   RESPONSE INFORMATION
-====================================================== */
+/* ---------------- SKELETON ---------------- */
 
-.response-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 12px;
-  padding: 18px 20px;
+.skeleton-code {
+  @apply space-y-3 p-6;
 }
 
-.response-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #10b981;
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
+.skeleton-line {
+  @apply h-3 animate-pulse rounded-full bg-white/10;
 }
 
-.response-content {
-  flex: 1;
+/* ---------------- STATE CARD ---------------- */
+
+.state-card {
+  @apply flex flex-col items-center rounded-2xl border border-dashed border-white/10 bg-zinc-950 px-6 py-16 text-center;
 }
 
-.response-content h3 {
-  margin: 0 0 2px;
-  font-size: 14px;
-  color: #065f46;
+.state-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10;
 }
 
-.response-content p {
-  margin: 0;
-  font-size: 13px;
-  color: #047857;
+.state-icon.is-error {
+  @apply text-rose-400;
 }
 
-.response-code {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+.state-icon svg {
+  @apply h-7 w-7;
 }
 
-.response-code span {
-  font-size: 11px;
-  color: #059669;
-  text-transform: uppercase;
-  font-weight: 600;
+.state-card h2 {
+  @apply text-lg font-semibold text-white;
 }
 
-.response-code strong {
-  font-size: 18px;
-  color: #065f46;
+.state-card p {
+  @apply mt-1 text-sm text-zinc-500;
+}
+
+.state-actions {
+  @apply mt-6 flex flex-wrap justify-center gap-3;
+}
+
+.btn-outline {
+  @apply cursor-pointer rounded-lg border border-(--accent) bg-transparent px-4 py-2
+         text-sm font-semibold text-white transition duration-200 hover:bg-(--accent);
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 640px) {
+  .header-main h1 {
+    @apply text-2xl;
+  }
+
+  .ln {
+    @apply w-10 pr-3;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary,
+  .tool-btn,
+  .skeleton-line {
+    @apply transition-none;
+    animation: none;
+  }
 }

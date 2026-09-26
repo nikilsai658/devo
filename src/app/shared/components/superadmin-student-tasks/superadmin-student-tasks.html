@@ -1,180 +1,215 @@
-<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+<div class="tracking-page">
 
-  <div class="max-w-7xl mx-auto">
+  <div class="tracking-inner">
 
-    <!-- Header -->
-    <div class="mb-6">
+    <!-- ================= BREADCRUMB ================= -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="crumb-link" (click)="backToColleges()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Colleges
+      </button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToDomains()">{{ collegeName || 'Domains' }}</button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToStudents()">{{ domainName || 'Students' }}</button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ studentName ? studentName + ' · Tasks' : 'Tasks' }}</span>
+    </nav>
 
-      <h1 class="text-2xl font-bold text-gray-900">
-        Student Tasks
-      </h1>
+    <!-- ================= HEADER ================= -->
+    <header class="tracking-header">
 
-      <p class="text-sm text-gray-500 mt-1">
-        View and download the student's task submissions
-      </p>
+      <div class="student-head">
+        <span class="student-avatar-lg">{{ initials(studentName) }}</span>
+        <div class="min-w-0">
+          <span class="eyebrow">Student Tasks</span>
+          <h1>{{ studentName || 'Student' }}</h1>
+          <p class="student-meta">
+            <span *ngIf="studentEmail">{{ studentEmail }}</span>
+            <span *ngIf="registerNumber" class="mono">{{ registerNumber }}</span>
+            <span *ngIf="domainName">{{ domainName }}<ng-container *ngIf="collegeName"> · {{ collegeName }}</ng-container></span>
+          </p>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ================= STATS ================= -->
+    <section class="stats">
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Tasks</span>
+          <strong class="stat-value">{{ loading ? '—' : tasks.length }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Submitted</span>
+          <strong class="stat-value">{{ loading ? '—' : filterCount('submitted') }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Not Submitted</span>
+          <strong class="stat-value">{{ loading ? '—' : filterCount('notSubmitted') }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M12 6.25v13m0-13C10.83 5.48 9.25 5 7.5 5S4.17 5.48 3 6.25v13C4.17 18.48 5.75 18 7.5 18s3.33.48 4.5 1.25m0-13C13.17 5.48 14.75 5 16.5 5s3.33.48 4.5 1.25v13C19.83 18.48 18.25 18 16.5 18s-3.33.48-4.5 1.25" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Courses</span>
+          <strong class="stat-value">{{ loading ? '—' : courseCount }}</strong>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= TOOLBAR ================= -->
+    <div class="toolbar" *ngIf="!loading && tasks.length > 0">
+
+      <div class="filter-tabs" role="tablist">
+        <button
+          *ngFor="let f of filters"
+          type="button"
+          role="tab"
+          class="filter-tab"
+          [class.active]="submissionFilter === f.key"
+          [attr.aria-selected]="submissionFilter === f.key"
+          (click)="submissionFilter = f.key">
+          {{ f.label }}
+          <span class="tab-count">{{ filterCount(f.key) }}</span>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search task or course"
+          [value]="search"
+          (input)="search = $any($event.target).value" />
+      </div>
 
     </div>
 
-
-    <!-- Info -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-
-      <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          College ID
-        </p>
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ collegeId }}
-        </p>
+    <!-- ================= LOADING ================= -->
+    <div *ngIf="loading" class="task-list">
+      <div class="skeleton-card" *ngFor="let _ of [1, 2, 3, 4]">
+        <div class="skeleton-line w-1/3"></div>
+        <div class="skeleton-line w-1/2"></div>
       </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          Domain ID
-        </p>
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ domainId }}
-        </p>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl p-5">
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          Total Tasks
-        </p>
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ tasks.length }}
-        </p>
-      </div>
-
     </div>
 
-
-    <!-- Loading -->
-    <div
-      *ngIf="loading"
-      class="bg-white border border-gray-200 rounded-xl p-12 text-center"
-    >
-      <p class="text-sm text-gray-500">
-        Loading tasks...
-      </p>
+    <!-- ================= EMPTY STATE ================= -->
+    <div *ngIf="!loading && tasks.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+        </svg>
+      </span>
+      <h2>No tasks found</h2>
+      <p *ngIf="studentId">This student has no tasks in this domain.</p>
+      <p *ngIf="!studentId">No student was selected. Pick a student to see their tasks.</p>
+      <button type="button" class="btn-outline" (click)="domainId ? backToStudents() : backToColleges()">
+        {{ domainId ? 'Back to Students' : 'Back to Colleges' }}
+      </button>
     </div>
 
-
-    <!-- No Tasks -->
-    <div
-      *ngIf="!loading && tasks.length === 0"
-      class="bg-white border border-gray-200 rounded-xl p-12 text-center"
-    >
-
-      <div class="text-4xl mb-4">
-        📁
-      </div>
-
-      <h2 class="text-lg font-semibold text-gray-700">
-        No Tasks Found
-      </h2>
-
-      <p class="text-sm text-gray-500 mt-1">
-        This student has no tasks in this domain.
-      </p>
-
+    <!-- ================= NO MATCHES ================= -->
+    <div *ngIf="!loading && tasks.length > 0 && filteredTasks.length === 0" class="empty-state">
+      <h2>No matching tasks</h2>
+      <p>Try a different filter or search term.</p>
+      <button type="button" class="btn-outline" (click)="clearFilters()">Clear filters</button>
     </div>
 
+    <!-- ================= TASKS ================= -->
+    <div *ngIf="!loading && filteredTasks.length > 0" class="task-list">
 
-    <!-- Tasks Table -->
-    <div
-      *ngIf="!loading && tasks.length > 0"
-      class="bg-white border border-gray-200 rounded-xl overflow-hidden"
-    >
+      <article
+        *ngFor="let task of filteredTasks; let i = index"
+        class="task-card"
+        [class.is-submitted]="isSubmitted(task)">
 
-      <div class="overflow-x-auto">
+        <div class="card-title">
+          <span class="card-index">{{ (i + 1).toString().padStart(2, '0') }}</span>
 
-        <table class="w-full min-w-[800px]">
+          <div class="min-w-0">
+            <div class="title-row">
+              <h2 [title]="task.taskTitle || task.title">{{ task.taskTitle || task.title }}</h2>
+              <span class="status-chip" [class.submitted]="isSubmitted(task)">
+                <span class="status-dot"></span>
+                {{ task.status || (isSubmitted(task) ? 'Submitted' : 'Not submitted') }}
+              </span>
+            </div>
 
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Task
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Course
-              </th>
-              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Submitted On
-              </th>
-              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Download
-              </th>
-            </tr>
-          </thead>
+            <p class="course-name" *ngIf="task.courseName">{{ task.courseName }}</p>
+            <p class="task-desc" *ngIf="task.description">{{ task.description }}</p>
+          </div>
+        </div>
 
-          <tbody class="divide-y divide-gray-200">
+        <div class="card-side">
+          <div class="submitted-on">
+            <span class="detail-label">Submitted</span>
+            <span class="detail-value" *ngIf="task.submittedOn; else notSubmitted">
+              {{ task.submittedOn | date:'dd MMM yyyy' }}
+              <small>{{ task.submittedOn | date:'hh:mm a' }}</small>
+            </span>
+            <ng-template #notSubmitted><span class="detail-muted">Not submitted</span></ng-template>
+          </div>
 
-            <tr
-              *ngFor="let task of tasks"
-              class="hover:bg-gray-50 transition"
-            >
+          <div class="download-wrap">
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="downloadingId === task.taskId"
+              (click)="download(task)">
+              <svg *ngIf="downloadingId !== task.taskId" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16" />
+              </svg>
+              <svg *ngIf="downloadingId === task.taskId" class="spinner" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".3" />
+                <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+              </svg>
+              {{ downloadingId === task.taskId ? 'Downloading...' : 'Download' }}
+            </button>
+            <span class="download-error" *ngIf="failedId === task.taskId">Download failed. Try again.</span>
+          </div>
+        </div>
 
-              <td class="px-6 py-4">
-                <p class="font-medium text-gray-900">
-                  {{ task.taskTitle || task.title }}
-                </p>
-                <p class="text-sm text-gray-500" *ngIf="task.description">
-                  {{ task.description }}
-                </p>
-              </td>
-
-              <td class="px-6 py-4 text-sm text-gray-700">
-                {{ task.courseName || '-' }}
-              </td>
-
-              <td class="px-6 py-4 text-center">
-                <span
-                  *ngIf="task.status"
-                  class="inline-flex px-3 py-1 rounded-full bg-cyan-50 text-cyan-700 text-xs font-semibold"
-                >
-                  {{ task.status }}
-                </span>
-                <span *ngIf="!task.status" class="text-sm text-gray-400">-</span>
-              </td>
-
-              <td class="px-6 py-4 text-center text-sm text-gray-700">
-                <span *ngIf="task.submittedOn; else notSubmitted">
-                  {{ task.submittedOn | date:'dd MMM yyyy, hh:mm a' }}
-                </span>
-                <ng-template #notSubmitted>
-                  <span class="text-gray-400">Not Submitted</span>
-                </ng-template>
-              </td>
-
-              <td class="px-6 py-4 text-center">
-                <button
-                  type="button"
-                  (click)="download(task)"
-                  [disabled]="downloadingId === task.taskId"
-                  class="inline-flex items-center justify-center
-                         px-4 py-2 rounded-lg
-                         bg-[#24c0c5] text-white
-                         text-sm font-medium
-                         hover:bg-[#1eabb0]
-                         disabled:opacity-60
-                         transition duration-200
-                         whitespace-nowrap"
-                >
-                  {{ downloadingId === task.taskId ? 'Downloading...' : 'Download' }}
-                </button>
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
+      </article>
 
     </div>
 

@@ -1,9 +1,18 @@
 /* =========================================================
-   LEADERBOARD PAGE
+   LEADERBOARD — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Matches the student-domain page.
 ========================================================= */
 @import "tailwindcss";
+
+:host {
+  @apply block min-h-screen bg-black;
+  background-color: #000;
+}
+
 .leaderboard-page {
-  @apply min-h-screen w-full bg-white px-5 py-8 font-sans text-[#2F3E46];
+  @apply min-h-screen w-full bg-black px-4 py-8 font-sans text-white antialiased
+         sm:px-6 sm:py-10 lg:px-8 lg:py-14;
+  background-color: #000;
 }
 
 
@@ -12,7 +21,8 @@
 ========================================================= */
 
 .leaderboard-header {
-  @apply mx-auto flex w-full max-w-[1180px] items-start justify-between gap-8 border-b border-[#DDE3E5] pb-6;
+  @apply mx-auto flex w-full max-w-7xl flex-col gap-6 border-b border-white/10 pb-8
+         md:flex-row md:items-end md:justify-between;
 }
 
 .header-content {
@@ -20,19 +30,27 @@
 }
 
 .title-section {
-  @apply flex flex-col;
+  @apply flex max-w-2xl flex-col items-start;
 }
 
 .page-label {
-  @apply mb-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#6B8088];
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-(--accent-text);
+}
+
+.page-label::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
 }
 
 .page-title {
-  @apply m-0 text-[34px] font-bold leading-tight tracking-[-0.03em] text-[#2F3E46];
+  @apply m-0 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl;
 }
 
 .page-subtitle {
-  @apply mt-2 text-[14px] font-normal leading-6 text-[#64777E];
+  @apply mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base;
 }
 
 
@@ -41,7 +59,8 @@
 ========================================================= */
 
 .statistics-container {
-  @apply flex min-w-[310px] items-center rounded-xl border border-[#D9DFE1] bg-white px-5 py-4 shadow-[0_1px_3px_rgba(47,62,70,0.08)];
+  @apply flex w-full items-center rounded-2xl border border-white/10 bg-zinc-950
+         px-5 py-4 sm:w-auto sm:min-w-[310px];
 }
 
 .stat-block {
@@ -53,23 +72,26 @@
 }
 
 .stat-label {
-  @apply m-0 whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.1em] text-[#71858C];
+  @apply m-0 whitespace-nowrap text-xs font-medium text-zinc-500;
 }
 
 .stat-value {
-  @apply m-0 mt-0.5 text-[16px] font-bold leading-5 text-[#2F3E46];
+  @apply m-0 mt-0.5 text-2xl font-bold leading-7 text-white;
 }
 
 .stat-rank-box {
-  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] bg-[#2F3E46] text-[12px] font-bold text-white;
+  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
+         bg-(--accent) text-sm font-bold text-(--on-accent);
+  box-shadow: 0 8px 24px -6px rgba(var(--accent-rgb), 0.7);
 }
 
 .stat-points-box {
-  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] bg-[#E9EEEF] text-[10px] font-bold tracking-wide text-[#2F3E46];
+  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border
+         border-(--accent)/40 bg-(--accent)/15 text-[11px] font-bold tracking-wide text-(--accent-text);
 }
 
 .stat-divider {
-  @apply mx-4 h-9 w-px bg-[#E4E8E9];
+  @apply mx-5 h-10 w-px bg-white/10;
 }
 
 
@@ -78,7 +100,7 @@
 ========================================================= */
 
 .top-students {
-  @apply mx-auto mt-9 flex w-full max-w-[1180px] items-end justify-center gap-6;
+  @apply mx-auto mt-10 flex w-full max-w-7xl items-end justify-center gap-6;
 }
 
 
@@ -87,34 +109,37 @@
 ========================================================= */
 
 .top-student-card {
-  @apply relative flex w-full flex-1 flex-col items-center border bg-white text-center;
+  @apply relative flex w-full max-w-[360px] flex-1 flex-col items-center overflow-hidden
+         border bg-zinc-950 text-center transition duration-300 hover:-translate-y-1;
 }
 
 .second-place,
 .third-place {
-  @apply h-[290px] rounded-[15px] border-[#CCD7DD] px-6 pb-7 pt-9;
+  @apply h-[290px] rounded-xl px-6 pb-7 pt-10;
+}
+
+.second-place {
+  @apply border-white/10;
+  background: linear-gradient(180deg, rgba(203, 213, 225, 0.08) 0%, #09090b 60%);
+}
+
+.second-place:hover {
+  @apply border-slate-300/40;
+}
+
+.third-place {
+  @apply border-white/10;
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.12) 0%, #09090b 60%);
+}
+
+.third-place:hover {
+  @apply border-amber-600/50;
 }
 
 .first-place {
-  @apply z-10 h-[350px] max-w-[380px] rounded-[15px] border-[#F7C62C] bg-gradient-to-b from-[#FFFBEF] to-[#FFF1A8] px-7 pb-7 pt-14 shadow-[0_12px_30px_rgba(47,62,70,0.12)];
-}
-
-
-/* =========================================================
-   SECOND PLACE
-========================================================= */
-
-.second-place {
-  @apply bg-gradient-to-br from-[#FAFCFD] to-[#E9EFF5];
-}
-
-
-/* =========================================================
-   THIRD PLACE
-========================================================= */
-
-.third-place {
-  @apply bg-gradient-to-br from-[#FFFDF4] to-[#FFE3B0];
+  @apply z-10 h-[350px] max-w-[380px] rounded-xl border-(--accent)/60 px-7 pb-7 pt-14;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.28) 0%, #09090b 65%);
+  box-shadow: 0 20px 50px -20px rgba(var(--accent-rgb), 0.7);
 }
 
 
@@ -124,23 +149,25 @@
 
 .place-label,
 .winner-label {
-  @apply absolute left-1/2 flex -translate-x-1/2 items-center justify-center whitespace-nowrap rounded-full border bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.06em];
+  @apply absolute left-1/2 flex -translate-x-1/2 items-center justify-center whitespace-nowrap
+         rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em];
 }
 
 .place-label {
-  @apply -top-3;
+  @apply top-3;
 }
 
 .silver-label {
-  @apply border-[#C6D2DD] text-[#53687A];
+  @apply border-slate-300/30 bg-slate-300/10 text-slate-300;
 }
 
 .bronze-label {
-  @apply border-[#F2B525] text-[#81400E];
+  @apply border-amber-600/40 bg-amber-600/10 text-amber-500;
 }
 
 .winner-label {
-  @apply left-0 right-0 top-0 h-[35px] w-full translate-x-0 rounded-none rounded-t-[14px] border-0 border-b border-[#F5D46A] bg-[#FFF3BE] text-[#80450D];
+  @apply left-0 right-0 top-0 h-[35px] w-full translate-x-0 rounded-none border-0 border-b
+         border-(--accent)/40 bg-(--accent)/20 text-[#D4B8FA];
 }
 
 .place-dot {
@@ -157,12 +184,8 @@
 ========================================================= */
 
 .top-avatar {
-  @apply relative flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-full text-[26px] font-bold;
-}
-
-.second-place .top-avatar,
-.third-place .top-avatar {
-  @apply mt-0;
+  @apply relative flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-full
+         text-[26px] font-bold;
 }
 
 .first-place .top-avatar {
@@ -170,15 +193,16 @@
 }
 
 .silver-avatar {
-  @apply border-2 border-[#C8D3DE] bg-[#E7EDF4] text-[#263746] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.8)];
+  @apply border-2 border-slate-300/50 bg-slate-300/10 text-slate-200;
 }
 
 .gold-avatar {
-  @apply border-[#F8C72F] bg-[#FFF8DD] text-[#17212B] shadow-[0_3px_0_#F8C72F];
+  @apply border-(--accent-soft) bg-(--accent)/25 text-white;
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15), 0 10px 30px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .bronze-avatar {
-  @apply border-2 border-[#F4C238] bg-[#FFE99A] text-[#4E2A13];
+  @apply border-2 border-amber-600/60 bg-amber-600/10 text-amber-400;
 }
 
 
@@ -187,7 +211,9 @@
 ========================================================= */
 
 .winner-rank {
-  @apply absolute -bottom-2 right-[-4px] flex h-6 min-w-7 items-center justify-center rounded-full bg-[#F8B916] px-1.5 text-[10px] font-bold text-[#5B3900] shadow-sm;
+  @apply absolute -bottom-2 right-[-4px] flex h-6 min-w-7 items-center justify-center rounded-full
+         bg-(--accent) px-1.5 text-[10px] font-bold text-(--on-accent);
+  box-shadow: 0 4px 12px -2px rgba(var(--accent-rgb), 0.8);
 }
 
 
@@ -196,7 +222,7 @@
 ========================================================= */
 
 .top-student-name {
-  @apply m-0 mt-6 text-[20px] font-bold leading-6 tracking-[-0.02em] text-[#17212B];
+  @apply m-0 mt-6 text-[20px] font-bold leading-6 tracking-[-0.02em] text-white;
 }
 
 .first-place .top-student-name {
@@ -204,11 +230,11 @@
 }
 
 .student-position {
-  @apply m-0 mt-2 text-[12px] font-medium text-[#72838A];
+  @apply m-0 mt-2 text-xs font-medium text-zinc-400;
 }
 
 .first-place .student-position {
-  @apply text-[#8A621C];
+  @apply text-(--accent-text);
 }
 
 
@@ -217,31 +243,23 @@
 ========================================================= */
 
 .top-score {
-  @apply mt-auto flex items-baseline justify-center gap-2 border-t pt-5;
-}
-
-.second-place .top-score {
-  @apply w-full border-[#D8E0E5];
+  @apply mt-auto flex w-full items-baseline justify-center gap-2 border-t border-white/10 pt-5;
 }
 
 .first-place .top-score {
-  @apply w-full border-[#F1D873];
-}
-
-.third-place .top-score {
-  @apply w-full border-[#F4CE75];
+  @apply border-(--accent)/30;
 }
 
 .score-number {
-  @apply whitespace-nowrap text-[30px] font-bold leading-none tracking-[-0.03em] text-[#18232D];
+  @apply whitespace-nowrap text-[30px] font-bold leading-none tracking-[-0.03em] text-white;
 }
 
 .first-place .score-number {
-  @apply text-[34px] text-[#111B25];
+  @apply text-[34px];
 }
 
 .score-points {
-  @apply whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.05em] text-[#C56B13];
+  @apply whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.05em] text-(--accent-soft);
 }
 
 
@@ -250,7 +268,7 @@
 ========================================================= */
 
 .leaderboard-card {
-  @apply mx-auto mt-9 w-full max-w-[1180px] overflow-hidden rounded-[15px] border border-[#E0E5E6] bg-white shadow-[0_1px_3px_rgba(47,62,70,0.04)];
+  @apply mx-auto mt-10 w-full max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-950;
 }
 
 
@@ -259,7 +277,7 @@
 ========================================================= */
 
 .table-heading {
-  @apply flex items-center justify-between gap-6 border-b border-[#E0E5E6] px-7 py-5;
+  @apply flex items-center justify-between gap-6 border-b border-white/10 px-7 py-5;
 }
 
 .table-heading-content {
@@ -267,11 +285,11 @@
 }
 
 .table-title {
-  @apply m-0 text-[17px] font-bold tracking-[-0.02em] text-[#2F3E46];
+  @apply m-0 text-lg font-semibold tracking-tight text-white;
 }
 
 .table-subtitle {
-  @apply m-0 mt-1 text-[11px] leading-5 text-[#71858C];
+  @apply m-0 mt-1 text-xs leading-5 text-zinc-400;
 }
 
 .table-actions {
@@ -279,11 +297,14 @@
 }
 
 .student-search {
-  @apply h-8 w-[220px] rounded-lg border border-[#D7DEE1] bg-[#F6F8F8] px-3 text-[11px] text-[#2F3E46] outline-none placeholder:text-[#89999F] focus:border-[#2F3E46];
+  @apply h-9 w-[220px] rounded-lg border border-white/10 bg-black px-3 text-xs text-white
+         outline-none transition placeholder:text-zinc-500
+         focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/30;
 }
 
 .student-count {
-  @apply whitespace-nowrap rounded-lg border border-[#DDE3E5] bg-[#F5F7F7] px-3 py-2 text-[10px] font-medium text-[#5F737A];
+  @apply whitespace-nowrap rounded-lg border border-(--accent)/40 bg-(--accent)/10 px-3 py-2
+         text-[11px] font-medium text-(--accent-text);
 }
 
 
@@ -300,15 +321,15 @@
 }
 
 .leaderboard-table thead {
-  @apply bg-[#F5F7F7];
+  @apply bg-black/60;
 }
 
 .leaderboard-table th {
-  @apply h-11 border-b border-[#E1E6E7] px-5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#71858C];
+  @apply h-11 border-b border-white/10 px-5 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500;
 }
 
 .leaderboard-table td {
-  @apply border-b border-[#E5E9EA] px-5 py-4 align-middle;
+  @apply border-b border-white/5 px-5 py-4 align-middle;
 }
 
 .leaderboard-table tbody tr:last-child td {
@@ -316,19 +337,17 @@
 }
 
 .leaderboard-row {
-  @apply bg-white transition-colors duration-150;
+  @apply bg-transparent transition-colors duration-150;
 }
 
 .leaderboard-row:hover {
-  @apply bg-[#F9FAFA];
+  @apply bg-white/[0.03];
 }
 
-.current-student {
-  @apply bg-[#EEF5FF];
-}
-
+.current-student,
 .current-student:hover {
-  @apply bg-[#EEF5FF];
+  @apply bg-(--accent)/10;
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 
@@ -350,23 +369,24 @@
 ========================================================= */
 
 .rank-number {
-  @apply mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold;
+  @apply mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold;
 }
 
 .rank-first {
-  @apply bg-[#111B25] text-white;
+  @apply bg-(--accent) text-(--on-accent);
+  box-shadow: 0 4px 12px -2px rgba(var(--accent-rgb), 0.8);
 }
 
 .rank-second {
-  @apply border border-[#C8D3DE] bg-[#E9EFF5] text-[#34495A];
+  @apply border border-slate-300/40 bg-slate-300/10 text-slate-200;
 }
 
 .rank-third {
-  @apply border border-[#F4C63B] bg-[#FFF5CD] text-[#80500A];
+  @apply border border-amber-600/50 bg-amber-600/10 text-amber-400;
 }
 
 .rank-default {
-  @apply border border-[#D6DEE1] bg-white text-[#586C74];
+  @apply border border-white/10 bg-black text-zinc-400;
 }
 
 
@@ -379,19 +399,20 @@
 }
 
 .student-table-avatar {
-  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#DCE2E4] bg-[#F1F4F4] text-[12px] font-bold text-[#354850];
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10
+         bg-zinc-900 text-xs font-bold text-zinc-300;
 }
 
 .table-avatar-first {
-  @apply border-[#111B25] bg-[#111B25] text-white;
+  @apply border-(--accent-soft) bg-(--accent)/25 text-white;
 }
 
 .table-avatar-second {
-  @apply border-[#CCD7E0] bg-[#E8EEF4] text-[#34495A];
+  @apply border-slate-300/40 bg-slate-300/10 text-slate-200;
 }
 
 .table-avatar-third {
-  @apply border-[#F3C640] bg-[#FFF4C8] text-[#7A4A0A];
+  @apply border-amber-600/50 bg-amber-600/10 text-amber-400;
 }
 
 .student-details {
@@ -399,15 +420,20 @@
 }
 
 .student-name {
-  @apply m-0 truncate text-[13px] font-bold text-[#2F3E46];
+  @apply m-0 truncate text-sm font-semibold text-white;
 }
 
 .student-label {
-  @apply m-0 mt-0.5 truncate text-[10px] text-[#758990];
+  @apply m-0 mt-0.5 truncate text-[11px] text-zinc-500;
 }
 
 .current-profile {
-  @apply m-0 mt-0.5 text-[9px] font-medium text-[#2864D7];
+  @apply m-0 mt-1 inline-flex items-center gap-1.5 text-[10px] font-medium text-(--accent-text);
+}
+
+.current-profile::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
 }
 
 
@@ -416,27 +442,32 @@
 ========================================================= */
 
 .score-badge {
-  @apply inline-flex min-w-[46px] flex-col items-center justify-center rounded-md border border-[#DCE2E4] bg-[#F3F5F5] px-2 py-1 text-[#2F3E46];
+  @apply inline-flex min-w-[50px] flex-col items-center justify-center rounded-md border
+         border-white/10 bg-zinc-900 px-2 py-1 text-zinc-200;
 }
 
 .score-badge strong {
-  @apply text-[11px] font-bold leading-3;
+  @apply text-xs font-bold leading-4;
 }
 
 .score-badge small {
-  @apply text-[9px] font-semibold leading-3;
+  @apply text-[9px] font-semibold leading-3 text-zinc-500;
 }
 
 .score-first {
-  @apply border-[#111B25] bg-[#111B25] text-white;
+  @apply border-(--accent) bg-(--accent) text-(--on-accent);
+}
+
+.score-first small {
+  @apply text-white/70;
 }
 
 .score-second {
-  @apply border-[#CDD9E4] bg-[#F2F6FA] text-[#34495A];
+  @apply border-slate-300/40 bg-slate-300/10 text-slate-200;
 }
 
 .score-third {
-  @apply border-[#F2C541] bg-[#FFF9E7] text-[#7D4A0B];
+  @apply border-amber-600/50 bg-amber-600/10 text-amber-400;
 }
 
 
@@ -445,7 +476,7 @@
 ========================================================= */
 
 .metric-value {
-  @apply text-[12px] font-semibold text-[#394D55];
+  @apply text-[13px] font-semibold text-zinc-300;
 }
 
 
@@ -454,15 +485,16 @@
 ========================================================= */
 
 .empty-state {
-  @apply flex min-h-[260px] flex-col items-center justify-center px-6 py-12 text-center;
+  @apply m-6 flex min-h-[260px] flex-col items-center justify-center rounded-2xl border
+         border-dashed border-white/15 bg-black px-6 py-12 text-center;
 }
 
 .empty-state h3 {
-  @apply m-0 text-[17px] font-bold text-[#2F3E46];
+  @apply m-0 text-lg font-semibold text-white;
 }
 
 .empty-state p {
-  @apply mt-2 max-w-md text-[12px] leading-5 text-[#758990];
+  @apply mt-2 max-w-sm text-sm text-zinc-400;
 }
 
 
@@ -471,18 +503,6 @@
 ========================================================= */
 
 @media (max-width: 900px) {
-
-  .leaderboard-page {
-    @apply px-4 py-6;
-  }
-
-  .leaderboard-header {
-    @apply flex-col;
-  }
-
-  .statistics-container {
-    @apply w-full max-w-[360px];
-  }
 
   .top-students {
     @apply gap-4;
@@ -530,37 +550,17 @@
 
 @media (max-width: 640px) {
 
-  .leaderboard-page {
-    @apply px-3 py-5;
-  }
-
-
-  /* HEADER */
-
-  .page-title {
-    @apply text-[28px];
-  }
-
-  .page-subtitle {
-    @apply max-w-[330px] text-[12px];
-  }
-
   .statistics-container {
-    @apply min-w-0 w-full px-4;
+    @apply px-4;
   }
 
   .stat-divider {
     @apply mx-3;
   }
 
-  .stat-label {
-    @apply text-[8px];
-  }
-
   .stat-value {
-    @apply text-[14px];
+    @apply text-xl;
   }
-
 
   /* TOP THREE */
 
@@ -584,23 +584,14 @@
     @apply order-3 h-[285px];
   }
 
-
   /* TABLE */
 
   .leaderboard-card {
-    @apply mt-6 rounded-[12px];
+    @apply mt-6 rounded-xl;
   }
 
   .table-heading {
     @apply px-4 py-4;
-  }
-
-  .table-title {
-    @apply text-[15px];
-  }
-
-  .table-subtitle {
-    @apply text-[10px];
   }
 
   .table-actions {
@@ -629,11 +620,11 @@
   }
 
   .student-name {
-    @apply text-[11px];
+    @apply text-xs;
   }
 
   .student-label {
-    @apply text-[9px];
+    @apply text-[10px];
   }
 
 }
@@ -651,7 +642,7 @@
 
   .stat-rank-box,
   .stat-points-box {
-    @apply h-8 w-8;
+    @apply h-10 w-10;
   }
 
   .stat-divider {
@@ -674,4 +665,21 @@
     @apply text-[25px];
   }
 
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .top-student-card,
+  .leaderboard-row,
+  .student-search {
+    @apply transition-none;
+  }
+
+  .top-student-card:hover {
+    @apply translate-y-0;
+  }
 }

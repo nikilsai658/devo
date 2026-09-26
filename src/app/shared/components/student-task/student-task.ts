@@ -2,11 +2,12 @@ import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
+import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-task',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Breadcrumb],
   templateUrl: './student-task.html',
   styleUrl: './student-task.css',
 })
@@ -15,9 +16,32 @@ export class StudentTask implements OnInit {
   taskId!: number;
   domainId!: number;
   courseId!: number;
+  domainName = '';
+  courseName = '';
   task: any = null;
   loading = true;
   uploading = false;
+  downloading = false;
+  uploadError = '';
+  downloadError = '';
+
+  get isPending(): boolean {
+    return (this.task?.status || 'Pending') === 'Pending';
+  }
+
+  private get courseState() {
+    return { domainId: this.domainId, domainName: this.domainName, courseId: this.courseId, courseName: this.courseName };
+  }
+
+  get breadcrumb(): BreadcrumbItem[] {
+    return [
+      { label: 'My Domains', link: '/main/student-domain' },
+      { label: this.domainName || 'My Courses', link: '/main/student-courses',
+        state: { domainId: this.domainId, domainName: this.domainName } },
+      { label: this.courseName || 'Tasks', link: '/main/student-assignments', state: this.courseState },
+      { label: this.task?.taskTitle || 'Task' }
+    ];
+  }
 
   constructor(
     private api: Student,
@@ -32,11 +56,11 @@ export class StudentTask implements OnInit {
     this.taskId = history.state.taskId;
     this.domainId = history.state.domainId;
     this.courseId = history.state.courseId;
+    this.domainName = history.state.domainName ?? '';
+    this.courseName = history.state.courseName ?? '';
 
     if (this.taskId == null) {
-      this.router.navigate(['/main/student-assignments'], {
-        state: { domainId: this.domainId, courseId: this.courseId }
-      });
+      this.router.navigate(['/main/student-assignments'], { state: this.courseState });
       return;
     }
 
@@ -59,9 +83,7 @@ export class StudentTask implements OnInit {
   }
 
   back(): void {
-    this.router.navigate(['/main/student-assignments'], {
-      state: { domainId: this.domainId, courseId: this.courseId }
-    });
+    this.router.navigate(['/main/student-assignments'], { state: this.courseState });
   }
 
   onFileSelected(event: Event): void {
@@ -70,6 +92,7 @@ export class StudentTask implements OnInit {
     if (!file) return;
 
     this.uploading = true;
+    this.uploadError = '';
     this.api.uploadtask(this.taskId, file).subscribe({
       next: () => {
         this.uploading = false;
@@ -78,6 +101,7 @@ export class StudentTask implements OnInit {
       },
       error: () => {
         this.uploading = false;
+        this.uploadError = 'Upload failed. Please try again.';
         input.value = '';
         this.cd.detectChanges();
       }
@@ -85,8 +109,13 @@ export class StudentTask implements OnInit {
   }
 
   download(): void {
+    if (this.downloading) return;
+    this.downloading = true;
+    this.downloadError = '';
     this.api.downloadtask(this.taskId).subscribe({
       next: (res: any) => {
+        this.downloading = false;
+        this.cd.detectChanges();
         const blob: Blob = res.body;
         const disposition: string = res.headers?.get('content-disposition') ?? '';
         const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
@@ -98,6 +127,11 @@ export class StudentTask implements OnInit {
         a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.downloading = false;
+        this.downloadError = 'Download failed. Please try again.';
+        this.cd.detectChanges();
       }
     });
   }

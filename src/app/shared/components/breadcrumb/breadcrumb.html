@@ -1,0 +1,34 @@
+<nav class="breadcrumb" [class.compact]="compact" aria-label="Breadcrumb">
+  <ol>
+    <li *ngFor="let item of items; let first = first; let last = last">
+
+      <svg *ngIf="!first" class="sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 6 6 6-6 6" />
+      </svg>
+
+      <button
+        *ngIf="!last && item.link; else current"
+        type="button"
+        class="crumb-link"
+        [title]="item.label"
+        (click)="go(item)">
+        <svg *ngIf="first" class="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9" />
+        </svg>
+        <span>{{ item.label }}</span>
+      </button>
+
+      <ng-template #current>
+        <span class="crumb-current" [title]="item.label" [attr.aria-current]="last ? 'page' : null">
+          <svg *ngIf="first" class="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 10.5 12 3l9 7.5M5 9v11h5v-6h4v6h5V9" />
+          </svg>
+          <span>{{ item.label }}</span>
+        </span>
+      </ng-template>
+
+    </li>
+  </ol>
+</nav>

@@ -5,10 +5,10 @@
     <div class="flex justify-between items-center mb-6">
 
         <div>
-            <h2 class="text-2xl font-bold" style="color:#2F3E46" *ngIf="auth.hasPermission('VIEW_DEPARTMENT')">
+            <h2 class="text-2xl font-bold" style="color:#fff" *ngIf="auth.hasPermission('VIEW_DEPARTMENT')">
                 Departments
             </h2>
-            <p class="text-sm text-gray-500 mt-1" *ngIf="auth.hasPermission('VIEW_DEPARTMENT')">
+            <p class="text-sm text-zinc-400 mt-1" *ngIf="auth.hasPermission('VIEW_DEPARTMENT')">
                 Manage all departments within the college
             </p>
         </div>
@@ -17,8 +17,7 @@
             *ngIf="auth.hasPermission('CREATE_DEPARTMENT')"
             type="button"
             (click)="openAddModal()"
-            style="background-color:#2F3E46"
-            class="flex items-center gap-2 hover:opacity-90 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-opacity">
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-opacity bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
             <span class="text-lg leading-none">+</span>
             Add Department
         </button>
@@ -27,12 +26,12 @@
 
     <!-- Department Table -->
 
-    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden"
+    <div class="bg-zinc-950 rounded-xl shadow border border-white/10 overflow-hidden"
          *ngIf="auth.hasPermission('VIEW_DEPARTMENT')">
 
         <table class="w-full text-left">
 
-            <thead style="background-color:#2F3E46" class="text-white">
+            <thead style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white">
                 <tr>
                     <th class="p-3 text-sm font-semibold">S.No</th>
                     <th class="p-3 text-sm font-semibold">Department Id</th>
@@ -46,12 +45,12 @@
             <tbody>
 
                 <tr *ngFor="let department of departments; index as i"
-                    class="border-t border-gray-100 hover:bg-gray-50 transition-colors">
+                    class="border-t border-white/10 hover:bg-white/[0.04] transition-colors">
 
-                    <td class="p-3 text-gray-700">{{ i + 1 }}</td>
-                    <td class="p-3 text-gray-700">{{ department.id }}</td>
-                    <td class="p-3 text-gray-800 font-medium">{{ department.name }}</td>
-                    <td class="p-3 text-gray-700">{{ department.code }}</td>
+                    <td class="p-3 text-zinc-300">{{ i + 1 }}</td>
+                    <td class="p-3 text-zinc-300">{{ department.id }}</td>
+                    <td class="p-3 text-zinc-100 font-medium">{{ department.name }}</td>
+                    <td class="p-3 text-zinc-300">{{ department.code }}</td>
 
                     <td *ngIf="auth.hasPermission('UPDATE_DEPARTMENT') || auth.hasPermission('DELETE_DEPARTMENT')"
                         class="p-3">
@@ -60,14 +59,14 @@
 
                             <button
                                 *ngIf="auth.hasPermission('UPDATE_DEPARTMENT')"
-                                class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer"
                                 (click)="editDepartment(department)">
                                 Edit
                             </button>
 
                             <button
                                 *ngIf="auth.hasPermission('DELETE_DEPARTMENT')"
-                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
                                 (click)="deleteDepartment(department.id)">
                                 Delete
                             </button>
@@ -80,7 +79,7 @@
 
                 <tr *ngIf="!departments || departments.length === 0">
                     <td [attr.colspan]="(auth.hasPermission('UPDATE_DEPARTMENT') || auth.hasPermission('DELETE_DEPARTMENT')) ? 5 : 4"
-                        class="p-6 text-center text-gray-400">
+                        class="p-6 text-center text-zinc-500">
                         No departments found.
                     </td>
                 </tr>
@@ -95,53 +94,57 @@
 
     <div
         *ngIf="showModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+        class="dlg-overlay">
 
-        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-modal">
+        <div class="dlg">
 
             <!-- Dialog Header -->
 
-            <div class="flex items-center justify-between px-6 py-4" style="background-color:#2F3E46">
-                <h3 class="text-white text-lg font-semibold">
-                    {{ isEditMode ? 'Edit Department' : 'Add Department' }}
-                </h3>
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Department' : 'Add Department' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'Fill in the details below to add a new record.' }}</p>
+                    </div>
+                </div>
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="text-white/80 hover:text-white text-xl leading-none">
-                    &times;
+                    class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
             </div>
 
             <!-- Dialog Body -->
 
-            <form [formGroup]="departmentForm" class="px-6 py-6">
+            <form [formGroup]="departmentForm" class="dlg-body">
 
-                <div class="mb-4">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Department Name
                     </label>
                     <input
                         type="text"
                         formControlName="name"
                         placeholder="e.g. Computer Science"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input">
+                    <p class="dlg-error"
                        *ngIf="departmentForm.get('name')?.invalid && departmentForm.get('name')?.touched">
                         Department name is required
                     </p>
                 </div>
 
-                <div class="mb-2">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Department Code
                     </label>
                     <input
                         type="text"
                         formControlName="code"
                         placeholder="e.g. CSE"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input">
+                    <p class="dlg-error"
                        *ngIf="departmentForm.get('code')?.invalid && departmentForm.get('code')?.touched">
                         Department code is required
                     </p>
@@ -151,12 +154,12 @@
 
             <!-- Dialog Footer -->
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div class="dlg-footer">
 
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors">
+                    class="dlg-btn dlg-btn-secondary">
                     Cancel
                 </button>
 
@@ -164,7 +167,7 @@
                     *ngIf="!isEditMode"
                     type="button"
                     (click)="createDepartment()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Save
                 </button>
 
@@ -172,7 +175,7 @@
                     *ngIf="isEditMode"
                     type="button"
                     (click)="updateDepartment()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-amber-500 hover:bg-amber-600 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Update
                 </button>
 

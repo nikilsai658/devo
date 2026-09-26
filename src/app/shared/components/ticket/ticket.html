@@ -1,335 +1,200 @@
 <div class="ticket-page">
 
   <!-- ================= SUCCESS TOAST ================= -->
-  <div
-    *ngIf="showSuccess"
-    class="ticket-toast">
-
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor">
-
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="m5 13 4 4L19 7">
-      </path>
-
-    </svg>
-
-    <span>Ticket Raised Successfully</span>
-
+  <div *ngIf="showSuccess" class="ticket-toast" role="status">
+    <span class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 13 4 4L19 7"></path>
+      </svg>
+    </span>
+    <div>
+      <strong>Ticket raised successfully</strong>
+      <small>Redirecting to My Tickets…</small>
+    </div>
   </div>
 
   <!-- ================= HEADER ================= -->
   <div class="ticket-header">
 
-    <div class="ticket-header-icon">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        aria-hidden="true">
-
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.8"
-          d="M9 5h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z">
-        </path>
-
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.8"
-          d="M9 9h6M9 13h6M9 17h3">
-        </path>
-
-      </svg>
-    </div>
-
     <div class="ticket-header-content">
-      <span class="ticket-eyebrow">SUPPORT CENTER</span>
-
-      <h1>
-        Raise Support Ticket
-      </h1>
-
-      <p>
-        Describe your issue and our support team will assist you.
-      </p>
+      <span class="ticket-eyebrow">Support Center</span>
+      <h1>Raise a Support Ticket</h1>
+      <p>Describe your issue and our support team will get back to you.</p>
     </div>
+
+    <button
+      type="button"
+      (click)="router.navigate(['/main/mytickets'])"
+      class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 4h12v16H6z"></path>
+        <path stroke-linecap="round" stroke-width="1.8" d="M9 8h6M9 12h6M9 16h3"></path>
+      </svg>
+      My Tickets
+    </button>
 
   </div>
 
+  <div class="ticket-layout">
 
-  <!-- ================= FORM CARD ================= -->
-  <form
-    [formGroup]="ticketForm"
-    (ngSubmit)="submit()"
-    class="ticket-card">
+    <!-- ================= FORM CARD ================= -->
+    <form [formGroup]="ticketForm" (ngSubmit)="submit()" class="ticket-card">
 
-    <!-- Form Header -->
-    <div class="ticket-card-header">
-
-      <div>
-        <h2>Create New Ticket</h2>
-
-        <p>
-          Please provide the details of your issue below.
-        </p>
-      </div>
-
-      <div class="required-note">
-        <span>*</span>
-        Required fields
-      </div>
-
-    </div>
-
-
-    <!-- ================= FORM BODY ================= -->
-    <div class="ticket-form-body">
-
-      <!-- Subject -->
-      <div class="form-group">
-
-        <label for="subject">
-          Subject
-          <span>*</span>
-        </label>
-
-        <div class="input-wrapper">
-
-          <svg
-            class="input-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor">
-
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.8"
-              d="M4 6h16v12H4z">
-            </path>
-
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.8"
-              d="m4 7 8 6 8-6">
-            </path>
-
-          </svg>
-
-          <input
-            id="subject"
-            type="text"
-            formControlName="subject"
-            placeholder="Enter a short subject for your issue"
-          />
-
+      <div class="ticket-card-header">
+        <div class="card-title">
+          <span class="card-title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4V8Z"></path>
+              <path stroke-linecap="round" stroke-width="1.8" stroke-dasharray="2 2" d="M14 6v12"></path>
+            </svg>
+          </span>
+          <div>
+            <h2>Create New Ticket</h2>
+            <p>Please provide the details of your issue below.</p>
+          </div>
         </div>
 
-        <p
-          *ngIf="
-            ticketForm.get('subject')?.touched &&
-            ticketForm.get('subject')?.invalid
-          "
-          class="form-error">
-
-          Subject is required.
-
-        </p>
-
+        <div class="required-note">
+          <span>*</span> Required fields
+        </div>
       </div>
 
+      <!-- ================= FORM BODY ================= -->
+      <div class="ticket-form-body">
 
-      <!-- Description -->
-      <div class="form-group">
+        <!-- Subject -->
+        <div class="form-group">
+          <label for="subject">Subject <span>*</span></label>
 
-        <label for="description">
-          Description
-          <span>*</span>
-        </label>
+          <div
+            class="input-wrapper"
+            [class.has-error]="ticketForm.get('subject')?.touched && ticketForm.get('subject')?.invalid">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16v12H4z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m4 7 8 6 8-6"></path>
+            </svg>
 
-        <div class="textarea-wrapper">
+            <input
+              id="subject"
+              type="text"
+              maxlength="120"
+              formControlName="subject"
+              placeholder="e.g. Unable to submit my assignment"
+            />
+          </div>
 
-          <textarea
-            id="description"
-            rows="7"
-            formControlName="description"
-            placeholder="Describe your problem in detail...">
-          </textarea>
-
+          <p *ngIf="ticketForm.get('subject')?.touched && ticketForm.get('subject')?.invalid" class="form-error">
+            Subject is required.
+          </p>
         </div>
 
-        <p
-          *ngIf="
-            ticketForm.get('description')?.touched &&
-            ticketForm.get('description')?.invalid
-          "
-          class="form-error">
+        <!-- Description -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="description">Description <span>*</span></label>
+            <span class="char-count">{{ ticketForm.get('description')?.value?.length || 0 }} / 1000</span>
+          </div>
 
-          Description is required.
+          <div
+            class="textarea-wrapper"
+            [class.has-error]="ticketForm.get('description')?.touched && ticketForm.get('description')?.invalid">
+            <textarea
+              id="description"
+              rows="8"
+              maxlength="1000"
+              formControlName="description"
+              placeholder="Describe your problem in detail — what you were doing, what you expected, and what happened instead...">
+            </textarea>
+          </div>
 
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <!-- ================= FOOTER ================= -->
-    <div class="ticket-card-footer">
-
-      <div class="footer-info">
-
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor">
-
-          <circle
-            cx="12"
-            cy="12"
-            r="9"
-            stroke-width="1.8">
-          </circle>
-
-          <path
-            stroke-linecap="round"
-            stroke-width="1.8"
-            d="M12 8v4M12 16h.01">
-          </path>
-
-        </svg>
-
-        <span>
-          Our support team will review your ticket shortly.
-        </span>
+          <p *ngIf="ticketForm.get('description')?.touched && ticketForm.get('description')?.invalid" class="form-error">
+            Description is required.
+          </p>
+        </div>
 
       </div>
 
+      <!-- ================= FOOTER ================= -->
+      <div class="ticket-card-footer">
 
-      <div class="ticket-actions">
-
-        <!-- My Tickets -->
-        <button
-          type="button"
-          (click)="this.router.navigate(['/main/mytickets'])"
-          class="btn btn-secondary">
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor">
-
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.8"
-              d="M6 4h12v16H6z">
-            </path>
-
-            <path
-              stroke-linecap="round"
-              stroke-width="1.8"
-              d="M9 8h6M9 12h6M9 16h3">
-            </path>
-
+        <div class="footer-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="9" stroke-width="1.8"></circle>
+            <path stroke-linecap="round" stroke-width="1.8" d="M12 8v4M12 16h.01"></path>
           </svg>
+          <span>Our support team will review your ticket shortly.</span>
+        </div>
 
-          My Tickets
+        <div class="ticket-actions">
+          <button type="button" (click)="resetForm()" class="btn btn-reset">
+            Reset
+          </button>
 
-        </button>
+          <button type="submit" [disabled]="loading" class="btn btn-primary">
+            <span *ngIf="!loading" class="btn-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M22 2 11 13"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m22 2-7 20-4-9-9-4Z"></path>
+              </svg>
+              Raise Ticket
+            </span>
 
-
-        <!-- Reset -->
-        <button
-          type="button"
-          (click)="resetForm()"
-          class="btn btn-reset">
-
-          Reset
-
-        </button>
-
-
-        <!-- Submit -->
-        <button
-          type="submit"
-          [disabled]="loading"
-          class="btn btn-primary">
-
-          <span *ngIf="!loading" class="btn-content">
-
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor">
-
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.8"
-                d="M22 2 11 13">
-              </path>
-
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.8"
-                d="m22 2-7 20-4-9-9-4Z">
-              </path>
-
-            </svg>
-
-            Raise Ticket
-
-          </span>
-
-
-          <span
-            *ngIf="loading"
-            class="btn-content">
-
-            <svg
-              class="spinner"
-              viewBox="0 0 24 24"
-              fill="none">
-
-              <circle
-                cx="12"
-                cy="12"
-                r="9"
-                stroke="currentColor"
-                stroke-width="3"
-                opacity=".3">
-              </circle>
-
-              <path
-                d="M21 12a9 9 0 0 0-9-9"
-                stroke="currentColor"
-                stroke-width="3"
-                stroke-linecap="round">
-              </path>
-
-            </svg>
-
-            Raising...
-
-          </span>
-
-        </button>
+            <span *ngIf="loading" class="btn-content">
+              <svg class="spinner" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".3"></circle>
+                <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+              </svg>
+              Raising...
+            </span>
+          </button>
+        </div>
 
       </div>
 
-    </div>
+    </form>
 
-  </form>
+    <!-- ================= SIDE PANEL ================= -->
+    <aside class="ticket-aside">
+
+      <div class="aside-card">
+        <h3>What happens next?</h3>
+        <ol class="steps">
+          <li>
+            <span class="step-dot">1</span>
+            <div>
+              <strong>Ticket submitted</strong>
+              <p>Your request is logged and assigned an ID.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-dot">2</span>
+            <div>
+              <strong>Team reviews</strong>
+              <p>A support member looks into your issue.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-dot">3</span>
+            <div>
+              <strong>You get a reply</strong>
+              <p>Track replies anytime from My Tickets.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="aside-card aside-tips">
+        <h3>Tips for a faster fix</h3>
+        <ul>
+          <li>Keep the subject short and specific.</li>
+          <li>Mention the course, assignment or page involved.</li>
+          <li>Include any error message you saw.</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </div>
 
 </div>

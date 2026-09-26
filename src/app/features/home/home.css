@@ -9,8 +9,8 @@ img{
     @apply text-[20px] font-bold text-white inline-flex items-center;
 }
 :host ::ng-deep .p-button {
-    @apply  h-[30px] rounded-lg bg-[#2f3e46f6] font-bold border-none;
+    @apply  h-[30px] rounded-lg bg-(--accent) text-(--on-accent) font-bold border-none;
 }
 :host ::ng-deep .p-button:hover{
-    @apply bg-[#2f3e46e2] border-none;
+    @apply bg-(--accent-hover) border-none;
 }

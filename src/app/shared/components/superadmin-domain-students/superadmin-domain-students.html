@@ -1,390 +1,259 @@
-<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+<div class="tracking-page">
 
-  <div class="max-w-7xl mx-auto">
+  <div class="tracking-inner">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <!-- ================= BREADCRUMB ================= -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="crumb-link" (click)="backToColleges()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Colleges
+      </button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToDomains()">
+        {{ collegeName || 'Domains' }}
+      </button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ domainName || 'Students' }}</span>
+    </nav>
 
-      <div>
+    <!-- ================= HEADER ================= -->
+    <header class="tracking-header">
 
-        <h1 class="text-2xl font-bold text-gray-900">
-          {{ domainName || 'Domain Students' }}
-        </h1>
-
-        <p class="text-sm text-gray-500 mt-1">
+      <div class="header-text">
+        <span class="eyebrow">College Tracking</span>
+        <h1>{{ domainName || 'Domain Students' }}</h1>
+        <p>
           Students enrolled in this domain
+          <ng-container *ngIf="collegeName"> at <strong>{{ collegeName }}</strong></ng-container>.
         </p>
-
       </div>
 
-      <!-- Domain Info -->
-      <div class="flex gap-3">
-         <button
-  type="button"
-  class="print-btn"
-  (click)="printContent()"
->
-  🖨 Print / Download
-</button>
-        <span
-          class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm text-gray-600"
-        >
-          College ID: {{ collegeId }}
+      <button
+        type="button"
+        class="print-btn"
+        [disabled]="loading || filteredStudents.length === 0"
+        (click)="printContent()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z" />
+        </svg>
+        Print Report
+      </button>
+
+    </header>
+
+    <!-- ================= STATS ================= -->
+    <section class="stats">
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM22 19v-1a4 4 0 0 0-3-3.87M16 3.13a3.5 3.5 0 0 1 0 6.75" />
+          </svg>
         </span>
+        <div>
+          <span class="stat-label">Students</span>
+          <strong class="stat-value">{{ loading ? '—' : students.length }}</strong>
+        </div>
+      </div>
 
-        <span
-          class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-sm text-gray-600"
-        >
-          Domain ID: {{ domainId }}
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
         </span>
-
+        <div>
+          <span class="stat-label">Completed</span>
+          <strong class="stat-value">{{ loading ? '—' : totalCompleted }}</strong>
+        </div>
       </div>
 
-    </div>
-
-    <div id="print-section">
-      <!-- Loading -->
-    <div
-      *ngIf="loading"
-      class="bg-white border border-gray-200 rounded-xl p-10 text-center"
-    >
-
-      <p class="text-gray-500 text-sm">
-        Loading students...
-      </p>
-
-    </div>
-
-
-    <!-- No Students -->
-    <div
-      *ngIf="!loading && students.length === 0"
-      class="bg-white border border-gray-200 rounded-xl p-10 text-center"
-    >
-
-      <div class="text-4xl mb-3">
-        👨‍🎓
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Pending</span>
+          <strong class="stat-value">{{ loading ? '—' : totalPending }}</strong>
+        </div>
       </div>
 
-      <h2 class="text-lg font-semibold text-gray-700">
-        No Students Found
-      </h2>
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 5.11 5.52.44a.56.56 0 0 1 .32.99l-4.2 3.6 1.28 5.39a.56.56 0 0 1-.84.61L12 16.77l-4.73 2.87a.56.56 0 0 1-.84-.61l1.28-5.39-4.2-3.6a.56.56 0 0 1 .32-.99l5.52-.44 2.13-5.11Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Avg. Score</span>
+          <strong class="stat-value">{{ loading ? '—' : averageScore }}</strong>
+        </div>
+      </div>
 
-      <p class="text-sm text-gray-500 mt-1">
-        There are no students enrolled in this domain.
-      </p>
+    </section>
 
+    <!-- ================= LOADING ================= -->
+    <div *ngIf="loading" class="table-card">
+      <div class="skeleton-row" *ngFor="let _ of [1, 2, 3, 4, 5, 6]">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-line w-1/4"></div>
+        <div class="skeleton-line w-1/6"></div>
+        <div class="skeleton-line w-1/3"></div>
+      </div>
     </div>
 
+    <!-- ================= EMPTY STATE ================= -->
+    <div *ngIf="!loading && students.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+        </svg>
+      </span>
+      <h2>No students found</h2>
+      <p *ngIf="collegeId && domainId">There are no students enrolled in this domain.</p>
+      <p *ngIf="!collegeId || !domainId">No domain was selected. Pick a college and domain to see its students.</p>
+      <button type="button" class="btn-outline" (click)="collegeId ? backToDomains() : backToColleges()">
+        {{ collegeId ? 'Back to Domains' : 'Back to Colleges' }}
+      </button>
+    </div>
 
-    <!-- Students Table -->
-    <div
-      *ngIf="!loading && students.length > 0"
-      class="bg-white border border-gray-200 rounded-xl overflow-hidden"
-    >
+    <!-- ================= STUDENTS TABLE ================= -->
+    <div *ngIf="!loading && students.length > 0" class="table-card">
 
-      <!-- Table Header -->
-      <div class="px-6 py-4 border-b border-gray-200">
+      <!-- Toolbar -->
+      <div class="table-toolbar">
 
-        <div class="flex items-center justify-between">
+        <div class="toolbar-left">
+          <h2>Students</h2>
+          <span class="count-chip">{{ filteredStudents.length }} of {{ students.length }}</span>
+        </div>
 
-          <div>
-
-            <h2 class="text-lg font-semibold text-gray-900">
-              Students
-            </h2>
-
-            <p class="text-sm text-gray-500 mt-1">
-              {{ students.length }} students found
-            </p>
-
+        <div class="toolbar-right">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+              <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search name, email or register no."
+              [value]="search"
+              (input)="search = $any($event.target).value" />
           </div>
 
+          <select
+            class="year-select"
+            [value]="yearFilter"
+            (change)="yearFilter = $any($event.target).value">
+            <option value="">All years</option>
+            <option *ngFor="let y of years" [value]="y">Year {{ y }}</option>
+          </select>
         </div>
 
       </div>
 
-
       <!-- Table -->
-      <div class="overflow-x-auto">
+      <div class="table-scroll" *ngIf="filteredStudents.length > 0; else noMatches">
 
-        <table class="w-full min-w-[1300px]">
-
-          <thead class="bg-gray-50">
-
+        <table>
+          <thead>
             <tr>
-
-              <th
-                class="px-6 py-4 text-left text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Student
-              </th>
-
-              <th
-                class="px-6 py-4 text-left text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Register Number
-              </th>
-
-              <th
-                class="px-6 py-4 text-left text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Year
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Assignments
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Tasks
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Completed
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Pending
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Attempts
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                Score
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                View Assignments
-              </th>
-
-              <th
-                class="px-6 py-4 text-center text-xs font-semibold
-                       text-gray-500 uppercase tracking-wider"
-              >
-                View Tasks
-              </th>
-
+              <th>Student</th>
+              <th>Register No.</th>
+              <th>Year</th>
+              <th class="c">Assignments</th>
+              <th class="c">Tasks</th>
+              <th>Progress</th>
+              <th class="c">Attempts</th>
+              <th class="c">Score</th>
+              <th class="c">Actions</th>
             </tr>
-
           </thead>
 
-
-          <tbody class="divide-y divide-gray-200">
-
-            <tr
-              *ngFor="let student of students"
-              class="hover:bg-gray-50 transition"
-            >
+          <tbody>
+            <tr *ngFor="let student of filteredStudents">
 
               <!-- Student -->
-              <td class="px-6 py-4">
-
-                <div class="flex items-center gap-3">
-
-                  <div
-                    class="w-10 h-10 rounded-full
-                           bg-cyan-100 flex items-center justify-center
-                           text-cyan-700 font-semibold"
-                  >
-                    {{ student.studentName?.charAt(0)?.toUpperCase() }}
+              <td>
+                <div class="student-cell">
+                  <span class="student-avatar">{{ initials(student.studentName) }}</span>
+                  <div class="min-w-0">
+                    <p class="student-name">{{ student.studentName }}</p>
+                    <p class="student-email">{{ student.studentEmail }}</p>
                   </div>
-
-                  <div>
-
-                    <p class="font-medium text-gray-900">
-                      {{ student.studentName }}
-                    </p>
-
-                    <p class="text-sm text-gray-500">
-                      {{ student.studentEmail }}
-                    </p>
-
-                  </div>
-
                 </div>
-
               </td>
 
-
-              <!-- Register Number -->
-              <td class="px-6 py-4">
-
-                <span
-                  *ngIf="student.registerNumber;
-                         else noRegisterNumber"
-                  class="text-sm text-gray-700"
-                >
+              <!-- Register number -->
+              <td>
+                <span *ngIf="student.registerNumber; else noRegisterNumber" class="mono">
                   {{ student.registerNumber }}
                 </span>
-
                 <ng-template #noRegisterNumber>
-
-                  <span class="text-sm text-gray-400">
-                    Not Available
-                  </span>
-
+                  <span class="muted">Not available</span>
                 </ng-template>
-
               </td>
-
 
               <!-- Year -->
-              <td class="px-6 py-4">
+              <td><span class="year-chip">Year {{ student.year }}</span></td>
 
-                <span
-                  class="px-3 py-1 rounded-full
-                         bg-blue-50 text-blue-600
-                         text-sm font-medium"
-                >
-                  Year {{ student.year }}
-                </span>
+              <td class="c strong">{{ student.totalAssignments ?? 0 }}</td>
+              <td class="c strong">{{ student.totalTasks ?? 0 }}</td>
 
+              <!-- Progress -->
+              <td>
+                <div class="progress-cell">
+                  <div class="progress-labels">
+                    <span class="done">{{ student.completedAssignments ?? 0 }} done</span>
+                    <span class="pending">{{ student.pendingAssignments ?? 0 }} pending</span>
+                  </div>
+                  <div class="progress-track">
+                    <span class="progress-fill" [style.width.%]="completion(student)"></span>
+                  </div>
+                </div>
               </td>
 
-
-              <!-- Total Assignments -->
-              <td class="px-6 py-4 text-center">
-
-                <span class="font-semibold text-gray-900">
-                  {{ student.totalAssignments }}
-                </span>
-
-              </td>
-
-
-              <!-- Total Tasks -->
-              <td class="px-6 py-4 text-center">
-
-                <span class="font-semibold text-gray-900">
-                  {{ student.totalTasks ?? 0 }}
-                </span>
-
-              </td>
-
-
-              <!-- Completed -->
-              <td class="px-6 py-4 text-center">
-
-                <span
-                  class="inline-flex px-3 py-1 rounded-full
-                         bg-green-50 text-green-600
-                         text-sm font-medium"
-                >
-                  {{ student.completedAssignments }}
-                </span>
-
-              </td>
-
-
-              <!-- Pending -->
-              <td class="px-6 py-4 text-center">
-
-                <span
-                  class="inline-flex px-3 py-1 rounded-full
-                         bg-orange-50 text-orange-600
-                         text-sm font-medium"
-                >
-                  {{ student.pendingAssignments }}
-                </span>
-
-              </td>
-
-
-              <!-- Attempts -->
-              <td class="px-6 py-4 text-center">
-
-                <span class="font-semibold text-gray-700">
-                  {{ student.totalAttempts }}
-                </span>
-
-              </td>
-
+              <td class="c">{{ student.totalAttempts ?? 0 }}</td>
 
               <!-- Score -->
-              <td class="px-6 py-4 text-center">
+              <td class="c"><span class="score">{{ student.totalScore ?? 0 }}</span></td>
 
-                <span
-                  class="inline-flex px-3 py-1 rounded-full
-                         bg-cyan-50 text-cyan-700
-                         text-sm font-bold"
-                >
-                  {{ student.totalScore }}
-                </span>
-
+              <!-- Actions -->
+              <td>
+                <div class="actions">
+                  <button type="button" class="btn-primary-sm" (click)="viewAssignments(student)">
+                    Assignments
+                  </button>
+                  <button type="button" class="btn-outline-sm" (click)="viewTasks(student)">
+                    Tasks
+                  </button>
+                </div>
               </td>
-              <td class="px-6 py-4 text-center">
-
-  <button
-    type="button"
-    (click)="viewAssignments(student)"
-    class="inline-flex items-center justify-center
-           px-4 py-2 rounded-lg
-           bg-[#24c0c5] text-white
-           text-sm font-medium
-           hover:bg-[#1eabb0]
-           transition duration-200
-           whitespace-nowrap"
-  >
-    View Assignments
-   </button>
-
-   </td>
-              <td class="px-6 py-4 text-center">
-
-  <button
-    type="button"
-    (click)="viewTasks(student)"
-    class="inline-flex items-center justify-center
-           px-4 py-2 rounded-lg
-           bg-[#24c0c5] text-white
-           text-sm font-medium
-           hover:bg-[#1eabb0]
-           transition duration-200
-           whitespace-nowrap"
-  >
-    View Tasks
-   </button>
-
-   </td>
 
             </tr>
-
           </tbody>
-
         </table>
 
       </div>
 
+      <ng-template #noMatches>
+        <div class="no-matches">
+          <p>No students match your filters.</p>
+          <button type="button" class="btn-outline" (click)="clearFilters()">Clear filters</button>
+        </div>
+      </ng-template>
+
     </div>
-    </div>
-    
 
   </div>
 

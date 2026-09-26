@@ -1,45 +1,115 @@
 <div class="task-page">
 
-  <button type="button" class="back-btn" (click)="back()">&larr; Back</button>
+  <div class="task-container">
 
-  <div class="detail-card" *ngIf="task">
+    <app-breadcrumb class="page-breadcrumb" [items]="breadcrumb"></app-breadcrumb>
 
-    <div class="detail-header">
-      <div>
-        <span class="detail-label">Task</span>
-        <h1 class="page-title">{{ task.taskTitle }}</h1>
+    <!-- ================= LOADING ================= -->
+    <div class="detail-card" *ngIf="loading">
+      <div class="skeleton-line w-24"></div>
+      <div class="skeleton-line h-7 w-2/3 mt-3"></div>
+      <div class="skeleton-block mt-8"></div>
+      <div class="skeleton-line h-11 w-48 mt-8"></div>
+    </div>
+
+    <!-- ================= TASK ================= -->
+    <div class="detail-card" *ngIf="!loading && task">
+
+      <!-- Header -->
+      <div class="detail-header">
+        <div class="header-main">
+          <span class="task-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
+            </svg>
+          </span>
+          <div class="min-w-0">
+            <span class="detail-label">Task</span>
+            <h1 class="page-title">{{ task.taskTitle }}</h1>
+          </div>
+        </div>
+
+        <span class="status-pill" [class.is-pending]="isPending" [class.is-done]="!isPending">
+          <span class="status-dot"></span>
+          {{ task.status || 'Pending' }}
+        </span>
       </div>
 
-      <span
-        class="status-pill"
-        [ngClass]="(task.status || 'Pending') == 'Pending' ? 'is-pending' : 'is-done'">
-        {{ task.status || 'Pending' }}
+      <!-- Question -->
+      <section class="question-box">
+        <span class="detail-label">Question</span>
+        <p>{{ task.question }}</p>
+      </section>
+
+      <!-- Submission -->
+      <section class="submission-box" *ngIf="task.hasSubmission; else noSubmission">
+        <span class="file-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Zm0 0v5h5" />
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <span class="detail-label">Your Submission</span>
+          <p class="file-name" [title]="task.fileName">{{ task.fileName }}</p>
+        </div>
+      </section>
+
+      <ng-template #noSubmission>
+        <section class="submission-box is-empty">
+          <span class="file-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0-4 4m4-4 4 4M4 20h16" />
+            </svg>
+          </span>
+          <div>
+            <span class="detail-label">Your Submission</span>
+            <p class="file-name muted">Nothing uploaded yet. Upload your work below.</p>
+          </div>
+        </section>
+      </ng-template>
+
+      <!-- Actions -->
+      <div class="action-row">
+        <button type="button" class="btn btn-outline" [disabled]="downloading" (click)="download()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16" />
+          </svg>
+          {{ downloading ? 'Downloading...' : 'Download' }}
+        </button>
+
+        <label class="btn btn-primary" [class.disabled]="uploading">
+          <svg *ngIf="!uploading" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 16V4m0 0-4 4m4-4 4 4M4 20h16" />
+          </svg>
+          <svg *ngIf="uploading" class="spinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".3" />
+            <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+          </svg>
+          {{ uploading ? 'Uploading...' : (task.hasSubmission ? 'Re-upload' : 'Upload') }}
+          <input type="file" hidden [disabled]="uploading" (change)="onFileSelected($event)" />
+        </label>
+      </div>
+
+      <p class="form-error" *ngIf="uploadError">{{ uploadError }}</p>
+      <p class="form-error" *ngIf="downloadError">{{ downloadError }}</p>
+
+    </div>
+
+    <!-- ================= NOT FOUND ================= -->
+    <div class="empty-card" *ngIf="!loading && !task">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+        </svg>
       </span>
+      <h2>Task not found</h2>
+      <p>This task may have been removed or is no longer available.</p>
+      <button type="button" class="btn btn-primary" (click)="back()">Back to course</button>
     </div>
 
-    <div class="question-box">
-      <span class="detail-label">Question</span>
-      <p>{{ task.question }}</p>
-    </div>
-
-    <div class="submission-box" *ngIf="task.hasSubmission">
-      <span class="detail-label">Your Submission</span>
-      <p>&#128206; {{ task.fileName }}</p>
-    </div>
-
-    <div class="action-row">
-      <button type="button" class="download-btn" (click)="download()">Download</button>
-
-      <label class="upload-btn" [class.disabled]="uploading">
-        {{ uploading ? 'Uploading...' : (task.hasSubmission ? 'Re-upload' : 'Upload') }}
-        <input type="file" hidden [disabled]="uploading" (change)="onFileSelected($event)" />
-      </label>
-    </div>
-
-  </div>
-
-  <div class="empty-card" *ngIf="!loading && !task">
-    Task not found
   </div>
 
 </div>

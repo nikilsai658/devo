@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ElementRef, ViewChild, DestroyRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -76,8 +78,22 @@ export class Admin implements OnInit {
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private destroyRef: DestroyRef
+  ) {
+    // Pages scroll inside the fixed .content frame, not the window, so the
+    // router's scrollPositionRestoration can't reset it. Do it on every navigation.
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.contentRef?.nativeElement.scrollTo({ top: 0, left: 0 });
+      });
+  }
+
+  @ViewChild('content') contentRef?: ElementRef<HTMLElement>;
 
   ngOnInit(): void {
 

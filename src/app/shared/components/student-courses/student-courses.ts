@@ -3,10 +3,11 @@ import { Student } from '../../../features/services/student/student';
 import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-courses',
-  imports: [CommonModule,FormsModule,ReactiveFormsModule],
+  imports: [CommonModule,FormsModule,ReactiveFormsModule, Breadcrumb],
   templateUrl: './student-courses.html',
   styleUrl: './student-courses.css',
 })
@@ -14,6 +15,14 @@ export class StudentCourses {
    courses: any[] = [];
   loading = false;
   domainId!: number ;
+  domainName = '';
+
+  get breadcrumb(): BreadcrumbItem[] {
+    return [
+      { label: 'My Domains', link: '/main/student-domain' },
+      { label: this.domainName || 'My Courses' }
+    ];
+  }
 
   constructor(
     private api: Student,
@@ -26,6 +35,7 @@ export class StudentCourses {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.domainId = history.state.domainId;
+    this.domainName = history.state.domainName ?? '';
 
     if (this.domainId == null) {
       this.router.navigate(['/main/student-domain']);
@@ -69,9 +79,9 @@ export class StudentCourses {
 
   });
 }
-  view(courseId: number): void {
+  view(courseId: number, courseName?: string): void {
   this.router.navigate(['/main/student-assignments'], {
-    state: { domainId: this.domainId, courseId }
+    state: { domainId: this.domainId, domainName: this.domainName, courseId, courseName }
   });
 }
 }

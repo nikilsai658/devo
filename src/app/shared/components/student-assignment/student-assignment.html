@@ -31,7 +31,9 @@
         ←
       </button>
 
-      <div>
+      <div class="min-w-0">
+
+        <app-breadcrumb class="header-breadcrumb" [items]="breadcrumb" [compact]="true"></app-breadcrumb>
 
         <h2 class="problem-name">
           {{ assignment?.title }}

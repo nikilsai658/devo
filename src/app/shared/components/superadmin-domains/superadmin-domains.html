@@ -1,151 +1,167 @@
-<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+<div class="tracking-page">
 
-  <div class="max-w-7xl mx-auto">
+  <div class="tracking-inner">
 
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <!-- ================= BREADCRUMB ================= -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="crumb-link" (click)="backToColleges()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Colleges
+      </button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ collegeName ? collegeName + ' · Domains' : 'Domains' }}</span>
+    </nav>
 
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">
-          Domains
-        </h1>
+    <!-- ================= HEADER ================= -->
+    <header class="tracking-header">
 
-        <p class="text-sm text-gray-500 mt-1">
-          Manage college domains
-        </p>
+      <div class="header-text">
+        <span class="eyebrow">College Tracking</span>
+        <h1>{{ collegeName || 'Domains' }}</h1>
+        <p>Every domain offered by {{ collegeName ? 'this college' : 'the selected college' }}, with how many students are enrolled in each.</p>
       </div>
 
-    </div>
-
-
-    <!-- Loading -->
-    <div
-      *ngIf="loading"
-      class="flex justify-center items-center py-16"
-    >
-      <div class="text-gray-500 text-sm">
-        Loading domains...
-      </div>
-    </div>
-
-
-    <!-- No Domains -->
-    <div
-      *ngIf="!loading && domains.length === 0"
-      class="bg-white border border-gray-200 rounded-xl p-10 text-center"
-    >
-
-      <div class="text-gray-400 text-4xl mb-3">
-        📚
-      </div>
-
-      <h2 class="text-lg font-semibold text-gray-700">
-        No Domains Found
-      </h2>
-
-      <p class="text-sm text-gray-500 mt-1">
-        There are no domains available for this college.
-      </p>
-
-    </div>
-
-
-    <!-- Domain Cards -->
-    <div
-      *ngIf="!loading && domains.length > 0"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-    >
-
-      <div
-        *ngFor="let domain of domains"
-        class="bg-white rounded-xl border border-gray-200 p-6
-               hover:shadow-lg transition-shadow duration-200"
-      >
-
-        <!-- Top -->
-        <div class="flex items-start justify-between gap-3 mb-5">
-
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
+          </span>
           <div>
-
-            <h2 class="text-xl font-bold text-gray-900">
-              {{ domain.domainName }}
-            </h2>
-
-            <p class="text-xs text-gray-400 mt-1">
-              Domain ID: {{ domain.domainId }}
-            </p>
-
+            <span class="stat-label">Domains</span>
+            <strong class="stat-value">{{ loading ? '—' : domains.length }}</strong>
           </div>
+        </div>
 
-          <!-- Status -->
-          <span
-            class="px-3 py-1 text-xs font-medium
-                   rounded-full bg-cyan-50 text-cyan-600"
-          >
+        <div class="stat-card">
+          <span class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM22 19v-1a4 4 0 0 0-3-3.87M16 3.13a3.5 3.5 0 0 1 0 6.75" />
+            </svg>
+          </span>
+          <div>
+            <span class="stat-label">Students</span>
+            <strong class="stat-value">{{ loading ? '—' : totalStudents }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ================= TOOLBAR ================= -->
+    <div class="toolbar" *ngIf="!loading && domains.length > 0">
+
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search domains..."
+          [value]="search"
+          (input)="search = $any($event.target).value" />
+      </div>
+
+      <span class="result-count">
+        Showing <strong>{{ filteredDomains.length }}</strong> of {{ domains.length }}
+      </span>
+
+    </div>
+
+    <!-- ================= LOADING (skeleton cards) ================= -->
+    <div *ngIf="loading" class="domain-grid">
+      <div *ngFor="let _ of [1, 2, 3, 4, 5, 6]" class="skeleton-card">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-line w-2/3"></div>
+        <div class="skeleton-line w-full"></div>
+        <div class="skeleton-block"></div>
+      </div>
+    </div>
+
+    <!-- ================= EMPTY STATE ================= -->
+    <div *ngIf="!loading && domains.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M4 6h16M4 12h16M4 18h10" />
+        </svg>
+      </span>
+      <h2>No domains found</h2>
+      <p *ngIf="collegeId">There are no domains available for this college.</p>
+      <p *ngIf="!collegeId">No college was selected. Pick a college to see its domains.</p>
+      <button type="button" class="btn-outline" (click)="backToColleges()">Back to Colleges</button>
+    </div>
+
+    <!-- ================= NO SEARCH RESULTS ================= -->
+    <div *ngIf="!loading && domains.length > 0 && filteredDomains.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+        </svg>
+      </span>
+      <h2>No matching domains</h2>
+      <p>Nothing matches “{{ search }}”.</p>
+      <button type="button" class="btn-outline" (click)="search = ''">Clear search</button>
+    </div>
+
+    <!-- ================= DOMAIN CARDS ================= -->
+    <div *ngIf="!loading && filteredDomains.length > 0" class="domain-grid">
+
+      <article
+        *ngFor="let domain of filteredDomains"
+        class="domain-card"
+        (click)="viewDomain(domain)">
+
+        <!-- Top row -->
+        <div class="card-top">
+          <span class="domain-avatar">{{ initials(domain.domainName) }}</span>
+
+          <span class="status-chip">
+            <span class="status-dot"></span>
             Active
           </span>
-
         </div>
 
+        <!-- Name + description -->
+        <h2 class="domain-name" [title]="domain.domainName">{{ domain.domainName }}</h2>
+        <span class="domain-id">Domain ID · {{ domain.domainId }}</span>
 
-        <!-- Description -->
-        <div class="mb-6">
-
-          <p class="text-sm text-gray-500 leading-6">
-            {{ domain.description || 'No description available' }}
-          </p>
-
-        </div>
-
+        <p class="domain-desc">{{ domain.description || 'No description available.' }}</p>
 
         <!-- Students -->
-        <div
-          class="flex items-center justify-between
-                 bg-gray-50 rounded-lg px-4 py-3 mb-5"
-        >
-
-          <div class="flex items-center gap-3">
-
-            <div
-              class="w-10 h-10 rounded-lg
-                     bg-cyan-100 flex items-center justify-center"
-            >
-              <span class="text-cyan-600 text-lg">
-                👨‍🎓
-              </span>
-            </div>
-
+        <div class="students-panel">
+          <div class="students-row">
             <div>
-
-              <p class="text-xs text-gray-500">
-                Total Students
-              </p>
-
-              <p class="text-lg font-bold text-gray-900">
-                {{ domain.totalStudents }}
-              </p>
-
+              <span class="students-label">Total Students</span>
+              <strong class="students-value">{{ domain.totalStudents || 0 }}</strong>
             </div>
-
+            <span class="share-value">{{ studentShare(domain) }}%<small> of college</small></span>
           </div>
 
+          <div class="share-track">
+            <span class="share-fill" [style.width.%]="studentShare(domain)"></span>
+          </div>
         </div>
 
-
-        <!-- View Button -->
+        <!-- Action -->
         <button
           type="button"
-          (click)="viewDomain(domain)"
-          class="w-full bg-[#24c0c5] text-white
-                 py-2.5 px-4 rounded-lg
-                 font-medium text-sm
-                 hover:bg-[#1eabb0]
-                 transition duration-200"
-        >
+          class="view-btn"
+          (click)="$event.stopPropagation(); viewDomain(domain)">
           View Domain
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </button>
 
-      </div>
+      </article>
 
     </div>
 

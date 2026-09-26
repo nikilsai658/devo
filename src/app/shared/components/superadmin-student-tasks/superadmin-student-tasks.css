@@ -1,0 +1,327 @@
+/* =============================================================
+   COLLEGE TRACKING › STUDENT › TASKS — matches Student Assignments.
+   Dark theme: pure black background, neutral surfaces,
+   the accent colour (--accent) only on buttons and small accents.
+============================================================= */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color-scheme: dark;
+}
+
+/* ---------------- PAGE ---------------- */
+
+.tracking-page {
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+}
+
+.tracking-inner {
+  @apply mx-auto max-w-7xl;
+}
+
+/* ---------------- BREADCRUMB ---------------- */
+
+.breadcrumb {
+  @apply mb-6 flex flex-wrap items-center gap-2 text-sm;
+}
+
+.crumb-link {
+  @apply inline-flex max-w-56 cursor-pointer items-center gap-1 truncate border-0 bg-transparent p-0
+         font-medium text-zinc-400 transition-colors duration-200 hover:text-white;
+}
+
+.crumb-link svg {
+  @apply h-4 w-4 shrink-0;
+}
+
+.crumb-sep {
+  @apply text-zinc-700;
+}
+
+.crumb-current {
+  @apply max-w-72 truncate font-medium text-white;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.tracking-header {
+  @apply mb-6;
+}
+
+.student-head {
+  @apply flex items-center gap-5;
+}
+
+.student-avatar-lg {
+  @apply flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-(--accent)
+         text-xl font-bold tracking-wide text-(--on-accent);
+}
+
+.eyebrow {
+  @apply mb-2 inline-flex items-center gap-2 rounded-full border border-white/10
+         px-3 py-1 text-xs font-semibold tracking-wide text-zinc-300;
+}
+
+.eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+}
+
+.student-head h1 {
+  @apply truncate text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.student-meta {
+  @apply mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-400;
+}
+
+.student-meta span + span::before {
+  content: "•";
+  @apply mr-4 text-zinc-700;
+}
+
+.mono {
+  @apply font-mono text-[13px];
+}
+
+/* ---------------- STATS ---------------- */
+
+.stats {
+  @apply mb-6 grid grid-cols-2 gap-3 border-b border-white/10 pb-6 lg:grid-cols-4;
+}
+
+.stat-card {
+  @apply flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-950 px-5 py-4;
+}
+
+.stat-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--accent) text-(--on-accent);
+}
+
+.stat-icon svg {
+  @apply h-5 w-5;
+}
+
+.stat-label {
+  @apply block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.stat-value {
+  @apply mt-0.5 block text-2xl font-bold leading-7 text-white tabular-nums;
+}
+
+/* ---------------- TOOLBAR ---------------- */
+
+.toolbar {
+  @apply mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between;
+}
+
+.filter-tabs {
+  @apply flex flex-wrap gap-1 rounded-xl border border-white/10 bg-zinc-950 p-1;
+}
+
+.filter-tab {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-lg border-0 bg-transparent px-3 py-1.5
+         text-sm font-medium text-zinc-400 transition-colors duration-200 hover:text-white;
+}
+
+.filter-tab.active {
+  @apply bg-(--accent) text-(--on-accent);
+}
+
+.tab-count {
+  @apply rounded-md bg-white/10 px-1.5 text-[11px] font-semibold tabular-nums;
+}
+
+.search-box {
+  @apply relative w-full lg:w-80;
+}
+
+.search-box svg {
+  @apply pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500;
+}
+
+.search-box input {
+  @apply h-10 w-full rounded-lg border border-white/10 bg-zinc-950 pl-11 pr-4 text-sm text-white
+         outline-none transition-colors duration-200 placeholder:text-zinc-600
+         hover:border-white/20 focus:border-(--accent);
+}
+
+/* ---------------- TASK CARD ---------------- */
+
+.task-list {
+  @apply space-y-3;
+}
+
+.task-card {
+  @apply relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950
+         px-6 py-5 transition-colors duration-200 lg:flex-row lg:items-center lg:justify-between;
+}
+
+/* Left status stripe: green = submitted, grey = not yet */
+.task-card::before {
+  content: "";
+  @apply absolute inset-y-0 left-0 w-0.75 bg-white/10;
+}
+
+.task-card.is-submitted::before {
+  @apply bg-emerald-500;
+}
+
+.task-card:hover {
+  @apply border-white/20;
+}
+
+.card-title {
+  @apply flex min-w-0 items-start gap-4;
+}
+
+.card-index {
+  @apply mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10
+         text-xs font-semibold tabular-nums text-zinc-400;
+}
+
+.title-row {
+  @apply flex flex-wrap items-center gap-3;
+}
+
+.title-row h2 {
+  @apply truncate text-base font-semibold text-white sm:text-lg;
+}
+
+.course-name {
+  @apply mt-0.5 text-sm text-zinc-500;
+}
+
+.task-desc {
+  @apply mt-2 line-clamp-2 max-w-2xl text-sm leading-5 text-zinc-400;
+}
+
+.status-chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-0.5
+         text-[11px] font-semibold text-zinc-300;
+}
+
+.status-chip .status-dot {
+  @apply h-1.5 w-1.5 rounded-full bg-amber-400;
+}
+
+.status-chip.submitted .status-dot {
+  @apply bg-emerald-400;
+}
+
+.card-side {
+  @apply flex shrink-0 items-center justify-between gap-6 border-t border-white/10 pt-4
+         lg:border-t-0 lg:pt-0;
+}
+
+.detail-label {
+  @apply mb-1 block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.detail-value {
+  @apply text-sm font-semibold text-white tabular-nums;
+}
+
+.detail-value small {
+  @apply ml-1 text-xs font-normal text-zinc-500;
+}
+
+.detail-muted {
+  @apply text-sm text-zinc-600;
+}
+
+.download-wrap {
+  @apply flex flex-col items-end gap-1;
+}
+
+.btn-primary {
+  @apply inline-flex min-w-36 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg
+         border-0 bg-(--accent) px-4 py-2.5 text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-(--accent)
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950;
+}
+
+.btn-primary svg {
+  @apply h-4 w-4;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.download-error {
+  @apply text-xs font-medium text-rose-400;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.skeleton-card {
+  @apply space-y-3 rounded-2xl border border-white/10 bg-zinc-950 p-6;
+}
+
+.skeleton-line {
+  @apply h-3 animate-pulse rounded-full bg-white/10;
+}
+
+/* ---------------- EMPTY STATES ---------------- */
+
+.empty-state {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/10 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.empty-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--accent) text-(--on-accent);
+}
+
+.empty-icon svg {
+  @apply h-7 w-7;
+}
+
+.empty-state h2 {
+  @apply text-lg font-semibold text-white;
+}
+
+.empty-state p {
+  @apply mt-1 text-sm text-zinc-500;
+}
+
+.btn-outline {
+  @apply mt-5 cursor-pointer rounded-lg border border-(--accent) bg-transparent px-4 py-2
+         text-sm font-semibold text-white transition duration-200 hover:bg-(--accent);
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 640px) {
+  .student-head h1 {
+    @apply text-2xl;
+  }
+
+  .student-avatar-lg {
+    @apply h-12 w-12 text-base;
+  }
+
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary,
+  .filter-tab,
+  .spinner,
+  .skeleton-line {
+    @apply transition-none;
+    animation: none;
+  }
+}

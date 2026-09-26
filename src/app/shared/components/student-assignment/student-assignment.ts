@@ -7,10 +7,11 @@ import { CodeEditorComponent, CodeSubmission } from '../code-editor/code-editor'
 import { Location } from '@angular/common';
 import { AssignmentLockService, AssignmentViolation } from '../../../features/services/assignment-lock-service/assignemt-lock-service';
 import { Subscription } from 'rxjs';
+import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 @Component({
   selector: 'app-student-assignment',
   standalone:true,
-  imports: [CommonModule, ReactiveFormsModule, CodeEditorComponent, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, CodeEditorComponent, RouterLink, Breadcrumb],
   templateUrl: './student-assignment.html',
   styleUrl: './student-assignment.css',
 })
@@ -18,6 +19,21 @@ export class StudentAssignment implements OnInit, OnDestroy{
   assignmentId!: number;
   assignmentIds: number[] = [];
   assignment: any = null;
+
+  // Where the student came from, carried through router state for the breadcrumb
+  private trail = { domainId: null as number | null, domainName: '', courseId: null as number | null, courseName: '' };
+
+  get breadcrumb(): BreadcrumbItem[] {
+    const t = this.trail;
+    return [
+      { label: 'My Domains', link: '/main/student-domain' },
+      { label: t.domainName || 'My Courses', link: '/main/student-courses',
+        state: { domainId: t.domainId, domainName: t.domainName } },
+      { label: t.courseName || 'Assignments', link: '/main/student-assignments',
+        state: { domainId: t.domainId, domainName: t.domainName, courseId: t.courseId, courseName: t.courseName } },
+      { label: this.assignment?.title || 'Assignment' }
+    ];
+  }
   
   get canGoPrevious(): boolean {
     const index = this.assignmentIds.indexOf(this.assignmentId);
@@ -104,6 +120,14 @@ export class StudentAssignment implements OnInit, OnDestroy{
     this.assignmentId = state.Id;
     if (state.assignmentIds) {
       this.assignmentIds = state.assignmentIds;
+    }
+    if (state.domainId != null) {
+      this.trail = {
+        domainId: state.domainId,
+        domainName: state.domainName ?? '',
+        courseId: state.courseId ?? null,
+        courseName: state.courseName ?? ''
+      };
     }
     this.loadAssignment();
   }
@@ -222,7 +246,7 @@ export class StudentAssignment implements OnInit, OnDestroy{
   }
 
   private goToAssignment(id: number): void {
-    const state = { Id: id, assignmentIds: this.assignmentIds };
+    const state = { Id: id, assignmentIds: this.assignmentIds, ...this.trail };
     // Router.navigate() ignores navigation to the same URL, so the same-route
     // "next/previous" case is driven straight off state instead of a route/query param.
     history.pushState(state, '', this.router.url);

@@ -1,27 +1,27 @@
 <div *ngIf="auth.hasPermission('VIEW_TASK'); else noPermission"
-    class="min-h-screen bg-gray-100 p-6">
+    class="min-h-screen bg-black p-6">
 
     <!-- Header -->
     <div class="flex flex-col lg:flex-row justify-between items-center gap-5 mb-8">
 
         <div>
-            <h1 class="text-3xl font-bold text-[#2F3E46]">
+            <h1 class="text-3xl font-bold text-white">
                 Task Management
             </h1>
 
-            <p class="text-gray-500 mt-1">
+            <p class="text-zinc-400 mt-1">
                 Create, Update and Manage Tasks
             </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-4">
 
-            <div class="bg-white rounded-xl shadow px-6 py-4">
-                <p class="text-sm text-gray-500">
+            <div class="bg-zinc-950 rounded-xl shadow px-6 py-4">
+                <p class="text-sm text-zinc-400">
                     Total Tasks
                 </p>
 
-                <h2 class="text-3xl font-bold text-[#24c0c5]">
+                <h2 class="text-3xl font-bold text-white">
                     {{ tasks?.length || 0 }}
                 </h2>
 
@@ -31,8 +31,7 @@
                 *ngIf="auth.hasPermission('CREATE_TASK')"
                 type="button"
                 (click)="openAddModal()"
-                style="background-color:#2F3E46"
-                class="flex items-center gap-2 hover:opacity-90 text-white px-5 py-3 rounded-xl font-semibold shadow-sm transition-opacity h-full">
+                class="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-opacity h-full bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
                 <span class="text-lg leading-none">+</span>
                 Add Task
             </button>
@@ -43,9 +42,9 @@
 
     <!-- ================= TABLE ================= -->
 
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="bg-zinc-950 rounded-2xl shadow-lg overflow-hidden">
 
-        <div class="bg-[#2F3E46] text-white px-6 py-4">
+        <div class="bg-zinc-900 border-b border-white/10 text-white px-6 py-4">
 
             <h2 class="text-xl font-bold">
                 Tasks List
@@ -57,7 +56,7 @@
 
             <table class="min-w-full">
 
-                <thead class="bg-gray-100">
+                <thead class="bg-zinc-900">
 
                     <tr>
 
@@ -84,7 +83,7 @@
                 <tbody>
                     <tr
                         *ngFor="let task of tasks; let i = index"
-                        class="border-b hover:bg-gray-50">
+                        class="border-b hover:bg-white/[0.04] border-white/10">
 
                         <!-- Serial Number -->
                         <td class="px-5 py-4">
@@ -105,7 +104,7 @@
                         <td class="px-5 py-4">
                             <span
                                 class="px-3 py-1 rounded-full text-xs font-semibold"
-                                [ngClass]="task.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'">
+                                [ngClass]="task.isActive ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/10 text-zinc-400'">
                                 {{ task.isActive ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
@@ -122,7 +121,7 @@
                                     *ngIf="auth.hasPermission('UPDATE_TASK')"
                                     type="button"
                                     (click)="editTask(task)"
-                                    class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition">
+                                    class="px-4 py-2 rounded-lg transition bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer">
 
                                     Edit
 
@@ -133,7 +132,7 @@
                                     *ngIf="auth.hasPermission('DELETE_TASK')"
                                     type="button"
                                     (click)="deleteTask(task.id ?? task.taskId)"
-                                    class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition">
+                                    class="px-4 py-2 rounded-lg transition bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer">
 
                                     Delete
 
@@ -151,7 +150,7 @@
 
                         <td
                             [attr.colspan]="(auth.hasPermission('UPDATE_TASK') || auth.hasPermission('DELETE_TASK')) ? 5 : 4"
-                            class="text-center py-12 text-gray-500 font-medium">
+                            class="text-center py-12 text-zinc-400 font-medium">
 
                             No Tasks Found
 
@@ -171,64 +170,68 @@
 
     <div
         *ngIf="showModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+        class="dlg-overlay">
 
-        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-modal">
+        <div class="dlg">
 
             <!-- Dialog Header -->
 
-            <div class="flex items-center justify-between px-6 py-4" style="background-color:#2F3E46">
-                <h3 class="text-white text-lg font-semibold">
-                    {{ isEditMode ? 'Edit Task' : 'Add Task' }}
-                </h3>
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Task' : 'Add Task' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'Fill in the details below to add a new record.' }}</p>
+                    </div>
+                </div>
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="text-white/80 hover:text-white text-xl leading-none">
-                    &times;
+                    class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
             </div>
 
             <!-- Dialog Body -->
 
-            <form [formGroup]="taskForm" class="px-6 py-6" *ngIf="taskForm">
+            <form [formGroup]="taskForm" class="dlg-body" *ngIf="taskForm">
 
-                <div class="mb-4">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Task Title
                     </label>
                     <input
                         type="text"
                         formControlName="title"
                         placeholder="e.g. Prepare monthly report"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input">
+                    <p class="dlg-error"
                        *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
                         Task title is required
                     </p>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Question
                     </label>
                     <textarea
                         rows="4"
                         formControlName="question"
                         placeholder="Task question..."
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent"></textarea>
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input"></textarea>
+                    <p class="dlg-error"
                        *ngIf="taskForm.get('question')?.invalid && taskForm.get('question')?.touched">
                         Question is required
                     </p>
                 </div>
 
-                <div class="mb-2">
-                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                <div class="dlg-field">
+                    <label class="dlg-check-label">
                         <input
                             type="checkbox"
                             formControlName="isActive"
-                            class="w-4 h-4 accent-[#2F3E46]">
+                            class="dlg-check">
                         Active
                     </label>
                 </div>
@@ -237,12 +240,12 @@
 
             <!-- Dialog Footer -->
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div class="dlg-footer">
 
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors">
+                    class="dlg-btn dlg-btn-secondary">
                     Cancel
                 </button>
 
@@ -250,7 +253,7 @@
                     *ngIf="!isEditMode"
                     type="button"
                     (click)="createTask()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Save
                 </button>
 
@@ -258,7 +261,7 @@
                     *ngIf="isEditMode"
                     type="button"
                     (click)="updateTask()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-amber-500 hover:bg-amber-600 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Update
                 </button>
 
@@ -276,16 +279,16 @@
 
 <ng-template #noPermission>
 
-    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center bg-zinc-900">
 
-        <div class="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center">
+        <div class="bg-zinc-950 rounded-2xl shadow-xl p-10 max-w-md w-full text-center">
 
             <div class="flex justify-center mb-6">
 
-                <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+                <div class="w-20 h-20 rounded-full bg-rose-500/15 flex items-center justify-center">
 
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-10 h-10 text-red-600"
+                        class="w-10 h-10 text-rose-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -302,13 +305,13 @@
 
             </div>
 
-            <h2 class="text-3xl font-bold text-[#2F3E46] mb-3">
+            <h2 class="text-3xl font-bold text-white mb-3">
 
                 Access Denied
 
             </h2>
 
-            <p class="text-gray-500 mb-8">
+            <p class="text-zinc-400 mb-8">
 
                 You don't have permission to access the Task Management module.
 
@@ -316,7 +319,7 @@
 
             <button
                 routerLink="/dashboard"
-                class="w-full bg-[#24c0c5] hover:bg-[#1ca9ad] text-white font-semibold py-3 rounded-lg transition">
+                class="w-full font-semibold py-3 rounded-lg transition bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
 
                 Go to Dashboard
 

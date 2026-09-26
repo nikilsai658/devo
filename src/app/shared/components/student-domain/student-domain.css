@@ -1,641 +1,244 @@
-/* =========================================================
-   DOMAIN PAGE
-========================================================= */
+/* =============================================================
+   MY DOMAINS — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   -------------------------------------------------------------
+   Tailwind v4: keep the @reference line (point it at your global
+   stylesheet if you have custom theme tokens, e.g.
+   @reference "../../styles.css";).
+   Tailwind v3: delete the @reference line.
+============================================================= */
 @import "tailwindcss";
-.domain-page {
-  @apply min-h-screen
-         bg-white
-         px-4
-         py-8
-         font-sans
-         sm:px-6
-         lg:px-10
-         xl:px-14;
+
+/* ---------------- PAGE ---------------- */
+
+:host {
+  @apply block min-h-screen bg-black;
+  background-color: #000;
 }
 
+.domain-page {
+  @apply min-h-screen w-full bg-black text-white antialiased;
+  background-color: #000;
+}
 
 .domain-container {
-  @apply mx-auto
-         max-w-[1450px];
+  @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
+/* ---------------- HEADER ---------------- */
 
 .domain-toolbar {
-  @apply mb-8
-         flex
-         flex-col
-         gap-5
-         border-b
-         border-gray-200
-         pb-7
-         lg:flex-row
-         lg:items-center
-         lg:justify-between;
+  @apply mb-8 flex flex-col gap-6 border-b border-white/10 pb-8
+         sm:mb-10 md:flex-row md:items-end md:justify-between;
 }
-
 
 .toolbar-title {
-  @apply flex
-         flex-col;
+  @apply max-w-2xl;
 }
-
 
 .page-label {
-  @apply mb-1
-         text-[10px]
-         font-bold
-         uppercase
-         tracking-[0.2em]
-         text-[#2F3E46];
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-(--accent-text);
 }
 
+.page-label::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
 
 .toolbar-title h1 {
-  @apply m-0
-         text-[30px]
-         font-bold
-         tracking-tight
-         text-[#2F3E46]
-         sm:text-[34px];
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl;
 }
-
 
 .toolbar-title p {
-  @apply mt-2
-         max-w-[650px]
-         text-sm
-         leading-6
-         text-gray-500
-         sm:text-[15px];
+  @apply mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base;
 }
 
-
-/* =========================================================
-   DOMAIN COUNT
-========================================================= */
-
+/* Count box */
 .domain-count {
-  @apply flex
-         w-full
-         items-center
-         gap-3
-         rounded-xl
-         border
-         border-gray-200
-         bg-white
-         px-4
-         py-3
-         shadow-sm
-         lg:w-auto
-         lg:min-w-[190px];
+  @apply flex w-full items-center gap-4 rounded-2xl border border-white/10
+         bg-zinc-950 px-5 py-4 sm:w-auto sm:min-w-[220px];
 }
-
 
 .count-icon {
-  @apply flex
-         h-10
-         w-10
-         shrink-0
-         items-center
-         justify-center
-         rounded-lg
-         bg-[#2F3E46]
-         text-white;
+  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
+         bg-(--accent) text-(--on-accent);
+  box-shadow: 0 8px 24px -6px rgba(var(--accent-rgb), 0.7);
 }
-
 
 .count-icon svg {
-  @apply h-5
-         w-5;
+  @apply h-6 w-6;
 }
-
-
-.count-content {
-  @apply flex
-         flex-col;
-}
-
 
 .count-content > span {
-  @apply text-[9px]
-         font-bold
-         uppercase
-         tracking-[0.12em]
-         text-gray-400;
+  @apply block text-xs font-medium text-zinc-500;
 }
-
 
 .count-number {
-  @apply flex
-         items-baseline
-         gap-1.5;
+  @apply mt-0.5 flex items-baseline gap-1.5;
 }
-
 
 .count-number strong {
-  @apply text-xl
-         font-bold
-         leading-6
-         text-[#2F3E46];
+  @apply text-2xl font-bold text-white;
 }
-
 
 .count-number small {
-  @apply text-xs
-         font-medium
-         text-gray-500;
+  @apply text-sm text-zinc-400;
 }
 
-
-/* =========================================================
-   DOMAIN GRID
-
-   3 COLUMNS ON DESKTOP
-   This makes each card wider.
-========================================================= */
+/* ---------------- GRID ---------------- */
 
 .domain-grid {
-  @apply grid
-         grid-cols-1
-         gap-5
-         sm:grid-cols-2
-         lg:grid-cols-3
-         xl:gap-6;
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
 }
 
-
-/* =========================================================
-   DOMAIN CARD
-
-   OLD: 365px+
-   NEW: 300px
-========================================================= */
+/* ---------------- CARD ---------------- */
 
 .domain-card {
-  @apply 
-         relative
-         h-[300px]
-         overflow-hidden
-         rounded-[18px]
-         bg-gradient-to-br
-         from-[#2F3E46]
-         via-gray-700
-         to-gray-900
-         p-2
-         font-sans
-         shadow-[0_10px_30px_rgba(47,62,70,0.18)]
-         transition-all
-         duration-300
-         ease-out;
+  @apply relative flex overflow-hidden rounded-xl border border-white/10
+         bg-zinc-950 transition duration-300
+         hover:-translate-y-1 hover:border-white/20;
 }
-
 
 .domain-card:hover {
-  @apply -translate-y-1
-         shadow-[0_18px_40px_rgba(47,62,70,0.28)];
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.9);
 }
 
-
-/* =========================================================
-   DECORATIVE GLOW
-========================================================= */
-
-.card-glow-top {
-  @apply pointer-events-none
-         absolute
-         -right-12
-         -top-12
-         h-32
-         w-32
-         rounded-full
-         bg-white/10
-         blur-2xl;
-}
-
-
+/* Tinted glow blobs removed: they showed as a pink haze on hover */
+.card-glow-top,
 .card-glow-bottom {
-  @apply pointer-events-none
-         absolute
-         -bottom-16
-         -left-16
-         h-36
-         w-36
-         rounded-full
-         bg-white/5
-         blur-2xl;
+  display: none;
 }
-
-
-/* =========================================================
-   INNER CARD
-
-   IMPORTANT:
-   h-full instead of min-h-[349px]
-========================================================= */
 
 .card-inner {
-  @apply relative
-         flex
-         h-full
-         flex-col
-         rounded-[13px]
-         border
-         border-white/10
-         px-5
-         py-4
-         text-center;
+  @apply relative z-10 flex w-full flex-col p-4;
 }
-
-
-/* =========================================================
-   DOMAIN ICON
-
-   Smaller to fit compact card
-========================================================= */
 
 .domain-icon {
-  @apply mx-auto
-         flex
-         h-[60px]
-         w-[60px]
-         shrink-0
-         items-center
-         justify-center
-         rounded-full
-         border-2
-         border-white/80
-         bg-white/5
-         text-white
-         shadow-[0_0_0_6px_rgba(255,255,255,0.03)];
+  @apply mb-3 flex h-10 w-10 items-center justify-center rounded-lg
+         border border-(--accent)/40 bg-(--accent)/15 text-(--accent-text);
 }
-
 
 .domain-icon svg {
-  @apply h-8
-         w-8;
+  @apply h-6 w-6;
 }
-
-
-/* =========================================================
-   LABEL
-========================================================= */
 
 .domain-label {
-  @apply mt-2
-         block
-         text-[9px]
-         font-semibold
-         uppercase
-         tracking-[0.18em]
-         text-gray-300;
+  @apply mb-1 text-[10px] font-medium text-(--accent-soft);
 }
-
-
-/* =========================================================
-   DOMAIN NAME
-
-   No line-clamp
-   No min-height
-   Full width
-========================================================= */
 
 .domain-name {
-  @apply mt-1
-         w-full
-         text-[18px]
-         font-bold
-         uppercase
-         leading-6
-         tracking-wide
-         text-white;
+  @apply text-base font-semibold leading-snug text-white sm:text-lg;
 }
-
-
-/* =========================================================
-   DESCRIPTION
-
-   No line-clamp
-   No restrictive max-width
-========================================================= */
 
 .domain-description {
-  @apply mx-auto
-         mt-1
-         w-full
-         max-w-[500px]
-         text-[12px]
-         font-normal
-         leading-[17px]
-         text-gray-300;
+  @apply mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-400;
 }
-
-
-/* =========================================================
-   INFO BOX
-========================================================= */
 
 .domain-info {
-  @apply mt-2
-         rounded-lg
-         border
-         border-white/20
-         bg-white/5
-         px-3
-         py-2;
+  @apply my-4 space-y-1.5 border-t border-white/10 pt-3;
 }
 
-
-.domain-info div {
-  @apply text-[10px]
-         leading-[15px]
-         text-gray-200;
+.domain-info > div {
+  @apply flex items-center gap-2 text-xs text-zinc-300;
 }
 
+.domain-info > div::before {
+  content: "";
+  @apply h-1.5 w-1.5 shrink-0 rounded-full bg-(--accent);
+}
 
-/* =========================================================
-   VIEW BUTTON
-========================================================= */
+/* ---------------- BUTTON ---------------- */
 
 .view-button {
-  @apply mt-auto
-         flex
-         h-8
-         w-full
-         shrink-0
-         items-center
-         justify-center
-         gap-2
-         rounded-lg
-         bg-gradient-to-r
-         from-white
-         via-gray-100
-         to-gray-200
-         px-4
-         text-[10px]
-         font-bold
-         uppercase
-         tracking-wider
-         text-[#2F3E46]
-         transition-all
-         duration-200;
+  @apply mt-auto inline-flex w-full items-center justify-center gap-2 rounded-lg
+         bg-(--accent) px-4 py-2 text-xs font-semibold text-(--on-accent)
+         transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black;
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
-
-
-.view-button:hover {
-  @apply from-gray-100
-         via-gray-200
-         to-gray-300;
-}
-
-
-.view-button:active {
-  @apply scale-[0.98];
-}
-
 
 .view-button svg {
-  @apply h-3.5
-         w-3.5
-         transition-transform
-         duration-200;
+  @apply h-4 w-4 transition-transform duration-200;
 }
-
 
 .view-button:hover svg {
-  @apply translate-x-0.5;
+  @apply translate-x-1;
 }
 
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.empty-state {
-  @apply flex
-         min-h-[350px]
-         flex-col
-         items-center
-         justify-center
-         text-center;
-}
-
-
-.empty-icon {
-  @apply flex
-         h-16
-         w-16
-         items-center
-         justify-center
-         rounded-full
-         bg-gray-100
-         text-[#2F3E46];
-}
-
-
-.empty-icon svg {
-  @apply h-7
-         w-7;
-}
-
-
-.empty-state h3 {
-  @apply mt-4
-         text-lg
-         font-bold
-         text-[#2F3E46];
-}
-
-
-.empty-state p {
-  @apply mt-2
-         text-sm
-         text-gray-500;
-}
-
-
-/* =========================================================
-   SKELETON
-========================================================= */
+/* ---------------- SKELETON ---------------- */
 
 .skeleton-card {
-  @apply h-[300px]
-         overflow-hidden
-         rounded-[18px]
-         border
-         border-gray-200
-         bg-white
-         p-2
-         shadow-sm;
+  @apply overflow-hidden rounded-xl border border-white/10 bg-zinc-950;
 }
-
 
 .skeleton-content {
-  @apply flex
-         h-full
-         flex-col
-         items-center
-         rounded-[13px]
-         bg-gray-100
-         px-5
-         py-4;
+  @apply flex flex-col p-4;
 }
 
-
-.skeleton-circle {
-  @apply h-[60px]
-         w-[60px]
-         rounded-full
-         bg-gray-200;
-}
-
-
-.skeleton-title {
-  @apply mt-4
-         h-5
-         w-36
-         rounded
-         bg-gray-200;
-}
-
-
-.skeleton-description {
-  @apply mt-3
-         h-8
-         w-56
-         rounded
-         bg-gray-200;
-}
-
-
-.skeleton-info {
-  @apply mt-4
-         h-12
-         w-full
-         rounded-lg
-         bg-gray-200;
-}
-
-
+.skeleton-circle,
+.skeleton-title,
+.skeleton-description,
+.skeleton-info,
 .skeleton-button {
-  @apply mt-auto
-         h-8
-         w-full
-         rounded-lg
-         bg-gray-200;
+  @apply animate-pulse bg-zinc-800/80;
 }
 
+.skeleton-circle      { @apply mb-3 h-10 w-10 rounded-lg; }
+.skeleton-title       { @apply mb-2 h-5 w-2/3 rounded-md; }
+.skeleton-description { @apply mb-4 h-8 w-full rounded-md; }
+.skeleton-info        { @apply mb-4 h-14 w-full rounded-md; }
+.skeleton-button      { @apply h-8 w-full rounded-lg bg-(--accent)/30; }
 
-/* =========================================================
-   TABLET
-========================================================= */
+/* ---------------- EMPTY STATE ---------------- */
 
-@media (max-width: 1023px) {
-
-  .domain-page {
-    @apply px-6
-           py-7;
-  }
-
-
-  .domain-card {
-    @apply h-[300px];
-  }
-
+.empty-state {
+  @apply flex flex-col items-center justify-center rounded-2xl border
+         border-dashed border-white/15 bg-zinc-950 px-6 py-16 text-center sm:py-24;
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 639px) {
-
-  .domain-page {
-    @apply px-4
-           py-6;
-  }
-
-
-  .domain-toolbar {
-    @apply mb-6
-           pb-6;
-  }
-
-
-  .toolbar-title h1 {
-    @apply text-[28px];
-  }
-
-
-  .toolbar-title p {
-    @apply text-[13px]
-           leading-5;
-  }
-
-
-  .domain-count {
-    @apply w-full;
-  }
-
-
-  .domain-grid {
-    @apply grid-cols-1
-           gap-5;
-  }
-
-
-  .domain-card {
-    @apply h-[290px];
-  }
-
-
-  .card-inner {
-    @apply px-4
-           py-4;
-  }
-
-
-  .domain-name {
-    @apply text-[17px];
-  }
-
-
-  .domain-description {
-    @apply text-[11px]
-           leading-4;
-  }
-
+.empty-icon {
+  @apply mb-5 flex h-16 w-16 items-center justify-center rounded-2xl
+         bg-(--accent)/15 text-(--accent-text);
 }
 
+.empty-icon svg {
+  @apply h-8 w-8;
+}
 
-/* =========================================================
-   VERY SMALL MOBILE
-========================================================= */
+.empty-state h3 {
+  @apply text-lg font-semibold text-white sm:text-xl;
+}
 
-@media (max-width: 400px) {
+.empty-state p {
+  @apply mt-2 max-w-sm text-sm text-zinc-400;
+}
 
-  .domain-card {
-    @apply h-[285px];
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .domain-card,
+  .view-button,
+  .view-button svg,
+  .skeleton-circle,
+  .skeleton-title,
+  .skeleton-description,
+  .skeleton-info,
+  .skeleton-button {
+    @apply animate-none transition-none;
   }
 
-
-  .domain-name {
-    @apply text-[16px];
+  .domain-card:hover {
+    @apply translate-y-0;
   }
+}
 
-
-  .domain-description {
-    @apply text-[10px];
-  }
-
-
-  .domain-info div {
-    @apply text-[9px]
-           leading-[14px];
-  }
-
+/* Breadcrumb navigation */
+.page-breadcrumb {
+  display: block;
+  margin-bottom: 1.5rem;
 }

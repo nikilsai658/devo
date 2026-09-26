@@ -86,7 +86,7 @@
     linear-gradient(
       135deg,
       #26006b,
-      #7c3aed,
+      var(--violet),
       #300080
     );
 
@@ -105,7 +105,7 @@
     linear-gradient(
       160deg,
       #4c00c7,
-      #a855f7,
+      var(--violet-bright),
       #23005d
     );
 
@@ -126,7 +126,7 @@
     linear-gradient(
       90deg,
       #4c00c7,
-      #8b5cf6,
+      var(--violet-mid),
       #26005f
     );
 
@@ -192,7 +192,7 @@
 
 
 .brand-highlight {
-  color: #a78bfa;
+  color: var(--violet-text);
   font-size: 14px;
   font-weight: 500;
 }
@@ -217,7 +217,7 @@
 .small-text {
   margin-bottom: 14px;
 
-  color: #a78bfa;
+  color: var(--violet-text);
 
   font-size: 12px;
   font-weight: 700;
@@ -364,7 +364,7 @@
 
   z-index: 3;
 
-  color: #7c3aed;
+  color: var(--violet);
 
   font-size: 15px;
 }
@@ -389,10 +389,10 @@
 
 
 :host ::ng-deep .country-select.p-focus {
-  border-bottom-color: #7c3aed !important;
+  border-bottom-color: var(--violet) !important;
 
   box-shadow:
-    0 4px 12px rgba(124, 58, 237, 0.15) !important;
+    0 4px 12px rgba(var(--violet-rgb), 0.15) !important;
 }
 
 
@@ -409,7 +409,7 @@
 
 
 :host ::ng-deep .country-select .p-select-dropdown-icon {
-  color: #7c3aed !important;
+  color: var(--violet) !important;
 }
 
 
@@ -463,14 +463,14 @@
 
 
 ::ng-deep .p-select-overlay .p-select-option:hover {
-  background: rgba(124, 58, 237, 0.18) !important;
+  background: rgba(var(--violet-rgb), 0.18) !important;
 
   color: white !important;
 }
 
 
 ::ng-deep .p-select-overlay .p-select-option.p-select-option-selected {
-  background: rgba(124, 58, 237, 0.3) !important;
+  background: rgba(var(--violet-rgb), 0.3) !important;
 
   color: white !important;
 }
@@ -501,8 +501,8 @@
   background:
     linear-gradient(
       135deg,
-      #4c1d95,
-      #7c3aed
+      var(--violet-deep),
+      var(--violet)
     ) !important;
 
   color: white !important;
@@ -512,7 +512,7 @@
   font-weight: 700 !important;
 
   box-shadow:
-    0 8px 25px rgba(124, 58, 237, 0.25);
+    0 8px 25px rgba(var(--violet-rgb), 0.25);
 
   transition: 0.25s ease;
 }
@@ -522,7 +522,7 @@
   transform: translateY(-2px);
 
   box-shadow:
-    0 12px 35px rgba(124, 58, 237, 0.4);
+    0 12px 35px rgba(var(--violet-rgb), 0.4);
 }
 
 

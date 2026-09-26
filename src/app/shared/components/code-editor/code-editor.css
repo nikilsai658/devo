@@ -3,13 +3,13 @@
 /* Main */
 
 .editor-layout{
-    @apply flex flex-col h-full  rounded-xl shadow-lg overflow-hidden;
+    @apply flex flex-col h-full overflow-hidden bg-zinc-950;
 }
 
 /* Toolbar */
 
 .editor-toolbar{
-    @apply flex items-center justify-between px-6 py-3 bg-[black] border-b border-gray-700;
+    @apply flex items-center justify-between px-6 py-3 bg-zinc-950 border-b border-white/10;
 }
 
 .toolbar-left{
@@ -29,21 +29,32 @@
 /* Select */
 
 .language-select{
-    @apply px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer;
+    @apply px-4 py-2 rounded-lg border border-white/10 bg-black text-zinc-200 text-sm font-medium outline-none cursor-pointer
+           transition hover:border-(--accent)/60 focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/40;
 }
 
 /* Buttons */
 
 .reset-btn{
-    @apply px-5 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white font-semibold transition-all duration-200;
+    @apply px-5 py-2 rounded-lg border border-white/10 bg-white/5 text-sm text-zinc-300 font-semibold cursor-pointer transition-all duration-200
+           hover:border-(--accent)/60 hover:bg-(--accent)/15 hover:text-white
+           disabled:cursor-not-allowed disabled:opacity-40;
 }
 
 .run-btn{
-    @apply px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all duration-200 shadow;
+    @apply px-5 py-2 rounded-lg border-0 bg-(--accent) text-sm text-(--on-accent) font-semibold cursor-pointer transition-all duration-200
+           hover:bg-(--accent-hover) active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2 focus-visible:ring-offset-black
+           disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .submit-btn{
-    @apply px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-200 shadow;
+    @apply px-5 py-2 rounded-lg border-0 bg-(--accent) text-sm text-(--on-accent) font-semibold cursor-pointer transition-all duration-200
+           hover:bg-(--accent-hover) active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2 focus-visible:ring-offset-black
+           disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+    box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 /* Editor */
@@ -51,14 +62,14 @@
 .editor-container{
     @apply flex-1;
     min-height:300px;
-    border:1px solid #d1d5db;
+    border-bottom:1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Output */
 
 .output-panel {
-    @apply border-t border-gray-700
-           bg-[#252526];
+    @apply border-t border-white/10
+           bg-zinc-950;
 }
 
 .output-header {
@@ -67,8 +78,8 @@
            font-semibold
            uppercase
            tracking-wide
-           text-gray-400
-           border-b border-gray-700;
+           text-zinc-500
+           border-b border-white/10;
 }
 
 .output-body {
@@ -80,8 +91,8 @@
 }
 
 .custom-input-panel {
-    @apply border-t border-gray-700
-           bg-[#252526]
+    @apply border-t border-white/10
+           bg-zinc-950
            px-4 py-2;
 }
 
@@ -137,14 +148,14 @@
 .custom-input-box {
     @apply w-full
            rounded-lg
-           border border-gray-700
-           bg-[#1E1E1E]
+           border border-white/10
+           bg-black
            text-white
            text-sm
            p-2
            resize-none
            outline-none
-           focus:border-cyan-500;
+           focus:border-(--accent);
 }
 
 .verdict-banner {
@@ -176,13 +187,13 @@
 }
 
 .verdict-subtitle {
-    @apply text-xs text-gray-400;
+    @apply text-xs text-zinc-500;
 }
 
 .output-meta {
     @apply mt-2
            text-xs
-           text-gray-400;
+           text-zinc-500;
 }
 
 /* Responsive */

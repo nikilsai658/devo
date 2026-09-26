@@ -2,11 +2,12 @@ import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angu
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Student } from '../../../features/services/student/student';
+import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-assignments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Breadcrumb],
   templateUrl: './student-assignments.html',
   styleUrl: './student-assignments.css'
 })
@@ -14,15 +15,39 @@ export class StudentAssignments implements OnInit {
 
   domainId!: number;
   courseId!: number;
+  domainName = '';
+  courseName = '';
+
+  get breadcrumb(): BreadcrumbItem[] {
+    return [
+      { label: 'My Domains', link: '/main/student-domain' },
+      { label: this.domainName || 'My Courses', link: '/main/student-courses',
+        state: { domainId: this.domainId, domainName: this.domainName } },
+      { label: this.courseName || 'Assignments' }
+    ];
+  }
   assignments:any[]=[];
   tasks:any[]=[];
   loading = true;
+
+  // Tasks are only shown when the course has no assignments.
+  get showTasks(): boolean {
+    return this.assignments.length === 0 && this.tasks.length > 0;
+  }
+
+  // Assignment wording is only used once assignments have actually loaded.
+  get showAssignments(): boolean {
+    return !this.loading && this.assignments.length > 0;
+  }
+
   constructor(private route: ActivatedRoute,private api:Student,private cd:ChangeDetectorRef, private router:Router, @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.domainId = history.state.domainId;
       this.courseId = history.state.courseId;
+      this.domainName = history.state.domainName ?? '';
+      this.courseName = history.state.courseName ?? '';
       this.loadAssignments();
     }
   }
@@ -30,7 +55,7 @@ export class StudentAssignments implements OnInit {
    this.api.getstudentcourseById(this.domainId, this.courseId).subscribe({
     next:(res:any)=>{
       console.log(res.data)
-        this.assignments=res?.data??[];
+        this.assignments=Array.isArray(res?.data)?res.data:[];
         if (this.assignments.length === 0) {
           this.loadTasks();
           return;
@@ -53,7 +78,7 @@ export class StudentAssignments implements OnInit {
       return;
     }
     this.router.navigate(['/main/student-task'], {
-      state: { taskId, domainId: this.domainId, courseId: this.courseId }
+      state: { taskId, domainId: this.domainId, courseId: this.courseId, domainName: this.domainName, courseName: this.courseName }
     });
   }
 
@@ -61,7 +86,7 @@ export class StudentAssignments implements OnInit {
   loadTasks():void{
     this.api.getstudenttasks(this.domainId, this.courseId).subscribe({
       next:(res:any)=>{
-        this.tasks=res?.data??[];
+        this.tasks=Array.isArray(res?.data)?res.data:[];
         this.loading=false;
         this.cd.detectChanges();
       },error:()=>{
@@ -85,7 +110,11 @@ export class StudentAssignments implements OnInit {
     {
       state: {
         Id: id,
-        assignmentIds: assignmentIds
+        assignmentIds: assignmentIds,
+        domainId: this.domainId,
+        domainName: this.domainName,
+        courseId: this.courseId,
+        courseName: this.courseName
       }
     }
   );

@@ -1,3 +1,12 @@
+/* Dark theme page shell (black background, #6B21D0 accent) */
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color: #fff;
+  color-scheme: dark;
+}
+
 @keyframes modal-pop {
   from {
     opacity: 0;

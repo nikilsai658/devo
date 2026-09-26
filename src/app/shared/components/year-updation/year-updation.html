@@ -1,15 +1,15 @@
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-black p-6">
 
     <!-- ================= Header ================= -->
 
     <div class="flex flex-col lg:flex-row justify-between items-center gap-5 mb-8">
 
         <div>
-            <h1 class="text-3xl font-bold text-[#2F3E46]">
+            <h1 class="text-3xl font-bold text-white">
                 Year Promotion
             </h1>
 
-            <p class="text-gray-500 mt-1">
+            <p class="text-zinc-400 mt-1">
                 Promote Students from One Year to Another
             </p>
         </div>
@@ -20,9 +20,9 @@
 
         <!-- ================= PROMOTE FORM ================= -->
 
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+        <div class="lg:col-span-2 bg-zinc-950 rounded-2xl shadow-lg p-6">
 
-            <h2 class="text-2xl font-bold text-[#2F3E46] mb-6">
+            <h2 class="text-2xl font-bold text-white mb-6">
                 Promote Year
             </h2>
 
@@ -35,17 +35,17 @@
                     <div>
 
                         <label class="font-semibold">
-                            From Year <span class="text-red-500">*</span>
+                            From Year <span class="text-rose-400">*</span>
                         </label>
 
                         <input
                             type="number"
                             formControlName="fromYearId"
                             placeholder="Enter From Year Id"
-                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-[#24c0c5] outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
 
                         <small
-                            class="text-red-500"
+                            class="text-rose-400"
                             *ngIf="submitted && promoteForm.get('fromYearId')?.invalid">
 
                             From Year is required
@@ -59,17 +59,17 @@
                     <div>
 
                         <label class="font-semibold">
-                            To Year <span class="text-red-500">*</span>
+                            To Year <span class="text-rose-400">*</span>
                         </label>
 
                         <input
                             type="number"
                             formControlName="toYearId"
                             placeholder="Enter To Year Id"
-                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-[#24c0c5] outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
 
                         <small
-                            class="text-red-500"
+                            class="text-rose-400"
                             *ngIf="submitted && promoteForm.get('toYearId')?.invalid">
 
                             To Year is required
@@ -89,7 +89,7 @@
                         <select
                             formControlName="collegeName"
                             (change)="onCollegeChange()"
-                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-[#24c0c5] outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
 
                             <option value="">All Colleges</option>
 
@@ -118,7 +118,7 @@
                             formControlName="collegeCode"
                             readonly
                             placeholder="Auto-filled on College selection"
-                            class="mt-2 w-full border rounded-lg p-3 bg-gray-100 text-gray-600 outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 bg-zinc-900 text-zinc-400 outline-none border-white/10">
 
                     </div>
 
@@ -132,7 +132,7 @@
 
                         <select
                             formControlName="departmentId"
-                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-[#24c0c5] outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
 
                             <option [ngValue]="null">All Departments</option>
 
@@ -158,7 +158,7 @@
 
                         <select
                             formControlName="branchId"
-                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-[#24c0c5] outline-none">
+                            class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
 
                             <option [ngValue]="null">All Branches</option>
 
@@ -184,7 +184,7 @@
                         *ngIf="auth.hasPermission('UPDATE_YEAR')"
                         type="submit"
                         [disabled]="loading"
-                        class="flex-1 bg-[#24c0c5] hover:bg-[#1eb3b8] text-white py-3 rounded-lg font-bold disabled:opacity-60">
+                        class="flex-1 py-3 rounded-lg font-bold disabled:opacity-60 bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
 
                         {{ loading ? 'Promoting...' : 'Promote Students' }}
 
@@ -193,7 +193,7 @@
                     <button
                         type="button"
                         (click)="resetForm()"
-                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-bold">
+                        class="flex-1 py-3 rounded-lg font-bold bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white cursor-pointer">
 
                         Reset
 
@@ -207,13 +207,13 @@
 
         <!-- ================= INFO PANEL ================= -->
 
-        <div class="bg-white rounded-2xl shadow-lg p-6 h-fit">
+        <div class="bg-zinc-950 rounded-2xl shadow-lg p-6 h-fit">
 
-            <h2 class="text-xl font-bold text-[#2F3E46] mb-4">
+            <h2 class="text-xl font-bold text-white mb-4">
                 How Promotion Works
             </h2>
 
-            <ul class="text-gray-500 space-y-3 list-disc pl-5">
+            <ul class="text-zinc-400 space-y-3 list-disc pl-5">
 
                 <li>
                     Select the <b>From Year</b> and <b>To Year</b> to move students between.
@@ -239,13 +239,13 @@
 
     <!-- ================= PROMOTE WITH DOMAINS (FILE UPLOAD) ================= -->
 
-    <div class="bg-white rounded-2xl shadow-lg p-6 mt-8">
+    <div class="bg-zinc-950 rounded-2xl shadow-lg p-6 mt-8">
 
-        <h2 class="text-2xl font-bold text-[#2F3E46] mb-2">
+        <h2 class="text-2xl font-bold text-white mb-2">
             Promote with Domains (Bulk Upload)
         </h2>
 
-        <p class="text-gray-500 mb-6">
+        <p class="text-zinc-400 mb-6">
             Upload a file to promote students along with their domain assignments in bulk.
         </p>
 
@@ -255,14 +255,14 @@
                 type="file"
                 (change)="onFileSelected($event)"
                 accept=".csv,.xlsx,.xls"
-                class="border rounded-lg p-3 flex-1">
+                class="border rounded-lg p-3 flex-1 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
             <button
                 *ngIf="auth.hasPermission('UPDATE_YEAR')"
                 type="button"
                 (click)="uploadPromoteFile()"
                 [disabled]="uploadLoading || !selectedFile"
-                class="bg-[#24c0c5] hover:bg-[#1eb3b8] text-white px-6 py-3 rounded-lg font-bold disabled:opacity-60">
+                class="px-6 py-3 rounded-lg font-bold disabled:opacity-60 bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
 
                 {{ uploadLoading ? 'Uploading...' : 'Upload & Promote' }}
 
@@ -270,7 +270,7 @@
 
         </div>
 
-        <p *ngIf="selectedFile" class="text-gray-600 mt-3">
+        <p *ngIf="selectedFile" class="text-zinc-400 mt-3">
             Selected file: <b>{{ selectedFile.name }}</b>
         </p>
 

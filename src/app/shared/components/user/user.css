@@ -1,6 +1,16 @@
-@import 'tailwindcss'; 
+@import 'tailwindcss';
+
+/* Dark theme page shell (black background, #6B21D0 accent) */
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color: #fff;
+  color-scheme: dark;
+}
+
 .user-page {
-  @apply min-h-screen p-6 bg-gray-50;
+  @apply min-h-screen p-6 bg-black;
 }
 
 /* ==========================
@@ -12,11 +22,11 @@
 }
 
 .page-header h1 {
-  @apply text-2xl font-bold text-gray-800;
+  @apply text-2xl font-bold text-white;
 }
 
 .page-header p {
-  @apply mt-1 text-sm text-gray-500;
+  @apply mt-1 text-sm text-zinc-400;
 }
 
 .header-actions {
@@ -25,8 +35,9 @@
 
 .add-btn {
   @apply flex items-center gap-2 px-5 py-2.5 rounded-lg
-    bg-[#2F3E46] text-white font-medium shadow-sm
-    transition-opacity duration-200 hover:opacity-90;
+    bg-(--accent) text-(--on-accent) font-medium
+    transition-all duration-200 hover:bg-(--accent-hover);
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .add-btn .plus {
@@ -34,9 +45,9 @@
 }
 
 .refresh-btn {
-  @apply px-4 py-2 rounded-lg bg-white text-[#2F3E46]
-    border border-gray-300 font-medium transition-all duration-200
-    hover:bg-gray-100 disabled:opacity-50;
+  @apply px-4 py-2 rounded-lg bg-white/5 text-zinc-300
+    border border-white/15 font-medium transition-all duration-200
+    hover:bg-white/10 disabled:opacity-50;
 }
 
 /* ==========================
@@ -45,11 +56,11 @@
 
 .modal-overlay {
   @apply fixed inset-0 z-50 flex items-center justify-center
-    bg-black/50 backdrop-blur-sm px-4;
+    bg-black/70 backdrop-blur-sm px-4;
 }
 
 .modal-card {
-  @apply bg-white w-full max-w-3xl rounded-xl shadow-2xl
+  @apply bg-zinc-950 w-full max-w-3xl rounded-xl shadow-2xl
     overflow-hidden max-h-[90vh] flex flex-col;
 }
 
@@ -70,7 +81,7 @@
 
 .modal-header {
   @apply flex items-center justify-between px-6 py-4 shrink-0;
-  background-color: #2F3E46;
+  background-color: #18181b;
 }
 
 .modal-header h3 {
@@ -94,7 +105,7 @@
 .filter-card,
 .search-card,
 .table-card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 mb-6;
+  @apply bg-zinc-950 rounded-xl shadow-sm border border-white/10 mb-6;
 }
 
 /* ==========================
@@ -106,20 +117,20 @@
 .filter-header,
 .table-header {
   @apply flex items-center justify-between
-    px-6 py-5 border-b border-gray-200;
+    px-6 py-5 border-b border-white/10;
 }
 
 .form-header h2,
 .upload-header h2,
 .filter-header h2,
 .table-header h2 {
-  @apply text-lg font-semibold text-gray-800;
+  @apply text-lg font-semibold text-white;
 }
 
 .form-header p,
 .upload-header p,
 .filter-header p {
-  @apply mt-1 text-sm text-gray-500;
+  @apply mt-1 text-sm text-zinc-400;
 }
 
 /* ==========================
@@ -140,11 +151,11 @@
 
 .form-group label,
 .filter-group label {
-  @apply mb-2 text-sm font-medium text-gray-700;
+  @apply mb-2 text-sm font-medium text-zinc-300;
 }
 
 .form-group label span {
-  @apply text-red-500 ml-1;
+  @apply text-rose-400 ml-1;
 }
 
 .form-group input,
@@ -153,22 +164,22 @@
 .filter-group select,
 .search-card input {
   @apply w-full px-3 py-2.5 rounded-lg
-    border border-gray-300
-    bg-white text-gray-800
+    border border-white/15
+    bg-black text-white
     text-sm outline-none
     transition-all duration-200
     focus:border-transparent
-    focus:ring-2 focus:ring-[#2F3E46];
+    focus:ring-2 focus:ring-(--accent);
 }
 
 .form-group input::placeholder,
 .search-card input::placeholder {
-  @apply text-gray-400;
+  @apply text-zinc-500;
 }
 
 .form-group input:disabled,
 .form-group select:disabled {
-  @apply bg-gray-100 cursor-not-allowed;
+  @apply bg-white/5 cursor-not-allowed;
 }
 
 .password-field {
@@ -182,7 +193,7 @@
 .password-toggle {
   @apply absolute top-1/2 right-3 -translate-y-1/2
     flex items-center justify-center
-    text-gray-400 hover:text-[#24c0c5]
+    text-zinc-500 hover:text-(--accent-text)
     transition-colors duration-150;
 }
 
@@ -195,7 +206,7 @@
 ========================== */
 
 .error {
-  @apply mt-1 text-xs text-red-500;
+  @apply mt-1 text-xs text-rose-400;
 }
 
 /* ==========================
@@ -204,36 +215,36 @@
 
 .form-actions {
   @apply flex items-center justify-end gap-3 mt-6 pt-5
-    border-t border-gray-200;
+    border-t border-white/10;
 }
 
 .save-btn {
   @apply px-5 py-2.5 rounded-lg
-    bg-emerald-600 text-white
+    bg-(--accent) text-(--on-accent)
     font-medium
     transition-all duration-200
-    hover:bg-emerald-700
+    hover:bg-(--accent-hover)
     disabled:opacity-50
     disabled:cursor-not-allowed;
 }
 
 .update-btn {
   @apply px-5 py-2.5 rounded-lg
-    bg-amber-500 text-white
+    bg-(--accent) text-(--on-accent)
     font-medium
     transition-all duration-200
-    hover:bg-amber-600
+    hover:bg-(--accent-hover)
     disabled:opacity-50
     disabled:cursor-not-allowed;
 }
 
 .cancel-btn {
   @apply px-5 py-2.5 rounded-lg
-    bg-white text-gray-700
+    bg-white/5 text-zinc-300
     font-medium
-    border border-gray-300
+    border border-white/15
     transition-all duration-200
-    hover:bg-gray-100;
+    hover:bg-white/10;
 }
 
 /* ==========================
@@ -245,29 +256,29 @@
 }
 
 .upload-content input[type="file"] {
-  @apply block text-sm text-gray-600;
+  @apply block text-sm text-zinc-400;
 }
 
 .upload-content input[type="file"]::file-selector-button {
   @apply mr-4 px-4 py-2
     rounded-lg border-0
-    bg-gray-100 text-gray-700
+    bg-white/5 text-zinc-300
     font-medium cursor-pointer
-    hover:bg-gray-200;
+    hover:bg-white/15;
 }
 
 .upload-btn {
   @apply px-5 py-2.5 rounded-lg
-    bg-[#2F3E46] text-white
+    bg-(--accent) text-(--on-accent)
     font-medium
     transition-all duration-200
-    hover:bg-[#243238]
+    hover:bg-(--accent-hover)
     disabled:opacity-50
     disabled:cursor-not-allowed;
 }
 
 .file-name {
-  @apply text-sm text-gray-600;
+  @apply text-sm text-zinc-400;
 }
 
 /* ==========================
@@ -275,7 +286,7 @@
 ========================== */
 
 .upload-results {
-  @apply border-t border-gray-200 px-6 py-5;
+  @apply border-t border-white/10 px-6 py-5;
 }
 
 .upload-results-header {
@@ -291,11 +302,11 @@
 }
 
 .result-badge-success {
-  @apply bg-emerald-100 text-emerald-700;
+  @apply bg-emerald-500/15 text-emerald-400;
 }
 
 .result-badge-failed {
-  @apply bg-red-100 text-red-700;
+  @apply bg-rose-500/15 text-rose-400;
 }
 
 .upload-results-block {
@@ -311,11 +322,11 @@
 }
 
 .upload-results-title-success {
-  @apply text-emerald-700;
+  @apply text-emerald-400;
 }
 
 .upload-results-title-failed {
-  @apply text-red-700;
+  @apply text-rose-400;
 }
 
 /* ==========================
@@ -333,11 +344,11 @@
 
 .clear-btn {
   @apply px-4 py-2 rounded-lg
-    border border-gray-300
-    bg-white text-gray-700
+    border border-white/15
+    bg-zinc-950 text-zinc-300
     text-sm font-medium
     transition-all duration-200
-    hover:bg-gray-100;
+    hover:bg-white/10;
 }
 
 /* ==========================
@@ -365,7 +376,7 @@ table {
 }
 
 thead {
-  background-color: #2F3E46;
+  background-color: #18181b;
 }
 
 thead th {
@@ -381,21 +392,21 @@ thead th:not(:last-child) {
 }
 
 thead th:hover {
-  background-color: #243238;
+  background-color: #27272a;
 }
 
 tbody tr {
-  @apply border-b border-gray-100
+  @apply border-b border-white/10
     transition-colors duration-150;
 }
 
 tbody tr:hover {
-  @apply bg-gray-50;
+  @apply bg-black;
 }
 
 tbody td {
   @apply px-5 py-4
-    text-sm text-gray-700
+    text-sm text-zinc-300
     whitespace-nowrap;
 }
 
@@ -410,19 +421,19 @@ tbody td {
 }
 
 .status-btn.active {
-  @apply bg-green-100 text-green-700;
+  @apply bg-emerald-500/15 text-emerald-400;
 }
 
 .status-btn.active:hover {
-  @apply bg-green-200;
+  @apply bg-emerald-500/25;
 }
 
 .status-btn.inactive {
-  @apply bg-red-100 text-red-700;
+  @apply bg-rose-500/15 text-rose-400;
 }
 
 .status-btn.inactive:hover {
-  @apply bg-red-200;
+  @apply bg-rose-500/25;
 }
 
 /* ==========================
@@ -435,34 +446,34 @@ tbody td {
 
 .edit-btn {
   @apply px-3 py-1.5 rounded-lg
-    bg-amber-500 text-white
+    border border-(--accent)/50 bg-(--accent)/15 text-(--accent-text-strong)
     text-xs font-medium
     transition-all duration-200
-    hover:bg-amber-600;
+    hover:bg-(--accent) hover:text-(--on-accent);
 }
 
 .delete-btn {
   @apply px-3 py-1.5 rounded-lg
-    bg-red-600 text-white
+    border border-rose-500/40 bg-rose-500/10 text-rose-400
     text-xs font-medium
     transition-all duration-200
-    hover:bg-red-700;
+    hover:bg-rose-600 hover:text-white;
 }
 
 .lock-btn {
   @apply px-3 py-1.5 rounded-lg
-    bg-red-600 text-white
+    border border-rose-500/40 bg-rose-500/10 text-rose-400
     text-xs font-medium
     transition-all duration-200
-    hover:bg-red-700;
+    hover:bg-rose-600 hover:text-white;
 }
 
 .unlock-btn {
   @apply px-3 py-1.5 rounded-lg
-    bg-emerald-600 text-white
+    border border-emerald-500/40 bg-emerald-500/10 text-emerald-400
     text-xs font-medium
     transition-all duration-200
-    hover:bg-emerald-700;
+    hover:bg-emerald-600 hover:text-white;
 }
 
 /* ==========================
@@ -472,7 +483,7 @@ tbody td {
 .loading {
   @apply flex items-center justify-center
     min-h-[200px]
-    text-sm text-gray-500;
+    text-sm text-zinc-400;
 }
 
 /* ==========================
@@ -481,7 +492,7 @@ tbody td {
 
 .empty-state {
   @apply py-12 text-center
-    text-sm text-gray-500;
+    text-sm text-zinc-400;
 }
 
 /* ==========================
@@ -492,16 +503,16 @@ tbody td {
   @apply flex flex-col sm:flex-row items-center justify-between
     gap-3
     px-6 py-4
-    border-t border-gray-200
-    bg-gray-50;
+    border-t border-white/10
+    bg-black;
 }
 
 .pagination-info {
-  @apply text-sm text-gray-500;
+  @apply text-sm text-zinc-400;
 }
 
 .pagination-info strong {
-  @apply font-semibold text-gray-700;
+  @apply font-semibold text-zinc-300;
 }
 
 .pagination-controls {
@@ -510,11 +521,11 @@ tbody td {
 
 .pagination-controls button {
   @apply px-4 py-2 rounded-lg
-    border border-gray-300
-    bg-white text-gray-600
+    border border-white/15
+    bg-zinc-950 text-zinc-400
     text-sm font-semibold
     transition-all duration-200
-    hover:bg-gray-100
+    hover:bg-white/10
     disabled:opacity-40
     disabled:cursor-not-allowed;
 }
@@ -529,13 +540,13 @@ tbody td {
 }
 
 .pagination-controls .page-btn.active {
-  background-color: #2F3E46;
-  @apply text-white border-transparent shadow-sm hover:bg-[#2F3E46];
+  background-color: var(--accent);
+  @apply text-(--on-accent) border-transparent shadow-sm hover:bg-(--accent-hover);
 }
 
 .pagination-controls .page-ellipsis {
   @apply w-9 h-9 flex items-center justify-center
-    text-sm text-gray-400;
+    text-sm text-zinc-500;
 }
 
 /* ==========================
@@ -596,21 +607,21 @@ tbody td {
 }
 
 .print-success-btn {
-  background: #dcfce7;
-  color: #15803d;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
 }
 
 .print-success-btn:hover {
-  background: #bbf7d0;
+  background: rgba(16, 185, 129, 0.25);
 }
 
 .print-failed-btn {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
 }
 
 .print-failed-btn:hover {
-  background: #fecaca;
+  background: rgba(244, 63, 94, 0.25);
 }
 
 @media (max-width: 768px) {

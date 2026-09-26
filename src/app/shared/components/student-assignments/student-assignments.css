@@ -1,545 +1,263 @@
-/* =========================================================
-   ASSIGNMENTS PAGE
-   ========================================================= */
+/* =============================================================
+   MY ASSIGNMENTS — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Numbered list layout, matching the My Courses page.
+============================================================= */
 @import "tailwindcss";
-.assignment-page {
-  @apply min-h-screen px-10 py-10;
-  background-color: #f7f7f7;
+
+/* ---------------- PAGE ---------------- */
+
+:host {
+  @apply block min-h-screen bg-black;
+  background-color: #000;
 }
 
-
-/* =========================================================
-   PAGE HEADER
-   ========================================================= */
-
-.page-header {
-  @apply flex items-start justify-between mb-6;
+.assignments-page {
+  @apply min-h-screen w-full bg-black text-white antialiased;
+  background-color: #000;
 }
 
-.page-title {
-  @apply text-2xl font-bold leading-tight;
-  color: #2F3E46;
+.assignments-container {
+  @apply mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8;
 }
 
-.page-subtitle {
-  @apply mt-1 text-sm;
-  color: #64748b;
+/* ---------------- HEADER ---------------- */
+
+.assignments-header {
+  @apply mb-8 flex flex-col gap-5 border-b border-white/10 pb-6
+         sm:flex-row sm:items-end sm:justify-between;
 }
 
-
-/* =========================================================
-   TOTAL ASSIGNMENTS
-   Reference image does not show this element.
-   Hide it to keep the same header appearance.
-   ========================================================= */
-
-.total-card {
-  @apply hidden;
+.page-label {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-(--accent-text);
 }
 
-
-/* =========================================================
-   ASSIGNMENT CARD
-   ========================================================= */
-
-.assignment-card {
-  @apply relative flex items-center justify-between;
-  @apply w-full min-h-[91px];
-  @apply mb-4;
-  @apply bg-white;
-  @apply border border-slate-200;
-  @apply rounded-xl;
-  @apply overflow-hidden;
-  @apply shadow-sm;
-  @apply transition-all duration-200;
-}
-
-
-/* Left dark vertical accent */
-.assignment-card::before {
+.page-label::before {
   content: "";
-  @apply absolute left-0 top-0 bottom-0 w-1;
-  background-color: #2F3E46;
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
 }
 
-
-/* Subtle hover */
-.assignment-card:hover {
-  @apply shadow-md;
-  border-color: #cbd5e1;
+.assignments-title {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
 }
 
-
-/* =========================================================
-   LEFT SECTION
-   ========================================================= */
-
-.card-left {
-  @apply flex items-center flex-1 min-w-0;
+.assignments-subtitle {
+  @apply mt-2 text-sm text-zinc-400;
 }
 
-
-/* =========================================================
-   ASSIGNMENT NUMBER
-   ========================================================= */
-
-/*
-   The reference design doesn't display a number.
-   Hide the existing number so the content aligns
-   similarly to the reference.
-*/
-
-.assignment-number {
-  @apply hidden;
+.assignments-count {
+  @apply flex items-baseline gap-1.5 self-start rounded-xl border border-white/10
+         bg-zinc-950 px-4 py-2.5 sm:self-auto;
 }
 
+.assignments-count strong {
+  @apply text-2xl font-bold text-white;
+}
 
-/* =========================================================
-   ASSIGNMENT CONTENT
-   ========================================================= */
+.assignments-count span {
+  @apply text-sm text-zinc-400;
+}
+
+/* ---------------- LIST ---------------- */
+
+.assignment-list {
+  @apply flex flex-col gap-3;
+}
+
+.assignment-row {
+  @apply relative flex flex-col gap-4 overflow-hidden rounded-xl border border-white/10
+         bg-zinc-950 p-4 transition duration-300
+         hover:border-white/20 hover:bg-zinc-900
+         sm:flex-row sm:items-center sm:gap-5 sm:p-5;
+}
+
+/* Accent bar on hover */
+.assignment-row::before {
+  content: "";
+  @apply absolute inset-y-0 left-0 w-[3px] bg-(--accent) opacity-0 transition-opacity duration-300;
+}
+
+.assignment-row:hover::before {
+  @apply opacity-100;
+}
+
+.assignment-index {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-lg
+         border border-(--accent)/40 bg-(--accent)/10
+         font-mono text-sm font-semibold text-(--accent-text)
+         transition duration-300;
+}
+
+.assignment-row:hover .assignment-index {
+  @apply border-(--accent) bg-(--accent) text-(--on-accent);
+}
 
 .assignment-content {
-  @apply flex items-center justify-between;
-  @apply flex-1;
-  @apply min-w-0;
-  @apply pl-7 pr-6;
+  @apply min-w-0 flex-1;
 }
 
-
-/* Assignment title */
-
-.assignment-content h2 {
-  @apply w-[38%] min-w-0;
-  @apply text-base font-bold;
-  @apply leading-5;
-  @apply truncate;
-  color: #2F3E46;
+.assignment-top {
+  @apply flex flex-wrap items-center gap-x-3 gap-y-2;
 }
 
-
-/* =========================================================
-   ASSIGNMENT INFORMATION
-   ========================================================= */
-
-.assignment-info {
-  @apply flex items-center;
-  @apply flex-1;
-  @apply ml-8;
+.assignment-name {
+  @apply truncate text-base font-semibold text-white sm:text-lg;
 }
 
-
-/* Individual information column */
-
-.info-item {
-  @apply flex flex-col justify-center;
-  @apply min-w-0;
+.assignment-tags {
+  @apply flex gap-1.5;
 }
 
-
-/* Give each field similar spacing to reference */
-
-.info-item:nth-child(1) {
-  @apply w-[25%];
+.assignment-tag {
+  @apply rounded-md border border-white/10 bg-white/5 px-2 py-0.5
+         text-[11px] font-medium text-zinc-300;
 }
 
-.info-item:nth-child(2) {
-  @apply w-[25%];
+/* Difficulty */
+.assignment-tag.difficulty.easy {
+  @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-300;
 }
 
-.info-item:nth-child(3) {
-  @apply w-[25%];
+.assignment-tag.difficulty.medium {
+  @apply border-amber-500/30 bg-amber-500/10 text-amber-300;
 }
 
-.info-item:nth-child(4) {
-  @apply w-[25%];
+.assignment-tag.difficulty.hard {
+  @apply border-rose-500/30 bg-rose-500/10 text-rose-300;
 }
 
-
-/* Information labels */
-
-.info-item > span:first-child {
-  @apply text-[10px] uppercase tracking-wide;
-  color: #8ca0a8;
+/* Status */
+.assignment-tag.status.pending {
+  @apply border-white/15 bg-white/5 text-zinc-300;
 }
 
-
-/* Information values */
-
-.info-item > strong {
-  @apply mt-1 text-xs font-medium;
-  color: #2F3E46;
+.assignment-tag.status.started {
+  @apply border-(--accent)/40 bg-(--accent)/15 text-(--accent-text);
 }
 
-
-/* =========================================================
-   DIFFICULTY
-   ========================================================= */
-
-.difficulty {
-  @apply inline-flex items-center;
-  @apply w-fit;
-  @apply mt-1;
-  @apply px-3 py-1;
-  @apply text-[11px] font-semibold;
-  @apply rounded-md;
+.assignment-tag.status.completed {
+  @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-300;
 }
 
-
-/* Easy */
-
-.difficulty.easy {
-  @apply border;
-  color: #2F3E46;
-  background-color: #f1f5f6;
-  border-color: #b9c5c9;
+.assignment-description {
+  @apply mt-1.5 line-clamp-2 text-sm leading-relaxed text-zinc-400;
 }
 
-
-/* Medium */
-
-.difficulty.medium {
-  @apply border;
-  color: #2F3E46;
-  background-color: #f1f5f6;
-  border-color: #b9c5c9;
+.assignment-meta {
+  @apply mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-zinc-300;
 }
 
-
-/* Hard */
-
-.difficulty.hard {
-  @apply border;
-  color: #2F3E46;
-  background-color: #f1f5f6;
-  border-color: #b9c5c9;
-}
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
-
-.info-item strong.pending,
-.info-item strong.started,
-.info-item strong.completed {
-  @apply inline-flex items-center;
-  @apply w-fit;
-  @apply px-4 py-1.5;
-  @apply rounded-md;
-  @apply border;
-  @apply text-[11px] font-semibold;
-}
-
-
-/* Pending */
-
-.info-item strong.pending {
-  color: #2F3E46;
-  background-color: #f1f3f4;
-  border-color: #2F3E46;
-}
-
-
-/* Started */
-
-.info-item strong.started {
-  color: #2F3E46;
-  background-color: #f1f3f4;
-  border-color: #9aaeb5;
-}
-
-
-/* Completed */
-
-.info-item strong.completed {
-  color: #78909a;
-  background-color: #f7f9fa;
-  border-color: #9aadb4;
-}
-
-
-/* =========================================================
-   RIGHT SECTION
-   ========================================================= */
-
-.card-right {
-  @apply flex items-center;
-  @apply shrink-0;
-  @apply pr-6;
-}
-
-
-/* =========================================================
-   START BUTTON
-   ========================================================= */
-
-.start-btn {
-  @apply flex items-center justify-center;
-  @apply h-9;
-  @apply min-w-[169px];
-  @apply px-5;
-  @apply text-xs font-semibold;
-  @apply text-white;
-  @apply rounded-lg;
-  @apply transition-all duration-200;
-  background-color: #2F3E46;
-}
-
-
-/* Arrow */
-
-.start-btn::after {
-  content: "→";
-  @apply ml-2 text-base;
-  transition: transform 0.2s ease;
-}
-
-
-/* Hover */
-
-.start-btn:hover {
-  background-color: #243238;
-}
-
-.start-btn:hover::after {
-  transform: translateX(3px);
-}
-
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
-
-.empty-card {
-  @apply flex items-center justify-center;
-  @apply w-full;
-  @apply min-h-[120px];
-  @apply mt-4;
-  @apply bg-white;
-  @apply border border-slate-200;
-  @apply rounded-xl;
-  @apply text-sm font-medium;
-  color: #64748b;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 1100px) {
-
-  .assignment-page {
-    @apply px-6;
-  }
-
-  .assignment-content {
-    @apply pl-6 pr-4;
-  }
-
-  .assignment-content h2 {
-    @apply w-[30%];
-  }
-
-  .assignment-info {
-    @apply ml-5;
-  }
-
-  .card-right {
-    @apply pr-4;
-  }
-
-  .start-btn {
-    @apply min-w-[145px];
-  }
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 850px) {
-
-  .assignment-page {
-    @apply px-5;
-  }
-
-  .assignment-card {
-    @apply items-stretch;
-    min-height: 110px;
-  }
-
-  .assignment-content {
-    @apply flex-col items-start justify-center;
-    @apply py-4;
-  }
-
-  .assignment-content h2 {
-    @apply w-full;
-  }
-
-  .assignment-info {
-    @apply w-full ml-0 mt-3;
-  }
-
-  .info-item:nth-child(1),
-  .info-item:nth-child(2),
-  .info-item:nth-child(3),
-  .info-item:nth-child(4) {
-    @apply w-1/4;
-  }
-
-  .card-right {
-    @apply items-center;
-  }
-
-  .start-btn {
-    @apply min-w-[130px];
-  }
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 640px) {
-
-  .assignment-page {
-    @apply px-4 py-6;
-  }
-
-  .page-header {
-    @apply mb-5;
-  }
-
-  .page-title {
-    @apply text-2xl;
-  }
-
-  .assignment-card {
-    @apply flex-col items-stretch;
-    min-height: auto;
-  }
-
-  .card-left {
-    @apply w-full;
-  }
-
-  .assignment-content {
-    @apply w-full px-5 py-5;
-  }
-
-  .assignment-content h2 {
-    @apply text-base;
-  }
-
-  .assignment-info {
-    @apply grid grid-cols-2 gap-3;
-  }
-
-  .info-item:nth-child(1),
-  .info-item:nth-child(2),
-  .info-item:nth-child(3),
-  .info-item:nth-child(4) {
-    @apply w-full;
-  }
-
-  .card-right {
-    @apply w-full px-5 pb-5;
-  }
-
-  .start-btn {
-    @apply w-full;
-  }
-}
-
-/* =========================================================
-   TASK CARDS
-   ========================================================= */
-
-.task-grid {
-  @apply grid gap-5;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-}
-
-.task-card {
-  @apply relative flex flex-col;
-  @apply bg-white rounded-2xl p-6;
-  @apply border border-slate-200 shadow-sm;
-  @apply transition-all duration-200;
-}
-
-.task-card::before {
-  content: "";
-  @apply absolute left-0 right-0 top-0 h-1 rounded-t-2xl;
-  background: linear-gradient(90deg, #2F3E46, #24c0c5);
-}
-
-.task-card:hover {
-  @apply shadow-lg;
-  transform: translateY(-3px);
-  border-color: #cbd5e1;
-}
-
-.task-top {
-  @apply flex items-center justify-between mb-4;
-}
-
-.task-index {
-  @apply text-xs font-semibold uppercase tracking-wide;
-  color: #64748b;
-}
-
-.task-status {
-  @apply text-xs font-semibold px-3 py-1 rounded-full;
-}
-
-.task-status.is-pending {
-  background-color: #fef3c7;
-  color: #b45309;
-}
-
-.task-status.is-done {
-  background-color: #d1fae5;
-  color: #047857;
-}
-
-.task-title {
-  @apply text-lg font-bold leading-snug mb-2;
-  color: #2F3E46;
-}
-
-.task-question {
-  @apply text-sm leading-relaxed mb-4;
-  color: #64748b;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.task-meta {
-  @apply mb-4;
+.assignment-meta em {
+  @apply mr-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-500 not-italic;
 }
 
 .task-file {
-  @apply inline-block text-xs px-3 py-1 rounded-lg bg-slate-100 truncate max-w-full;
-  color: #2F3E46;
+  @apply inline-flex max-w-full items-center gap-1.5 truncate rounded-md
+         border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-zinc-300;
 }
 
-.task-footer {
-  @apply mt-auto pt-4 border-t border-slate-100;
+.task-file svg {
+  @apply h-3.5 w-3.5 shrink-0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.task-btn {
-  @apply w-full h-10 text-sm font-semibold text-white rounded-lg;
-  @apply transition-all duration-200;
-  background-color: #2F3E46;
+/* ---------------- BUTTON ---------------- */
+
+.primary-btn {
+  @apply inline-flex w-full shrink-0 cursor-pointer items-center justify-center gap-2
+         rounded-lg border-0 bg-(--accent) px-4 py-2.5
+         text-sm font-semibold text-(--on-accent)
+         transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         sm:w-auto;
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
-.task-btn:hover {
-  background-color: #24c0c5;
+.primary-btn svg {
+  @apply h-4 w-4 transition-transform duration-200;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.primary-btn:hover svg {
+  @apply translate-x-1;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.assignment-skeleton {
+  @apply flex items-center gap-5 rounded-xl border border-white/10 bg-zinc-950 p-5;
+}
+
+.skeleton-index,
+.skeleton-line,
+.skeleton-button {
+  @apply animate-pulse bg-zinc-800/80;
+}
+
+.skeleton-index  { @apply h-11 w-11 shrink-0 rounded-lg; }
+.skeleton-lines  { @apply flex flex-1 flex-col gap-2; }
+.skeleton-line   { @apply h-4 rounded-md; }
+.skeleton-button { @apply hidden h-10 w-36 rounded-lg bg-(--accent)/30 sm:block; }
+
+/* ---------------- EMPTY STATE ---------------- */
+
+.no-assignments {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/15 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.no-assignments-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl
+         bg-(--accent)/15 text-(--accent-text);
+}
+
+.no-assignments-icon svg {
+  @apply h-7 w-7;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.no-assignments-title {
+  @apply text-lg font-semibold text-white;
+}
+
+.no-assignments-text {
+  @apply mt-2 max-w-sm text-sm text-zinc-400;
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .assignment-row,
+  .assignment-row::before,
+  .assignment-index,
+  .primary-btn,
+  .primary-btn svg,
+  .skeleton-index,
+  .skeleton-line,
+  .skeleton-button {
+    @apply animate-none transition-none;
+  }
+}
+
+/* Breadcrumb navigation */
+.page-breadcrumb {
+  display: block;
+  margin-bottom: 1.5rem;
 }

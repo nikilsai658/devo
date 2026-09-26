@@ -6,7 +6,8 @@
    ========================================================= */
 
 :host {
-  @apply block min-h-screen;
+  @apply block min-h-screen bg-black text-white;
+  color-scheme: dark;
 }
 
 
@@ -15,7 +16,7 @@
    ========================================================= */
 
 .domain-page {
-  @apply min-h-screen w-full bg-[#f6f8fa] px-5 py-6 lg:px-8 lg:py-8;
+  @apply min-h-screen w-full bg-black px-5 py-6 lg:px-8 lg:py-8;
 }
 
 
@@ -33,8 +34,7 @@
 
 .header-icon {
   @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl
-         bg-[#2F3E46] text-[#24c0c5]
-         shadow-sm;
+         border border-(--accent)/40 bg-(--accent)/15 text-(--accent-text);
 }
 
 .header-icon svg {
@@ -42,11 +42,11 @@
 }
 
 .header-left h1 {
-  @apply text-2xl font-bold tracking-tight text-[#2F3E46] lg:text-3xl;
+  @apply text-2xl font-bold tracking-tight text-white lg:text-3xl;
 }
 
 .header-left p {
-  @apply mt-1 text-sm text-gray-500;
+  @apply mt-1 text-sm text-zinc-400;
 }
 
 
@@ -56,13 +56,13 @@
 
 .domain-stat {
   @apply flex min-w-[210px] items-center gap-4 rounded-2xl
-         border border-gray-200 bg-white px-5 py-4
+         border border-white/10 bg-zinc-950 px-5 py-4
          shadow-sm;
 }
 
 .stat-icon {
   @apply flex h-11 w-11 items-center justify-center
-         rounded-xl bg-[#24c0c5]/10 text-[#24c0c5];
+         rounded-xl bg-(--accent)/15 text-(--accent-text);
 }
 
 .stat-icon svg {
@@ -70,11 +70,11 @@
 }
 
 .domain-stat span {
-  @apply block text-xs font-medium uppercase tracking-wide text-gray-400;
+  @apply block text-xs font-medium uppercase tracking-wide text-zinc-500;
 }
 
 .domain-stat strong {
-  @apply mt-0.5 block text-2xl font-bold text-[#2F3E46];
+  @apply mt-0.5 block text-2xl font-bold text-white;
 }
 
 
@@ -92,32 +92,32 @@
    ========================================================= */
 
 .form-card {
-  @apply overflow-hidden rounded-2xl border border-gray-200
-         bg-white shadow-sm;
+  @apply overflow-hidden rounded-2xl border border-white/10
+         bg-zinc-950 shadow-sm;
 }
 
 .card-heading {
-  @apply flex items-start justify-between border-b border-gray-100
+  @apply flex items-start justify-between border-b border-white/10
          px-6 py-5;
 }
 
 .section-label {
-  @apply text-[10px] font-bold tracking-[0.16em] text-[#24c0c5];
+  @apply text-[10px] font-bold tracking-[0.16em] text-(--accent-text);
 }
 
 .card-heading h2,
 .table-header h2 {
-  @apply mt-1 text-xl font-bold text-[#2F3E46];
+  @apply mt-1 text-xl font-bold text-white;
 }
 
 .card-heading p,
 .table-header p {
-  @apply mt-1 text-xs leading-5 text-gray-500;
+  @apply mt-1 text-xs leading-5 text-zinc-400;
 }
 
 .form-heading-icon {
   @apply flex h-10 w-10 items-center justify-center rounded-xl
-         bg-[#f1f7f7] text-[#24c0c5];
+         bg-zinc-950/5 text-(--accent-text);
 }
 
 .form-heading-icon svg {
@@ -138,11 +138,11 @@
 }
 
 .form-group label {
-  @apply mb-2 block text-sm font-semibold text-[#2F3E46];
+  @apply mb-2 block text-sm font-semibold text-white;
 }
 
 .form-group label span {
-  @apply ml-1 text-red-500;
+  @apply ml-1 text-rose-400;
 }
 
 
@@ -151,25 +151,25 @@
    ========================================================= */
 
 .input-wrapper {
-  @apply flex items-center rounded-xl border border-gray-200
-         bg-white transition-all duration-200;
+  @apply flex items-center rounded-xl border border-white/10
+         bg-black transition-all duration-200;
 }
 
 .input-wrapper:focus-within {
-  @apply border-[#24c0c5] ring-4 ring-[#24c0c5]/10;
+  @apply border-(--accent) ring-4 ring-(--accent)/25;
 }
 
 .input-wrapper svg {
-  @apply ml-3 h-5 w-5 shrink-0 text-gray-400;
+  @apply ml-3 h-5 w-5 shrink-0 text-zinc-500;
 }
 
 .input-wrapper input {
   @apply w-full border-0 bg-transparent px-3 py-3
-         text-sm text-[#2F3E46] outline-none;
+         text-sm text-white outline-none;
 }
 
 .input-wrapper input::placeholder {
-  @apply text-gray-400;
+  @apply text-zinc-500;
 }
 
 
@@ -178,21 +178,21 @@
    ========================================================= */
 
 .textarea-wrapper {
-  @apply rounded-xl border border-gray-200 bg-white transition-all duration-200;
+  @apply rounded-xl border border-white/10 bg-black transition-all duration-200;
 }
 
 .textarea-wrapper:focus-within {
-  @apply border-[#24c0c5] ring-4 ring-[#24c0c5]/10;
+  @apply border-(--accent) ring-4 ring-(--accent)/25;
 }
 
 .textarea-wrapper textarea {
   @apply w-full resize-none rounded-xl border-0 bg-transparent
-         px-4 py-3 text-sm leading-6 text-[#2F3E46]
+         px-4 py-3 text-sm leading-6 text-white
          outline-none;
 }
 
 .textarea-wrapper textarea::placeholder {
-  @apply text-gray-400;
+  @apply text-zinc-500;
 }
 
 
@@ -201,7 +201,7 @@
    ========================================================= */
 
 .validation-error {
-  @apply mt-1.5 block text-xs font-medium text-red-500;
+  @apply mt-1.5 block text-xs font-medium text-rose-400;
 }
 
 
@@ -220,7 +220,7 @@
 
 .active-box {
   @apply mb-6 flex items-center justify-between rounded-xl
-         border border-gray-200 bg-[#fafbfb] px-4 py-3;
+         border border-white/10 bg-black/40 px-4 py-3;
 }
 
 .active-info {
@@ -229,7 +229,7 @@
 
 .active-icon {
   @apply flex h-9 w-9 items-center justify-center rounded-lg
-         bg-[#24c0c5]/10 text-[#24c0c5];
+         bg-(--accent)/15 text-(--accent-text);
 }
 
 .active-icon svg {
@@ -237,11 +237,11 @@
 }
 
 .active-info strong {
-  @apply block text-sm font-semibold text-[#2F3E46];
+  @apply block text-sm font-semibold text-white;
 }
 
 .active-info span {
-  @apply mt-0.5 block text-[11px] text-gray-400;
+  @apply mt-0.5 block text-[11px] text-zinc-500;
 }
 
 
@@ -259,7 +259,7 @@
 
 .slider {
   @apply absolute inset-0 cursor-pointer rounded-full
-         bg-gray-300 transition-all duration-200;
+         bg-zinc-700 transition-all duration-200;
 }
 
 .slider::before {
@@ -269,7 +269,7 @@
 }
 
 .switch input:checked + .slider {
-  @apply bg-[#24c0c5];
+  @apply bg-(--accent);
 }
 
 .switch input:checked + .slider::before {
@@ -294,27 +294,29 @@
 }
 
 .primary-btn {
-  @apply bg-[#24c0c5] text-white shadow-sm;
+  @apply bg-(--accent) text-(--on-accent);
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .primary-btn:hover {
-  @apply bg-[#1eafb4] shadow-md;
+  @apply bg-(--accent-hover) shadow-md;
 }
 
 .update-btn {
-  @apply bg-[#e9a400] text-white shadow-sm;
+  @apply bg-(--accent) text-(--on-accent);
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .update-btn:hover {
-  @apply bg-[#d99600] shadow-md;
+  @apply bg-(--accent-hover) shadow-md;
 }
 
 .secondary-btn {
-  @apply border border-gray-200 bg-white text-gray-600;
+  @apply border border-white/10 bg-zinc-950/5 text-zinc-300;
 }
 
 .secondary-btn:hover {
-  @apply bg-gray-50 text-[#2F3E46];
+  @apply bg-zinc-950/10 text-white;
 }
 
 .primary-btn svg,
@@ -329,8 +331,8 @@
    ========================================================= */
 
 .table-card {
-  @apply min-w-0 overflow-hidden rounded-2xl border border-gray-200
-         bg-white shadow-sm;
+  @apply min-w-0 overflow-hidden rounded-2xl border border-white/10
+         bg-zinc-950 shadow-sm;
 }
 
 
@@ -339,17 +341,17 @@
    ========================================================= */
 
 .table-header {
-  @apply flex items-center justify-between border-b border-gray-100
+  @apply flex items-center justify-between border-b border-white/10
          px-6 py-5;
 }
 
 .domain-count {
   @apply flex items-baseline gap-1 rounded-xl
-         bg-[#f1f7f7] px-4 py-2 text-lg font-bold text-[#2F3E46];
+         bg-zinc-950/5 px-4 py-2 text-lg font-bold text-white;
 }
 
 .domain-count span {
-  @apply text-xs font-medium text-gray-400;
+  @apply text-xs font-medium text-zinc-500;
 }
 
 
@@ -371,17 +373,17 @@ table {
    ========================================================= */
 
 thead {
-  @apply bg-[#f8fafb];
+  @apply bg-zinc-900;
 }
 
 thead tr {
-  @apply border-b border-gray-200;
+  @apply border-b border-white/10;
 }
 
 th {
   @apply whitespace-nowrap px-5 py-4 text-left
          text-[10px] font-bold uppercase tracking-[0.08em]
-         text-gray-400;
+         text-zinc-500;
 }
 
 .number-column {
@@ -398,19 +400,19 @@ th {
    ========================================================= */
 
 tbody tr {
-  @apply border-b border-gray-100 transition-colors duration-150;
+  @apply border-b border-white/10 transition-colors duration-150;
 }
 
 tbody tr:hover {
-  @apply bg-[#fafcfc];
+  @apply bg-zinc-950/[0.04];
 }
 
 td {
-  @apply px-5 py-4 text-sm text-gray-600;
+  @apply px-5 py-4 text-sm text-zinc-400;
 }
 
 .number-cell {
-  @apply font-medium text-gray-400;
+  @apply font-medium text-zinc-500;
 }
 
 
@@ -424,15 +426,15 @@ td {
 
 .domain-avatar {
   @apply flex h-10 w-10 shrink-0 items-center justify-center
-         rounded-xl bg-[#2F3E46] text-sm font-bold text-[#24c0c5];
+         rounded-xl bg-gradient-to-br from-(--accent) to-(--accent-soft) text-sm font-bold text-(--on-accent);
 }
 
 .domain-name strong {
-  @apply block max-w-[180px] truncate text-sm font-semibold text-[#2F3E46];
+  @apply block max-w-[180px] truncate text-sm font-semibold text-white;
 }
 
 .domain-name span {
-  @apply mt-0.5 block text-[10px] text-gray-400;
+  @apply mt-0.5 block text-[10px] text-zinc-500;
 }
 
 
@@ -441,7 +443,7 @@ td {
    ========================================================= */
 
 .description-cell {
-  @apply max-w-[280px] truncate text-sm text-gray-500;
+  @apply max-w-[280px] truncate text-sm text-zinc-400;
 }
 
 
@@ -451,8 +453,8 @@ td {
 
 .year-badge {
   @apply inline-flex min-w-[32px] items-center justify-center
-         rounded-lg bg-gray-100 px-2.5 py-1.5
-         text-xs font-semibold text-gray-600;
+         rounded-lg bg-white/5 px-2.5 py-1.5
+         text-xs font-semibold text-zinc-400;
 }
 
 
@@ -466,11 +468,11 @@ td {
 }
 
 .status-active {
-  @apply bg-emerald-50 text-emerald-600;
+  @apply bg-emerald-500/15 text-emerald-400;
 }
 
 .status-inactive {
-  @apply bg-red-50 text-red-500;
+  @apply bg-rose-500/15 text-rose-400;
 }
 
 .status-dot {
@@ -496,19 +498,19 @@ td {
 }
 
 .edit-btn {
-  @apply border-amber-200 bg-amber-50 text-amber-600;
+  @apply border-(--accent)/50 bg-(--accent)/15 text-(--accent-text-strong);
 }
 
 .edit-btn:hover {
-  @apply bg-amber-100;
+  @apply bg-(--accent) text-(--on-accent);
 }
 
 .delete-btn {
-  @apply border-red-200 bg-red-50 text-red-500;
+  @apply border-rose-500/40 bg-rose-500/10 text-rose-400;
 }
 
 .delete-btn:hover {
-  @apply bg-red-100;
+  @apply bg-rose-600 text-white;
 }
 
 
@@ -522,7 +524,7 @@ td {
 
 .empty-icon {
   @apply mx-auto mb-4 flex h-14 w-14 items-center justify-center
-         rounded-2xl bg-gray-100 text-gray-400;
+         rounded-2xl bg-white/5 text-zinc-500;
 }
 
 .empty-icon svg {
@@ -530,11 +532,11 @@ td {
 }
 
 .empty-state strong {
-  @apply block text-sm font-semibold text-[#2F3E46];
+  @apply block text-sm font-semibold text-white;
 }
 
 .empty-state span {
-  @apply mt-1 block text-xs text-gray-400;
+  @apply mt-1 block text-xs text-zinc-500;
 }
 
 

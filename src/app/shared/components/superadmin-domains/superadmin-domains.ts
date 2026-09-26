@@ -24,8 +24,38 @@ export class SuperadminDomains implements OnInit {
 
   loading = false;
 
+  search = '';
+
   // This is COLLEGE ID
   collegeId!: number;
+  collegeName = '';
+
+  get filteredDomains(): any[] {
+    const term = this.search.trim().toLowerCase();
+    if (!term) return this.domains;
+    return this.domains.filter(d =>
+      (d.domainName || '').toLowerCase().includes(term)
+    );
+  }
+
+  get totalStudents(): number {
+    return this.domains.reduce((sum, d) => sum + (Number(d.totalStudents) || 0), 0);
+  }
+
+  // Share of the college's students enrolled in this domain (0-100)
+  studentShare(domain: any): number {
+    const total = this.totalStudents;
+    return total ? Math.round(((Number(domain.totalStudents) || 0) / total) * 100) : 0;
+  }
+
+  initials(name?: string): string {
+    const words = (name || 'D').trim().split(/\s+/);
+    return words.slice(0, 2).map(w => w.charAt(0).toUpperCase()).join('');
+  }
+
+  backToColleges(): void {
+    this.router.navigate(['/main/superamin-colleges']);
+  }
 
   constructor(
     private api: Superadmin,
@@ -37,6 +67,7 @@ export class SuperadminDomains implements OnInit {
   ngOnInit(): void {
       // Get collegeId from router state
     this.collegeId = history.state.collegeId;
+    this.collegeName = history.state.collegeName ?? '';
     this.loadCollegeDomains();
   }
 
@@ -93,7 +124,9 @@ export class SuperadminDomains implements OnInit {
       {
         state: {
           domainId: domain.domainId,
-          collegeId:this.collegeId
+          domainName: domain.domainName,
+          collegeId:this.collegeId,
+          collegeName: this.collegeName
         }
       }
     );

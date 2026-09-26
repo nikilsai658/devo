@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Auth } from '../../../core/auth/auth';
 import { UserStore } from '../../../core/store/user';
 import { AuthServices } from '../../../features/services/auth/auth-services';
+import { ThemeStore } from '../../../core/store/theme';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -34,7 +35,7 @@ colleges = [
   }
 ];
 
-  constructor(private router:Router,private cookie:CookieService,public auth:Auth,private userStore:UserStore,private api:AuthServices) {
+  constructor(private router:Router,private cookie:CookieService,public auth:Auth,private userStore:UserStore,private api:AuthServices,public themeStore:ThemeStore) {
     effect(() => {
       const user = this.userStore.user();
 

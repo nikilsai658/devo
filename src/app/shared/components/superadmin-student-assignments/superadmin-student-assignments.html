@@ -1,502 +1,261 @@
-<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+<div class="tracking-page">
 
-  <div class="max-w-7xl mx-auto">
+  <div class="tracking-inner">
 
-    <!-- Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+    <!-- ================= BREADCRUMB ================= -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="crumb-link" (click)="backToColleges()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Colleges
+      </button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToDomains()">{{ collegeName || 'Domains' }}</button>
+      <span class="crumb-sep">/</span>
+      <button type="button" class="crumb-link" (click)="backToStudents()">{{ domainName || 'Students' }}</button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">{{ studentName || 'Assignments' }}</span>
+    </nav>
 
-      <div>
+    <!-- ================= HEADER ================= -->
+    <header class="tracking-header">
 
-        <h1 class="text-2xl font-bold text-gray-900">
-          Student Assignments
-        </h1>
-
-        <p class="text-sm text-gray-500 mt-1">
-          View assignment progress and performance
-        </p>
-
-      </div>
-
-      <!-- Student Info -->
-      <div
-        class="bg-white border border-gray-200 rounded-xl
-               px-5 py-3"
-      >
-
-        <div class="flex items-center gap-3">
-
-          <div
-            class="w-10 h-10 rounded-full
-                   bg-cyan-100 text-cyan-700
-                   flex items-center justify-center
-                   font-bold"
-          >
-            {{ studentName?.charAt(0)?.toUpperCase() }}
-          </div>
-
-          <div>
-
-            <p class="font-semibold text-gray-900">
-              {{ studentName || 'Student' }}
-            </p>
-
-            <p class="text-sm text-gray-500">
-              {{ studentEmail }}
-            </p>
-
-          </div>
-
+      <div class="student-head">
+        <span class="student-avatar-lg">{{ initials(studentName) }}</span>
+        <div class="min-w-0">
+          <span class="eyebrow">Student Assignments</span>
+          <h1>{{ studentName || 'Student' }}</h1>
+          <p class="student-meta">
+            <span *ngIf="studentEmail">{{ studentEmail }}</span>
+            <span *ngIf="registerNumber" class="mono">{{ registerNumber }}</span>
+            <span *ngIf="domainName">{{ domainName }}<ng-container *ngIf="collegeName"> · {{ collegeName }}</ng-container></span>
+          </p>
         </div>
+      </div>
 
+    </header>
+
+    <!-- ================= STATS ================= -->
+    <section class="stats">
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Assignments</span>
+          <strong class="stat-value">{{ loading ? '—' : assignments.length }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Passed</span>
+          <strong class="stat-value">{{ loading ? '—' : passedCount }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.13 5.11 5.52.44a.56.56 0 0 1 .32.99l-4.2 3.6 1.28 5.39a.56.56 0 0 1-.84.61L12 16.77l-4.73 2.87a.56.56 0 0 1-.84-.61l1.28-5.39-4.2-3.6a.56.56 0 0 1 .32-.99l5.52-.44 2.13-5.11Z" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Avg. Score</span>
+          <strong class="stat-value">{{ loading ? '—' : averageScore }}</strong>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M16 4v4h4M20 12a8 8 0 1 1-2.34-5.66L20 8" />
+          </svg>
+        </span>
+        <div>
+          <span class="stat-label">Attempts</span>
+          <strong class="stat-value">{{ loading ? '—' : totalAttempts }}</strong>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= TOOLBAR ================= -->
+    <div class="toolbar" *ngIf="!loading && assignments.length > 0">
+
+      <div class="filter-tabs" role="tablist">
+        <button
+          *ngFor="let f of filters"
+          type="button"
+          role="tab"
+          class="filter-tab"
+          [class.active]="resultFilter === f.key"
+          [attr.aria-selected]="resultFilter === f.key"
+          (click)="resultFilter = f.key">
+          {{ f.label }}
+          <span class="tab-count">{{ filterCount(f.key) }}</span>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+          <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search assignment or course"
+          [value]="search"
+          (input)="search = $any($event.target).value" />
       </div>
 
     </div>
 
-
-    <!-- Domain Information -->
-    <div
-      class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
-    >
-
-      <!-- College -->
-      <div
-        class="bg-white border border-gray-200
-               rounded-xl p-5"
-      >
-
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          College ID
-        </p>
-
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ collegeId }}
-        </p>
-
+    <!-- ================= LOADING ================= -->
+    <div *ngIf="loading" class="assignment-list">
+      <div class="skeleton-card" *ngFor="let _ of [1, 2, 3]">
+        <div class="skeleton-line w-1/3"></div>
+        <div class="skeleton-line w-1/5"></div>
+        <div class="skeleton-grid">
+          <div class="skeleton-block" *ngFor="let __ of [1, 2, 3, 4, 5, 6]"></div>
+        </div>
       </div>
-
-
-      <!-- Domain -->
-      <div
-        class="bg-white border border-gray-200
-               rounded-xl p-5"
-      >
-
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          Domain
-        </p>
-
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ domainName || 'Domain' }}
-        </p>
-
-      </div>
-
-
-      <!-- Total Assignments -->
-      <div
-        class="bg-white border border-gray-200
-               rounded-xl p-5"
-      >
-
-        <p class="text-xs font-medium text-gray-500 uppercase">
-          Total Assignments
-        </p>
-
-        <p class="text-xl font-bold text-gray-900 mt-1">
-          {{ assignments.length }}
-        </p>
-
-      </div>
-
     </div>
 
-
-    <!-- Loading -->
-    <div
-      *ngIf="loading"
-      class="bg-white border border-gray-200
-             rounded-xl p-12 text-center"
-    >
-
-      <div class="animate-pulse">
-
-        <div
-          class="h-4 bg-gray-200 rounded w-40 mx-auto mb-3"
-        ></div>
-
-        <div
-          class="h-3 bg-gray-200 rounded w-56 mx-auto"
-        ></div>
-
-      </div>
-
-      <p class="text-sm text-gray-500 mt-4">
-        Loading assignments...
-      </p>
-
+    <!-- ================= EMPTY STATE ================= -->
+    <div *ngIf="!loading && assignments.length === 0" class="empty-state">
+      <span class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+        </svg>
+      </span>
+      <h2>No assignments found</h2>
+      <p *ngIf="studentId">This student has no assignments in this domain.</p>
+      <p *ngIf="!studentId">No student was selected. Pick a student to see their assignments.</p>
+      <button type="button" class="btn-outline" (click)="domainId ? backToStudents() : backToColleges()">
+        {{ domainId ? 'Back to Students' : 'Back to Colleges' }}
+      </button>
     </div>
 
-
-    <!-- No Assignments -->
-    <div
-      *ngIf="!loading && assignments.length === 0"
-      class="bg-white border border-gray-200
-             rounded-xl p-12 text-center"
-    >
-
-      <div class="text-4xl mb-4">
-        📚
-      </div>
-
-      <h2 class="text-lg font-semibold text-gray-700">
-        No Assignments Found
-      </h2>
-
-      <p class="text-sm text-gray-500 mt-1">
-        This student has no assignments in this domain.
-      </p>
-
+    <!-- ================= NO MATCHES ================= -->
+    <div *ngIf="!loading && assignments.length > 0 && filteredAssignments.length === 0" class="empty-state">
+      <h2>No matching assignments</h2>
+      <p>Try a different filter or search term.</p>
+      <button type="button" class="btn-outline" (click)="clearFilters()">Clear filters</button>
     </div>
 
+    <!-- ================= ASSIGNMENTS ================= -->
+    <div *ngIf="!loading && filteredAssignments.length > 0" class="assignment-list">
 
-    <!-- Assignments -->
-    <div
-      *ngIf="!loading && assignments.length > 0"
-      class="space-y-4"
-    >
+      <article
+        *ngFor="let assignment of filteredAssignments; let i = index"
+        class="assignment-card"
+        [class.is-passed]="assignment.isPassed"
+        [class.is-failed]="assignment.isStarted && !assignment.isPassed">
 
-      <div
-        *ngFor="let assignment of assignments"
-        class="bg-white border border-gray-200
-               rounded-xl overflow-hidden
-               hover:shadow-md transition"
-      >
+        <!-- Header -->
+        <div class="card-head">
 
-        <!-- Assignment Header -->
-        <div
-          class="px-6 py-5
-                 border-b border-gray-200
-                 flex flex-col lg:flex-row
-                 lg:items-center
-                 lg:justify-between gap-4"
-        >
-
-          <div>
-
-            <div class="flex items-center gap-3">
-
-              <h2 class="text-lg font-bold text-gray-900">
-                {{ assignment.title }}
-              </h2>
-
-              <!-- Status -->
-              <span
-                *ngIf="assignment.status === 'Accepted'"
-                class="px-3 py-1 rounded-full
-                       text-xs font-semibold
-                       bg-green-50 text-green-600"
-              >
-                Accepted
-              </span>
-
-              <span
-                *ngIf="assignment.status !== 'Accepted'"
-                class="px-3 py-1 rounded-full
-                       text-xs font-semibold
-                       bg-orange-50 text-orange-600"
-              >
-                {{ assignment.status }}
-              </span>
-
+          <div class="card-title">
+            <span class="card-index">{{ (i + 1).toString().padStart(2, '0') }}</span>
+            <div class="min-w-0">
+              <div class="title-row">
+                <h2 [title]="assignment.title">{{ assignment.title }}</h2>
+                <span class="status-chip" [class.accepted]="assignment.status === 'Accepted'">
+                  <span class="status-dot"></span>
+                  {{ assignment.status || 'Not submitted' }}
+                </span>
+              </div>
+              <p class="course-name">{{ assignment.courseName }}</p>
             </div>
-
-            <p class="text-sm text-gray-500 mt-1">
-              {{ assignment.courseName }}
-            </p>
-
           </div>
 
-
-          <!-- Score -->
-          <div class="flex items-center gap-4">
-
-            <div class="text-left lg:text-right">
-
-              <p class="text-xs text-gray-500">
-                Score
-              </p>
-
-              <p class="text-2xl font-bold text-cyan-600">
-                {{ assignment.score }}
-              </p>
-
+          <div class="card-actions">
+            <div class="score-box">
+              <span>Score</span>
+              <strong>{{ assignment.score ?? 0 }}</strong>
             </div>
 
             <button
               type="button"
-              (click)="viewCode(assignment)"
-              class="inline-flex items-center justify-center
-                     px-4 py-2 rounded-lg
-                     bg-[#24c0c5] text-white
-                     text-sm font-medium
-                     hover:bg-[#1eabb0]
-                     transition duration-200
-                     whitespace-nowrap"
-            >
+              class="btn-primary"
+              (click)="viewCode(assignment)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14" />
+              </svg>
               View Code
             </button>
-
           </div>
 
         </div>
 
+        <!-- Details -->
+        <div class="detail-grid">
 
-        <!-- Assignment Details -->
-        <div class="p-6">
-
-          <div
-            class="grid grid-cols-2
-                   md:grid-cols-3
-                   lg:grid-cols-6 gap-4"
-          >
-
-            <!-- Started -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Started
-              </p>
-
-              <p
-                class="text-sm font-medium text-gray-800"
-                *ngIf="assignment.isStarted"
-              >
-                {{ assignment.startedOn | date:'dd MMM yyyy' }}
-              </p>
-
-              <p
-                class="text-sm text-gray-400"
-                *ngIf="!assignment.isStarted"
-              >
-                Not Started
-              </p>
-
-            </div>
-
-
-            <!-- Completed -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Completed
-              </p>
-
-              <p
-                class="text-sm font-medium text-gray-800"
-                *ngIf="assignment.completedOn"
-              >
-                {{ assignment.completedOn | date:'dd MMM yyyy' }}
-              </p>
-
-              <p
-                class="text-sm text-gray-400"
-                *ngIf="!assignment.completedOn"
-              >
-                Pending
-              </p>
-
-            </div>
-
-
-            <!-- Attempts -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Attempts
-              </p>
-
-              <p class="text-sm font-bold text-gray-900">
-                {{ assignment.attempts }}
-              </p>
-
-            </div>
-
-
-            <!-- Time Taken -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Time Taken
-              </p>
-
-              <p class="text-sm font-bold text-gray-900">
-                {{ assignment.timeTaken }} sec
-              </p>
-
-            </div>
-
-
-            <!-- Passed -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Result
-              </p>
-
-              <span
-                *ngIf="assignment.isPassed"
-                class="inline-flex px-3 py-1
-                       rounded-full
-                       bg-green-50 text-green-600
-                       text-xs font-semibold"
-              >
-                Passed
-              </span>
-
-              <span
-                *ngIf="!assignment.isPassed"
-                class="inline-flex px-3 py-1
-                       rounded-full
-                       bg-red-50 text-red-600
-                       text-xs font-semibold"
-              >
-                Not Passed
-              </span>
-
-            </div>
-
-
-            <!-- Started Status -->
-            <div>
-
-              <p class="text-xs text-gray-500 mb-1">
-                Progress
-              </p>
-
-              <span
-                *ngIf="assignment.isStarted"
-                class="inline-flex px-3 py-1
-                       rounded-full
-                       bg-blue-50 text-blue-600
-                       text-xs font-semibold"
-              >
-                Started
-              </span>
-
-              <span
-                *ngIf="!assignment.isStarted"
-                class="inline-flex px-3 py-1
-                       rounded-full
-                       bg-gray-100 text-gray-500
-                       text-xs font-semibold"
-              >
-                Not Started
-              </span>
-
-            </div>
-
+          <div class="detail">
+            <span class="detail-label">Result</span>
+            <span *ngIf="assignment.isPassed" class="pill pill-green"><span class="dot"></span>Passed</span>
+            <span *ngIf="assignment.isStarted && !assignment.isPassed" class="pill pill-red"><span class="dot"></span>Not passed</span>
+            <span *ngIf="!assignment.isStarted" class="pill"><span class="dot"></span>Not started</span>
           </div>
 
-
-          <!-- Submission Information -->
-          <div
-            *ngIf="assignment.bestSubmissionId"
-            class="mt-6 pt-5
-                   border-t border-gray-100"
-          >
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-              <!-- Best Submission -->
-              <div>
-
-                <p class="text-xs text-gray-500 mb-1">
-                  Best Submission ID
-                </p>
-
-                <p
-                  class="text-xs font-mono
-                         text-gray-700
-                         bg-gray-50
-                         rounded-lg px-3 py-2
-                         break-all"
-                >
-                  {{ assignment.bestSubmissionId }}
-                </p>
-
-              </div>
-
-
-              <!-- Last Submission -->
-              <div>
-
-                <p class="text-xs text-gray-500 mb-1">
-                  Last Submission ID
-                </p>
-
-                <p
-                  class="text-xs font-mono
-                         text-gray-700
-                         bg-gray-50
-                         rounded-lg px-3 py-2
-                         break-all"
-                >
-                  {{ assignment.lastSubmissionId }}
-                </p>
-
-              </div>
-
-            </div>
-
+          <div class="detail">
+            <span class="detail-label">Attempts</span>
+            <span class="detail-value">{{ assignment.attempts ?? 0 }}</span>
           </div>
 
+          <div class="detail">
+            <span class="detail-label">Time Taken</span>
+            <span class="detail-value">{{ formatDuration(assignment.timeTaken) }}</span>
+          </div>
 
-          <!-- Date & Time -->
-          <div
-            class="mt-5 pt-4
-                   border-t border-gray-100
-                   flex flex-col sm:flex-row
-                   gap-3 sm:gap-8"
-          >
+          <div class="detail">
+            <span class="detail-label">Started</span>
+            <span class="detail-value" *ngIf="assignment.startedOn">
+              {{ assignment.startedOn | date:'dd MMM yyyy' }}
+              <small>{{ assignment.startedOn | date:'hh:mm a' }}</small>
+            </span>
+            <span class="detail-muted" *ngIf="!assignment.startedOn">—</span>
+          </div>
 
-            <div>
-
-              <span class="text-xs text-gray-500">
-                Started On:
-              </span>
-
-              <span
-                class="text-xs text-gray-700 ml-2"
-                *ngIf="assignment.startedOn"
-              >
-                {{ assignment.startedOn | date:'dd MMM yyyy, hh:mm a' }}
-              </span>
-
-            </div>
-
-
-            <div>
-
-              <span class="text-xs text-gray-500">
-                Completed On:
-              </span>
-
-              <span
-                class="text-xs text-gray-700 ml-2"
-                *ngIf="assignment.completedOn"
-              >
-                {{ assignment.completedOn | date:'dd MMM yyyy, hh:mm a' }}
-              </span>
-              
-
-
-            </div>
-
+          <div class="detail">
+            <span class="detail-label">Completed</span>
+            <span class="detail-value" *ngIf="assignment.completedOn">
+              {{ assignment.completedOn | date:'dd MMM yyyy' }}
+              <small>{{ assignment.completedOn | date:'hh:mm a' }}</small>
+            </span>
+            <span class="detail-muted" *ngIf="!assignment.completedOn">Pending</span>
           </div>
 
         </div>
 
-      </div>
+        <!-- Submission IDs -->
+        <div class="submission-row" *ngIf="assignment.bestSubmissionId || assignment.lastSubmissionId">
+          <div class="submission" *ngIf="assignment.bestSubmissionId">
+            <span class="detail-label">Best submission</span>
+            <code>{{ assignment.bestSubmissionId }}</code>
+          </div>
+          <div class="submission" *ngIf="assignment.lastSubmissionId">
+            <span class="detail-label">Last submission</span>
+            <code>{{ assignment.lastSubmissionId }}</code>
+          </div>
+        </div>
+
+      </article>
 
     </div>
 

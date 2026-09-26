@@ -2,6 +2,80 @@
 
 @import 'tailwindcss';
 
+* {
+  scrollbar-width: none;
+}
+
+/* The whole app is dark: without this the browser's default white shows
+   above/below a page when it's shorter than the screen or when scrolling
+   past the ends (overscroll). Light mode inverts this black to white. */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background-color: #000;
+  color-scheme: dark;
+}
+
+/* Brand accent colours. Every page uses these variables instead of
+   hard-coded purple, so the accent can differ per theme.
+   Dark theme: purple (#6B21D0 family).
+   Light theme: teal #0081A0. Light mode inverts the whole app (see below),
+   so the light values are the colours that invert(1) hue-rotate(180deg)
+   turns into the teal we want on screen:
+     #2fb0cf -> #0081A0   #53bed8 -> #006B85   #000 -> #fff
+   Without this, purple shows up as pale pink in light mode. */
+:root {
+  --accent: #6B21D0;              /* buttons, solid fills */
+  --accent-hover: #7B2FE3;        /* hover on solid fills */
+  --accent-soft: #9D5CF0;         /* focus rings, small highlights */
+  --accent-text: #B98BF5;         /* accent-coloured text/icons */
+  --accent-text-strong: #D4BBFA;  /* lighter accent text on dark */
+  --accent-rgb: 107, 33, 208;     /* for rgba() glows and shadows */
+  --on-accent: #fff;              /* text on solid accent fills */
+
+  /* Auth/profile pages' violet palette */
+  --violet: #7c3aed;
+  --violet-deep: #4c1d95;
+  --violet-mid: #8b5cf6;
+  --violet-bright: #a855f7;
+  --violet-text: #a78bfa;
+  --violet-rgb: 124, 58, 237;
+}
+
+html[data-theme="light"] {
+  --accent: #2fb0cf;              /* renders #0081A0 */
+  --accent-hover: #53bed8;        /* renders #006B85 */
+  --accent-soft: #2fb0cf;
+  --accent-text: #2fb0cf;
+  --accent-text-strong: #53bed8;
+  --accent-rgb: 47, 176, 207;
+  --on-accent: #000;              /* renders white */
+
+  --violet: #2fb0cf;
+  --violet-deep: #53bed8;
+  --violet-mid: #2fb0cf;
+  --violet-bright: #2fb0cf;
+  --violet-text: #2fb0cf;
+  --violet-rgb: 47, 176, 207;
+}
+
+/* Light theme (toggled from the header via ThemeStore). Page styles hard-code
+   dark colors, so light mode inverts the whole app and re-inverts media so
+   logos, photos and videos keep their real colors. */
+html[data-theme="light"] {
+  background-color: #000;
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html[data-theme="light"] img,
+html[data-theme="light"] video,
+html[data-theme="light"] picture,
+html[data-theme="light"] canvas,
+html[data-theme="light"] iframe {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* The admin layout's routed .content frame is position: fixed, so it forms
    its own stacking context and a page's dialog (z-50 inside it) can never
    rise above the fixed header (z-index 100). While a full-screen add/edit
@@ -9,6 +83,182 @@
    dialog's backdrop covers the entire window. Global because the dialogs
    live in child components that Admin's scoped styles can't reach. */
 .content:has(.fixed.inset-0),
+.content:has(.dlg-overlay),
 .content:has(.modal-overlay) {
   z-index: 200;
+}
+
+
+/* =============================================================
+   DIALOGS — shared Add / Edit dialog design for every management page.
+   Dark surfaces, accent colour from the --accent variables (purple in
+   dark theme, teal in light theme). In @layer components so a page can
+   still override with a utility class (e.g. max-w-3xl on .dlg).
+============================================================= */
+@layer components {
+
+  .dlg-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm;
+    animation: dlg-fade 0.15s ease-out;
+  }
+
+  .dlg {
+    @apply relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl
+           border border-white/10 bg-zinc-950 text-white;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.9);
+    animation: dlg-pop 0.18s ease-out;
+  }
+
+  /* Thin accent line along the top edge */
+  .dlg::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-0.75 bg-(--accent);
+  }
+
+  /* Header */
+  .dlg-header {
+    @apply flex shrink-0 items-start justify-between gap-4 border-b border-white/10 px-6 pb-5 pt-6;
+  }
+
+  .dlg-heading {
+    @apply flex min-w-0 items-center gap-4;
+  }
+
+  .dlg-icon {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--accent) text-(--on-accent);
+  }
+
+  .dlg-icon svg {
+    @apply h-5 w-5;
+  }
+
+  .dlg-title {
+    @apply m-0 text-lg font-semibold leading-tight text-white;
+  }
+
+  .dlg-subtitle {
+    @apply m-0 mt-1 text-sm text-zinc-400;
+  }
+
+  .dlg-close {
+    @apply flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10
+           bg-transparent text-zinc-400 transition-colors duration-150 hover:bg-white/5 hover:text-white
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent);
+  }
+
+  .dlg-close svg {
+    @apply h-4 w-4;
+  }
+
+  /* Body & fields */
+  .dlg-body {
+    @apply flex-1 overflow-y-auto px-6 py-6;
+  }
+
+  .dlg-field {
+    @apply mb-5 last:mb-0;
+  }
+
+  .dlg-label {
+    @apply mb-1.5 block text-sm font-medium text-zinc-300;
+  }
+
+  .dlg-input {
+    @apply block h-11 w-full rounded-lg border border-white/10 bg-black px-3.5 text-sm text-white
+           outline-none transition duration-150 placeholder:text-zinc-600
+           hover:border-white/20 focus:border-(--accent) focus:ring-4 focus:ring-(--accent)/20
+           disabled:cursor-not-allowed disabled:opacity-50;
+    color-scheme: dark;
+  }
+
+  textarea.dlg-input {
+    @apply h-auto min-h-24 resize-y py-2.5 leading-6;
+  }
+
+  select.dlg-input {
+    @apply cursor-pointer appearance-none pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.85rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+
+  select.dlg-input option {
+    @apply bg-zinc-950 text-white;
+  }
+
+  .dlg-check {
+    @apply h-4 w-4 shrink-0 cursor-pointer rounded;
+    accent-color: var(--accent);
+  }
+
+  .dlg-check-label {
+    @apply flex cursor-pointer items-center gap-2.5 text-sm text-zinc-300;
+  }
+
+  .dlg-error {
+    @apply m-0 mt-1.5 text-xs font-medium text-rose-400;
+  }
+
+  .dlg-hint {
+    @apply m-0 mt-1.5 text-xs text-zinc-500;
+  }
+
+  .dlg-section {
+    @apply mb-3 rounded-xl border border-white/10 bg-black/40 p-4;
+  }
+
+  .dlg-section-title {
+    @apply mb-3 text-sm font-semibold text-zinc-300;
+  }
+
+  /* Footer & buttons */
+  .dlg-footer {
+    @apply flex shrink-0 justify-end gap-3 border-t border-white/10 bg-black/40 px-6 py-4;
+  }
+
+  .dlg-btn {
+    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold
+           transition duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+           focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950;
+  }
+
+  .dlg-btn-secondary {
+    @apply border border-white/10 bg-transparent text-zinc-300 hover:bg-white/5 hover:text-white;
+  }
+
+  .dlg-btn-primary {
+    @apply border-0 bg-(--accent) text-(--on-accent) hover:bg-(--accent-hover);
+  }
+
+  .dlg-btn-sm {
+    @apply inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold
+           transition duration-150;
+  }
+
+  .dlg-btn-soft {
+    @apply border border-white/10 bg-transparent text-zinc-300 hover:border-(--accent) hover:text-white;
+  }
+
+  .dlg-btn-danger {
+    @apply border border-rose-500/40 bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white;
+  }
+}
+
+@keyframes dlg-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dlg-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dlg-overlay,
+  .dlg {
+    animation: none;
+  }
 }

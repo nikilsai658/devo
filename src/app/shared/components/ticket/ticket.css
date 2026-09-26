@@ -1,65 +1,58 @@
+/* =============================================================
+   RAISE TICKET — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Matches the Change Password / My Courses pages.
+============================================================= */
 @import "tailwindcss";
 
-/* ============================================================
-   PAGE
-============================================================ */
+/* ---------------- PAGE ---------------- */
 
-.ticket-page {
-  @apply min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8;
-  color: #2F3E46;
+:host {
+  @apply block min-h-screen bg-black;
 }
 
+.ticket-page {
+  @apply relative min-h-screen w-full overflow-hidden bg-black px-4 py-8 text-white antialiased
+         sm:px-6 sm:py-10 lg:px-8;
+}
 
-/* ============================================================
-   SUCCESS TOAST
-============================================================ */
+/* ---------------- SUCCESS TOAST ---------------- */
 
 .ticket-toast {
-  @apply fixed right-6 flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold text-white;
+  @apply fixed right-6 flex items-center gap-3 rounded-xl border border-emerald-500/30
+         bg-zinc-950 px-4 py-3 text-sm text-white;
   top: 90px;
   z-index: 2000;
-  background: #16a34a;
-  box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3);
+  box-shadow: 0 16px 40px -12px rgba(16, 185, 129, 0.45);
   animation: toast-in-out 2s ease forwards;
 }
 
-.ticket-toast svg {
-  @apply h-5 w-5 shrink-0;
+.toast-icon {
+  @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400;
+}
+
+.toast-icon svg {
+  @apply h-4 w-4;
+}
+
+.ticket-toast strong {
+  @apply block font-semibold;
+}
+
+.ticket-toast small {
+  @apply block text-xs text-zinc-400;
 }
 
 @keyframes toast-in-out {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  10%, 85% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+  0%       { opacity: 0; transform: translateY(-10px); }
+  10%, 85% { opacity: 1; transform: translateY(0); }
+  100%     { opacity: 0; transform: translateY(-10px); }
 }
 
-
-/* ============================================================
-   HEADER
-============================================================ */
+/* ---------------- HEADER ---------------- */
 
 .ticket-header {
-  @apply mx-auto mb-7 flex max-w-4xl items-center gap-4;
-}
-
-.ticket-header-icon {
-  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl;
-  background: #2F3E46;
-  color: white;
-  box-shadow: 0 8px 20px rgba(47, 62, 70, 0.16);
-}
-
-.ticket-header-icon svg {
-  @apply h-6 w-6;
+  @apply relative mx-auto mb-8 flex max-w-6xl flex-col gap-5 border-b border-white/10 pb-6
+         sm:flex-row sm:items-end sm:justify-between;
 }
 
 .ticket-header-content {
@@ -67,61 +60,71 @@
 }
 
 .ticket-eyebrow {
-  @apply mb-1 block text-xs font-bold tracking-[0.16em];
-  color: #2F3E46;
-  opacity: 0.7;
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-white/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-zinc-300;
+}
+
+.ticket-eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
 }
 
 .ticket-header h1 {
-  @apply text-2xl font-bold tracking-tight sm:text-3xl;
-  color: #2F3E46;
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
 }
 
 .ticket-header p {
-  @apply mt-1 text-sm leading-6 text-gray-500 sm:text-base;
+  @apply mt-2 text-sm text-zinc-400;
 }
 
+/* ---------------- LAYOUT ---------------- */
 
-/* ============================================================
-   MAIN CARD
-============================================================ */
+.ticket-layout {
+  @apply relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_320px];
+}
+
+/* ---------------- MAIN CARD ---------------- */
 
 .ticket-card {
-  @apply mx-auto max-w-4xl overflow-hidden rounded-2xl bg-white;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 35px rgba(47, 62, 70, 0.07);
+  @apply overflow-hidden rounded-2xl border border-white/10 bg-zinc-950;
 }
 
-
-/* ============================================================
-   CARD HEADER
-============================================================ */
-
 .ticket-card-header {
-  @apply flex flex-col gap-4 border-b border-gray-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6;
+  @apply flex flex-col gap-4 border-b border-white/10 px-5 py-5
+         sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6;
+}
+
+.card-title {
+  @apply flex items-center gap-4;
+}
+
+.card-title-icon {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl
+         bg-(--accent) text-(--on-accent);
+}
+
+.card-title-icon svg {
+  @apply h-6 w-6;
 }
 
 .ticket-card-header h2 {
-  @apply text-lg font-bold;
-  color: #2F3E46;
+  @apply text-lg font-semibold text-white;
 }
 
 .ticket-card-header p {
-  @apply mt-1 text-sm text-gray-500;
+  @apply mt-0.5 text-sm text-zinc-400;
 }
 
 .required-note {
-  @apply flex items-center gap-1.5 text-xs font-medium text-gray-400;
+  @apply flex items-center gap-1.5 text-xs font-medium text-zinc-500;
 }
 
 .required-note span {
-  color: #2F3E46;
+  @apply text-zinc-400;
 }
 
-
-/* ============================================================
-   FORM BODY
-============================================================ */
+/* ---------------- FORM BODY ---------------- */
 
 .ticket-form-body {
   @apply space-y-6 px-5 py-6 sm:px-7 sm:py-7;
@@ -132,188 +135,188 @@
 }
 
 .form-group label {
-  @apply mb-2 block text-sm font-semibold text-gray-700;
+  @apply mb-2 block text-sm font-medium text-zinc-300;
 }
 
 .form-group label span {
-  color: #2F3E46;
+  @apply text-zinc-400;
 }
 
+.label-row {
+  @apply flex items-baseline justify-between;
+}
 
-/* ============================================================
-   INPUT
-============================================================ */
+.char-count {
+  @apply mb-2 text-xs tabular-nums text-zinc-500;
+}
+
+/* ---------------- INPUT & TEXTAREA ---------------- */
 
 .input-wrapper {
   @apply relative;
 }
 
 .input-icon {
-  @apply pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2;
-  color: #2F3E46;
-  opacity: 0.65;
+  @apply pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2
+         text-zinc-500 transition-colors duration-200;
+}
+
+.input-wrapper:focus-within .input-icon {
+  @apply text-zinc-400;
+}
+
+.input-wrapper input,
+.textarea-wrapper textarea {
+  @apply w-full rounded-xl border border-white/10 bg-black text-sm text-white
+         outline-none transition-all duration-200;
 }
 
 .input-wrapper input {
-  @apply w-full rounded-xl border bg-white py-3.5 pl-12 pr-4 text-sm text-gray-700 outline-none transition-all duration-200;
-  border-color: #d7dde0;
+  @apply py-3.5 pl-12 pr-4;
+}
+
+.textarea-wrapper textarea {
+  @apply block resize-y px-4 py-3.5 leading-6;
+  min-height: 180px;
 }
 
 .input-wrapper input::placeholder,
 .textarea-wrapper textarea::placeholder {
-  color: #9ca3af;
+  @apply text-zinc-600;
 }
 
 .input-wrapper input:hover,
 .textarea-wrapper textarea:hover {
-  border-color: #aeb9bd;
+  @apply border-white/20;
 }
 
 .input-wrapper input:focus,
 .textarea-wrapper textarea:focus {
-  border-color: #2F3E46;
-  box-shadow: 0 0 0 3px rgba(47, 62, 70, 0.08);
+  @apply border-(--accent);
 }
 
-
-/* ============================================================
-   TEXTAREA
-============================================================ */
-
-.textarea-wrapper textarea {
-  @apply w-full resize-none rounded-xl border bg-white px-4 py-3.5 text-sm leading-6 text-gray-700 outline-none transition-all duration-200;
-  border-color: #d7dde0;
+.has-error input,
+.has-error textarea {
+  @apply border-rose-500/60;
 }
 
-.textarea-wrapper textarea:focus {
-  border-color: #2F3E46;
-  box-shadow: 0 0 0 3px rgba(47, 62, 70, 0.08);
-}
-
-
-/* ============================================================
-   ERROR
-============================================================ */
+/* ---------------- ERROR ---------------- */
 
 .form-error {
-  @apply mt-2 text-xs font-medium;
-  color: #2F3E46;
+  @apply mt-2 text-xs font-medium text-rose-400;
 }
 
-
-/* ============================================================
-   CARD FOOTER
-============================================================ */
+/* ---------------- CARD FOOTER ---------------- */
 
 .ticket-card-footer {
-  @apply flex flex-col gap-5 border-t border-gray-100 bg-gray-50 px-5 py-5 sm:px-7;
+  @apply flex flex-col gap-5 border-t border-white/10 bg-black/40 px-5 py-5
+         sm:flex-row sm:items-center sm:justify-between sm:px-7;
 }
 
 .footer-info {
-  @apply flex items-start gap-2 text-xs leading-5 text-gray-500;
+  @apply flex items-start gap-2 text-xs leading-5 text-zinc-400;
 }
 
 .footer-info svg {
-  @apply mt-0.5 h-4 w-4 shrink-0;
-  color: #2F3E46;
+  @apply mt-0.5 h-4 w-4 shrink-0 text-zinc-400;
 }
-
-
-/* ============================================================
-   ACTIONS
-============================================================ */
 
 .ticket-actions {
   @apply flex flex-col gap-3 sm:flex-row sm:justify-end;
 }
 
+/* ---------------- SIDE PANEL ---------------- */
 
-/* ============================================================
-   BUTTON BASE
-============================================================ */
+.ticket-aside {
+  @apply flex flex-col gap-6;
+}
+
+.aside-card {
+  @apply rounded-2xl border border-white/10 bg-zinc-950 p-5;
+}
+
+.aside-card h3 {
+  @apply mb-4 text-sm font-semibold text-white;
+}
+
+.steps {
+  @apply relative space-y-5;
+}
+
+.steps li {
+  @apply relative flex gap-3;
+}
+
+/* Connector line between step dots */
+.steps li:not(:last-child)::after {
+  content: "";
+  @apply absolute left-[13px] top-8 h-[calc(100%-12px)] w-px bg-white/10;
+}
+
+.step-dot {
+  @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+         bg-(--accent) text-xs font-bold text-(--on-accent);
+}
+
+.steps strong {
+  @apply block text-sm font-medium text-zinc-200;
+}
+
+.steps p {
+  @apply mt-0.5 text-xs leading-5 text-zinc-500;
+}
+
+.aside-tips ul {
+  @apply space-y-2.5;
+}
+
+.aside-tips li {
+  @apply relative pl-5 text-xs leading-5 text-zinc-400;
+}
+
+.aside-tips li::before {
+  content: "";
+  @apply absolute left-0 top-[7px] h-1.5 w-1.5 rounded-full bg-(--accent);
+}
+
+/* ---------------- BUTTONS ---------------- */
 
 .btn {
-  @apply inline-flex min-h-11 items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200;
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center rounded-lg
+         px-5 py-2.5 text-sm font-semibold transition duration-200
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black;
 }
 
 .btn svg {
   @apply mr-2 h-5 w-5;
 }
 
-
-/* ============================================================
-   MY TICKETS
-============================================================ */
-
 .btn-secondary {
-  @apply border bg-white;
-  border-color: #2F3E46;
-  color: #2F3E46;
+  @apply shrink-0 border border-(--accent) bg-transparent text-white
+         hover:bg-(--accent) hover:text-(--on-accent);
 }
-
-.btn-secondary:hover {
-  background: #f3f5f6;
-  box-shadow: 0 4px 12px rgba(47, 62, 70, 0.08);
-}
-
-.btn-secondary:hover svg {
-  transform: translateY(-1px);
-}
-
-
-/* ============================================================
-   RESET
-============================================================ */
 
 .btn-reset {
-  @apply border border-gray-300 bg-white text-gray-600;
+  @apply border border-white/10 bg-white/5 text-zinc-300
+         hover:border-white/20 hover:bg-white/10 hover:text-white;
 }
-
-.btn-reset:hover {
-  background: #f3f4f6;
-  color: #2F3E46;
-}
-
-
-/* ============================================================
-   PRIMARY BUTTON
-============================================================ */
 
 .btn-primary {
-  background: #2F3E46;
-  color: white;
-  box-shadow: 0 5px 14px rgba(47, 62, 70, 0.18);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #243239;
-  transform: translateY(-1px);
-  box-shadow: 0 7px 18px rgba(47, 62, 70, 0.22);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
+  @apply border-0 bg-(--accent) text-(--on-accent) hover:bg-(--accent-hover) active:scale-[0.98];
 }
 
 .btn-primary:disabled {
-  @apply cursor-not-allowed;
-  opacity: 0.55;
+  @apply cursor-not-allowed opacity-50 hover:bg-(--accent) active:scale-100;
   box-shadow: none;
 }
-
-
-/* ============================================================
-   BUTTON CONTENT
-============================================================ */
 
 .btn-content {
   @apply inline-flex items-center justify-center;
 }
 
-
-/* ============================================================
-   LOADING SPINNER
-============================================================ */
+/* ---------------- LOADING SPINNER ---------------- */
 
 .spinner {
   @apply mr-2 h-5 w-5;
@@ -321,48 +324,45 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-
-/* ============================================================
-   RESPONSIVE
-============================================================ */
+/* ---------------- RESPONSIVE ---------------- */
 
 @media (max-width: 640px) {
-
   .ticket-page {
-    @apply px-3 py-5;
-  }
-
-  .ticket-header {
-    @apply mb-5 gap-3;
-  }
-
-  .ticket-header-icon {
-    @apply h-10 w-10 rounded-lg;
-  }
-
-  .ticket-header-icon svg {
-    @apply h-5 w-5;
+    @apply px-4 py-6;
   }
 
   .ticket-header h1 {
-    @apply text-xl;
+    @apply text-2xl;
   }
 
-  .ticket-header p {
-    @apply text-xs leading-5;
-  }
-
-  .ticket-card {
+  .ticket-card,
+  .aside-card {
     @apply rounded-xl;
   }
 
-  .ticket-actions .btn {
-    @apply w-full;
+  .ticket-toast {
+    @apply left-4 right-4;
   }
 
+  .ticket-actions .btn,
+  .ticket-header .btn {
+    @apply w-full;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .input-wrapper input,
+  .textarea-wrapper textarea,
+  .input-icon,
+  .ticket-toast,
+  .spinner {
+    @apply transition-none;
+    animation: none;
+  }
 }

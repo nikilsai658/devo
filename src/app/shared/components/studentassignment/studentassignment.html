@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-black p-6">
 
   <!-- Header -->
 
@@ -6,11 +6,11 @@
 
     <div>
 
-      <h1 class="text-3xl font-bold text-[#2F3E46]">
+      <h1 class="text-3xl font-bold text-white">
         Student Assignment Scores
       </h1>
 
-      <p class="text-gray-500 mt-1">
+      <p class="text-zinc-400 mt-1">
         View and correct student assignment submission records
       </p>
 
@@ -18,13 +18,13 @@
 
     <div
       *ngIf="auth.hasPermission('VIEW_STUDENT_ASSIGNMENT')"
-      class="bg-white rounded-xl shadow px-6 py-4">
+      class="bg-zinc-950 rounded-xl shadow px-6 py-4">
 
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-zinc-400">
         Total Records
       </p>
 
-      <h2 class="text-3xl font-bold text-[#24c0c5]">
+      <h2 class="text-3xl font-bold text-white">
 
         {{ assignments.length }}
 
@@ -40,9 +40,9 @@
 
     <div
       *ngIf="editMode"
-      class="bg-white rounded-2xl shadow-lg p-6">
+      class="bg-zinc-950 rounded-2xl shadow-lg p-6">
 
-      <h2 class="text-2xl font-bold text-[#2F3E46] mb-6">
+      <h2 class="text-2xl font-bold text-white mb-6">
         Update Student Assignment Record
       </h2>
 
@@ -61,7 +61,7 @@
           <input
             type="email"
             formControlName="studentEmail"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -76,7 +76,7 @@
           <input
             type="text"
             formControlName="courseName"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -91,7 +91,7 @@
           <input
             type="text"
             formControlName="assignmentTitle"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -105,7 +105,7 @@
 
           <select
             formControlName="status"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
             <option value="">Select Status</option>
             <option value="Pending">Pending</option>
@@ -127,7 +127,7 @@
           <input
             type="number"
             formControlName="score"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -142,7 +142,7 @@
           <input
             type="number"
             formControlName="attempts"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -157,7 +157,7 @@
           <input
             type="number"
             formControlName="timeTaken"
-            class="mt-2 w-full border rounded-lg p-3">
+            class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
         </div>
 
@@ -184,7 +184,7 @@
           <button
             *ngIf="auth.hasPermission('UPDATE_STUDENT_ASSIGNMENT')"
             type="submit"
-            class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg">
+            class="flex-1 py-3 rounded-lg bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
 
             Update
 
@@ -193,7 +193,7 @@
           <button
             type="button"
             (click)="cancel()"
-            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg">
+            class="flex-1 py-3 rounded-lg bg-white/5 border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white cursor-pointer">
 
             Cancel
 
@@ -209,7 +209,7 @@
 
     <div
       *ngIf="!editMode"
-      class="bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-center text-gray-400">
+      class="bg-zinc-950 rounded-2xl shadow-lg p-6 flex items-center justify-center text-center text-zinc-500">
 
       Select "Edit" on a record to update its score or status.
 
@@ -218,10 +218,10 @@
     <!-- ================= TABLE ================= -->
 
     <div
-      class="lg:col-span-2 bg-white rounded-2xl shadow-lg overflow-hidden"
+      class="lg:col-span-2 bg-zinc-950 rounded-2xl shadow-lg overflow-hidden"
       *ngIf="auth.hasPermission('VIEW_STUDENT_ASSIGNMENT')">
 
-      <div class="bg-[#2F3E46] text-white px-6 py-4">
+      <div class="bg-zinc-900 border-b border-white/10 text-white px-6 py-4">
 
         <h2 class="text-xl font-bold">
 
@@ -235,7 +235,7 @@
 
         <table class="min-w-full">
 
-          <thead class="bg-gray-100">
+          <thead class="bg-zinc-900">
 
             <tr>
 
@@ -259,7 +259,7 @@
 
             <tr
               *ngFor="let item of assignments; let i=index"
-              class="border-b hover:bg-gray-50">
+              class="border-b hover:bg-white/[0.04] border-white/10">
 
               <td class="px-4 py-3">{{ i + 1 }}</td>
               <td class="px-4 py-3 font-semibold">{{ item.studentEmail }}</td>
@@ -273,8 +273,8 @@
               <td class="px-4 py-3 text-center">
 
                 <span
-                  class="px-3 py-1 rounded-full text-white text-xs font-semibold"
-                  [ngClass]="item.isPassed ? 'bg-green-600' : 'bg-red-600'">
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  [ngClass]="item.isPassed ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'">
 
                   {{ item.isPassed ? 'Passed' : 'Failed' }}
 
@@ -290,7 +290,7 @@
                   <button
                     *ngIf="auth.hasPermission('UPDATE_STUDENT_ASSIGNMENT')"
                     (click)="edit(item.id)"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
+                    class="px-4 py-2 rounded bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer">
 
                     Edit
 
@@ -299,7 +299,7 @@
                   <button
                     *ngIf="auth.hasPermission('DELETE_STUDENT_ASSIGNMENT')"
                     (click)="delete(item.id)"
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                    class="px-4 py-2 rounded bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer">
 
                     Delete
 
@@ -314,7 +314,7 @@
             <tr *ngIf="assignments.length === 0">
 
               <td [attr.colspan]="(auth.hasPermission('UPDATE_STUDENT_ASSIGNMENT') || auth.hasPermission('DELETE_STUDENT_ASSIGNMENT')) ? 10 : 9"
-                  class="text-center py-8 text-gray-500">
+                  class="text-center py-8 text-zinc-400">
 
                 No Student Assignment Records Found
 

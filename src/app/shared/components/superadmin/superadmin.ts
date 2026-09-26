@@ -13,6 +13,20 @@ export class SuperAdmin implements OnInit{
  
 colleges:any[]=[];
 loading=false;
+search='';
+
+get filteredColleges():any[]{
+  const term=this.search.trim().toLowerCase();
+  if(!term) return this.colleges;
+  return this.colleges.filter(c=>
+    (c.name || c.collegeName || '').toLowerCase().includes(term)
+  );
+}
+
+initials(name?:string):string{
+  const words=(name || 'C').trim().split(/\s+/);
+  return words.slice(0,2).map(w=>w.charAt(0).toUpperCase()).join('');
+}
 constructor(private api:Superadmin,
   private cd:ChangeDetectorRef,
   private router:Router,
@@ -32,12 +46,13 @@ constructor(private api:Superadmin,
     error:()=>{
       this.colleges=[];
       this.loading=false;
+      this.cd.markForCheck();
     }
   });
  }
- View(collegeId:number):void{
+ View(collegeId:number,collegeName?:string):void{
   this.router.navigate(['/main/superadmin-domains'],
-    {state:{collegeId}}
+    {state:{collegeId,collegeName}}
   )
  }
 }

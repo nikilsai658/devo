@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-100 p-6">
+<div class="min-h-screen bg-black p-6">
 
     <!-- Page Header -->
 
@@ -6,11 +6,11 @@
 
         <div>
 
-            <h1 class="text-3xl font-bold text-[#2F3E46]">
+            <h1 class="text-3xl font-bold text-white">
                 Branch Management
             </h1>
 
-            <p class="text-gray-500 mt-1">
+            <p class="text-zinc-400 mt-1">
                 Create, update and manage branches.
             </p>
 
@@ -20,8 +20,7 @@
             *ngIf="auth.hasPermission('CREATE_BRANCH')"
             type="button"
             (click)="openAddModal()"
-            style="background-color:#2F3E46"
-            class="mt-4 md:mt-0 flex items-center gap-2 hover:opacity-90 text-white px-6 py-3 rounded-lg font-semibold shadow transition-opacity">
+            class="mt-4 md:mt-0 flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-opacity bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
 
             <span class="text-lg leading-none">+</span>
             Add Branch
@@ -34,37 +33,37 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
-        <div class="bg-white rounded-xl shadow p-6">
+        <div class="bg-zinc-950 rounded-xl shadow p-6">
 
-            <p class="text-gray-500">
+            <p class="text-zinc-400">
                 Total Branches
             </p>
 
-            <h2 class="text-4xl font-bold text-[#2F3E46] mt-2">
+            <h2 class="text-4xl font-bold text-white mt-2">
                 {{branches.length}}
             </h2>
 
         </div>
 
-        <div class="bg-white rounded-xl shadow p-6">
+        <div class="bg-zinc-950 rounded-xl shadow p-6">
 
-            <p class="text-gray-500">
+            <p class="text-zinc-400">
                 Active Branches
             </p>
 
-            <h2 class="text-4xl font-bold text-green-600 mt-2">
+            <h2 class="text-4xl font-bold text-emerald-400 mt-2">
                 {{branches.length}}
             </h2>
 
         </div>
 
-        <div class="bg-white rounded-xl shadow p-6">
+        <div class="bg-zinc-950 rounded-xl shadow p-6">
 
-            <p class="text-gray-500">
+            <p class="text-zinc-400">
                 Departments
             </p>
 
-            <h2 class="text-4xl font-bold text-blue-600 mt-2">
+            <h2 class="text-4xl font-bold text-white mt-2">
                 {{departments.length}}
             </h2>
 
@@ -74,24 +73,24 @@
 
     <!-- Search -->
 
-    <div class="bg-white rounded-xl shadow-lg p-5 mb-6">
+    <div class="bg-zinc-950 rounded-xl shadow-lg p-5 mb-6">
 
         <input
             type="text"
             placeholder="Search Branch..."
             [value]="searchText"
             (input)="searchText = $any($event.target).value"
-            class="w-full border rounded-lg p-3">
+            class="w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
 
     </div>
 
     <!-- Table -->
 
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="bg-zinc-950 rounded-xl shadow-lg overflow-hidden">
 
         <table class="w-full">
 
-            <thead style="background-color:#2F3E46" class="text-white">
+            <thead style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white">
 
                 <tr>
 
@@ -114,7 +113,7 @@
 
                 <tr
                     *ngFor="let branch of filteredBranches; let i=index"
-                    class="border-b hover:bg-gray-50 transition-colors">
+                    class="border-b hover:bg-white/[0.04] transition-colors border-white/10">
 
                     <td class="p-4">
                         {{i+1}}
@@ -130,7 +129,7 @@
 
                     <td class="p-4">
 
-                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                        <span class="bg-emerald-500/15 text-emerald-400 px-3 py-1 rounded-full">
 
                             Active
 
@@ -147,7 +146,7 @@
                                 *ngIf="auth.hasPermission('UPDATE_BRANCH')"
                                 type="button"
                                 (click)="editBranch(branch)"
-                                class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer">
 
                                 Edit
 
@@ -157,7 +156,7 @@
                                 *ngIf="auth.hasPermission('DELETE_BRANCH')"
                                 type="button"
                                 (click)="deleteBranch(branch.id)"
-                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer">
 
                                 Delete
 
@@ -171,7 +170,7 @@
 
                 <tr *ngIf="filteredBranches.length === 0">
                     <td [attr.colspan]="(auth.hasPermission('UPDATE_BRANCH') || auth.hasPermission('DELETE_BRANCH')) ? 5 : 4"
-                        class="p-6 text-center text-gray-400">
+                        class="p-6 text-center text-zinc-500">
                         No branches found.
                     </td>
                 </tr>
@@ -186,53 +185,57 @@
 
     <div
         *ngIf="showModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+        class="dlg-overlay">
 
-        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-modal">
+        <div class="dlg">
 
             <!-- Dialog Header -->
 
-            <div class="flex items-center justify-between px-6 py-4" style="background-color:#2F3E46">
-                <h3 class="text-white text-lg font-semibold">
-                    {{ isEditMode ? 'Edit Branch' : 'Add Branch' }}
-                </h3>
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Branch' : 'Add Branch' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'Fill in the details below to add a new record.' }}</p>
+                    </div>
+                </div>
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="text-white/80 hover:text-white text-xl leading-none">
-                    &times;
+                    class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
             </div>
 
             <!-- Dialog Body -->
 
-            <form [formGroup]="branchForm" class="px-6 py-6">
+            <form [formGroup]="branchForm" class="dlg-body">
 
-                <div class="mb-4">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Branch Name
                     </label>
                     <input
                         type="text"
                         formControlName="name"
                         placeholder="e.g. Computer Science - AI"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input">
+                    <p class="dlg-error"
                        *ngIf="branchForm.get('name')?.invalid && branchForm.get('name')?.touched">
                         Branch name is required
                     </p>
                 </div>
 
-                <div class="mb-2">
-                    <label class="block mb-1.5 text-sm font-medium text-gray-700">
+                <div class="dlg-field">
+                    <label class="dlg-label">
                         Branch Code
                     </label>
                     <input
                         type="text"
                         formControlName="code"
                         placeholder="e.g. CSE-AI"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2F3E46] focus:border-transparent">
-                    <p class="text-xs text-red-500 mt-1"
+                        class="dlg-input">
+                    <p class="dlg-error"
                        *ngIf="branchForm.get('code')?.invalid && branchForm.get('code')?.touched">
                         Branch code is required
                     </p>
@@ -242,12 +245,12 @@
 
             <!-- Dialog Footer -->
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <div class="dlg-footer">
 
                 <button
                     type="button"
                     (click)="closeModal()"
-                    class="px-5 py-2 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 transition-colors">
+                    class="dlg-btn dlg-btn-secondary">
                     Cancel
                 </button>
 
@@ -255,7 +258,7 @@
                     *ngIf="!isEditMode"
                     type="button"
                     (click)="createBranch()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Save
                 </button>
 
@@ -263,7 +266,7 @@
                     *ngIf="isEditMode"
                     type="button"
                     (click)="updateBranch()"
-                    class="px-5 py-2 rounded-lg font-medium text-white bg-amber-500 hover:bg-amber-600 transition-colors">
+                    class="dlg-btn dlg-btn-primary">
                     Update
                 </button>
 

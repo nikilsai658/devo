@@ -2,11 +2,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Student } from '../../../features/services/student/student';
 import { Router } from '@angular/router';
+import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-domain',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Breadcrumb],
   templateUrl: './student-domain.html',
   styleUrl: './student-domain.css',
   changeDetection:ChangeDetectionStrategy.OnPush
@@ -15,6 +16,8 @@ export class StudentDomain implements OnInit {
 
   domain: any[] = [];
   loading = false;
+
+  breadcrumb: BreadcrumbItem[] = [{ label: 'My Domains' }];
 
   constructor(
     private api: Student,
@@ -52,9 +55,9 @@ export class StudentDomain implements OnInit {
     });
 
   }
-  view(domainId: number):void{
+  view(domainId: number, domainName?: string):void{
     this.router.navigate(['/main/student-courses'], 
-      { state: { domainId } }
+      { state: { domainId, domainName } }
     );
   }
 }

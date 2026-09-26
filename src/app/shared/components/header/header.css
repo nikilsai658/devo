@@ -198,10 +198,10 @@
 
 .nav-item.active-link {
   @apply bg-gradient-to-r
-         from-violet-600
-         to-violet-600/65
-         text-white
-         shadow-[0_4px_16px_rgba(124,58,237,0.18)];
+         from-(--accent)
+         to-(--accent)/65
+         text-(--on-accent)
+         shadow-[0_4px_16px_rgba(var(--violet-rgb),0.18)];
 }
 
 .nav-item.active-link::before {
@@ -211,7 +211,7 @@
          top-2 bottom-2 left-0
          w-[3px]
          rounded-r
-         bg-violet-300;
+         bg-(--accent-text);
 }
 
 
@@ -269,9 +269,9 @@
 }
 
 .submenu a.active-sublink {
-  @apply bg-violet-600/10
+  @apply bg-(--accent)/10
          font-semibold
-         text-violet-300;
+         text-(--accent-text);
 }
 
 
@@ -423,56 +423,6 @@
 
 
 /* =====================================================
-   SEARCH
-===================================================== */
-
-.header-search {
-  @apply absolute
-         left-1/2
-         flex h-9
-         w-[min(420px,32vw)]
-         -translate-x-1/2
-         items-center
-         gap-[9px]
-         rounded-[7px]
-         border border-[#29292f]
-         bg-[#18181c]
-         px-2.5
-         text-[#71717a];
-}
-
-.header-search svg {
-  @apply h-[15px] w-[15px]
-         shrink-0
-         fill-none
-         stroke-current
-         stroke-[1.8];
-}
-
-.header-search input {
-  @apply min-w-0 flex-1
-         border-0
-         bg-transparent
-         text-[11px]
-         text-white
-         outline-none;
-}
-
-.header-search input::placeholder {
-  @apply text-[#62626b];
-}
-
-.search-shortcut {
-  @apply whitespace-nowrap
-         rounded
-         border border-[#303038]
-         px-1.5 py-[3px]
-         text-[8px]
-         text-[#666670];
-}
-
-
-/* =====================================================
    HEADER RIGHT
 ===================================================== */
 
@@ -485,7 +435,6 @@
    HEADER ICONS
 ===================================================== */
 
-.header-icon-button,
 .header-action {
   @apply relative
          flex h-9 w-9
@@ -498,14 +447,12 @@
          transition-all duration-200;
 }
 
-.header-icon-button:hover,
 .header-action:hover {
   @apply border-[#2b2b31]
          bg-[#1c1c21]
          text-white;
 }
 
-.header-icon-button svg,
 .header-action svg {
   @apply h-[17px] w-[17px]
          fill-none
@@ -517,16 +464,50 @@
 
 
 /* =====================================================
-   NOTIFICATION
+   THEME TOGGLE
 ===================================================== */
 
-.notification-dot {
-  @apply absolute
-         top-2 right-2
-         h-[5px] w-[5px]
+.theme-toggle {
+  @apply relative
+         flex h-[22px] w-[42px]
+         shrink-0
+         cursor-pointer
+         items-center
          rounded-full
-         bg-violet-400
-         shadow-[0_0_7px_rgba(167,139,250,0.8)];
+         border border-[#2b2b31]
+         bg-[#18181c]
+         p-[2px]
+         transition-all duration-300;
+}
+
+.theme-toggle:hover {
+  @apply border-[#3a3a42];
+}
+
+.theme-toggle.is-light {
+  @apply border-(--accent)/60 bg-(--accent)/80;
+}
+
+.theme-toggle-thumb {
+  @apply flex h-4 w-4
+         items-center justify-center
+         rounded-full
+         bg-[#3a3a42]
+         text-[#d4d4d8]
+         transition-transform duration-300;
+}
+
+.theme-toggle.is-light .theme-toggle-thumb {
+  @apply translate-x-5 bg-white text-(--accent);
+}
+
+.theme-toggle-thumb svg {
+  @apply h-[11px] w-[11px]
+         fill-none
+         stroke-current
+         stroke-2
+         [stroke-linecap:round]
+         [stroke-linejoin:round];
 }
 
 
@@ -588,17 +569,19 @@
          cursor-pointer
          items-center gap-[7px]
          rounded-[7px]
-         border border-[#29292f]
-         bg-[#18181c]
+         border border-(--accent)
+         bg-(--accent)
          px-[11px]
          text-[10px]
-         text-[#a1a1aa]
+         font-semibold
+         text-(--on-accent)
          transition-all duration-200;
+  box-shadow: 0 6px 16px -8px rgba(var(--accent-rgb), 0.8);
 }
 
 .logout-button:hover {
-  @apply border-[#48252e]
-         bg-[#21181d]
+  @apply border-(--accent-hover)
+         bg-(--accent-hover)
          text-white;
 }
 
@@ -631,15 +614,6 @@
    RESPONSIVE
 ===================================================== */
 
-@media (max-width: 1100px) {
-
-  .header-search {
-    @apply w-[280px];
-  }
-
-}
-
-
 @media (max-width: 850px) {
 
   .header-left {
@@ -648,13 +622,6 @@
 
   .technex-title {
     @apply hidden;
-  }
-
-  .header-search {
-    @apply static
-           ml-[15px]
-           w-[220px]
-           translate-x-0;
   }
 
   .profile-details {
@@ -673,16 +640,6 @@
   .header-divider,
   .college-brand,
   .technex-brand {
-    @apply hidden;
-  }
-
-  .header-search {
-    @apply ml-2.5
-           w-auto
-           flex-1;
-  }
-
-  .search-shortcut {
     @apply hidden;
   }
 

@@ -1,5 +1,6 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 import { UserStore } from '../../../core/store/user';
 import { Auth } from '../../../core/auth/auth';
@@ -7,7 +8,7 @@ import { Auth } from '../../../core/auth/auth';
 @Component({
   selector: 'app-student-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './student-profile.html',
   styleUrl: './student-profile.css'
 })

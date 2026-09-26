@@ -1,0 +1,283 @@
+/* =============================================================
+   COLLEGE TRACKING — neutral surfaces, the accent colour (--accent) only on accents.
+   Dark theme: pure black.  Light theme (app-wide invert): pure white.
+   No tinted/pinkish backgrounds anywhere.
+============================================================= */
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color-scheme: dark;
+}
+
+/* ---------------- PAGE ---------------- */
+
+.tracking-page {
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+}
+
+.tracking-inner {
+  @apply mx-auto max-w-7xl;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.tracking-header {
+  @apply mb-8 flex flex-col gap-6 border-b border-white/10 pb-6
+         sm:flex-row sm:items-end sm:justify-between;
+}
+
+.eyebrow {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border border-white/10
+         px-3 py-1 text-xs font-semibold tracking-wide text-zinc-300;
+}
+
+.eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+}
+
+.header-text h1 {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.header-text p {
+  @apply mt-2 max-w-xl text-sm text-zinc-400;
+}
+
+/* Stat card */
+
+.stat-card {
+  @apply flex shrink-0 items-center gap-4 rounded-2xl border border-white/10 bg-zinc-950 px-5 py-4;
+}
+
+.stat-icon {
+  @apply flex h-11 w-11 items-center justify-center rounded-xl bg-(--accent) text-(--on-accent);
+}
+
+.stat-icon svg {
+  @apply h-5 w-5;
+}
+
+.stat-label {
+  @apply block text-[11px] font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.stat-value {
+  @apply mt-0.5 block text-2xl font-bold leading-7 text-white tabular-nums;
+}
+
+/* ---------------- TOOLBAR ---------------- */
+
+.toolbar {
+  @apply mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.search-box {
+  @apply relative w-full sm:max-w-sm;
+}
+
+.search-box svg {
+  @apply pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500;
+}
+
+.search-box input {
+  @apply h-11 w-full rounded-xl border border-white/10 bg-zinc-950 pl-11 pr-4
+         text-sm text-white outline-none transition-colors duration-200
+         placeholder:text-zinc-600 hover:border-white/20 focus:border-(--accent);
+}
+
+.result-count {
+  @apply text-xs text-zinc-500;
+}
+
+.result-count strong {
+  @apply font-semibold text-zinc-300;
+}
+
+/* ---------------- GRID ---------------- */
+
+.college-grid {
+  @apply grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+/* ---------------- COLLEGE CARD ---------------- */
+
+.college-card {
+  @apply relative flex cursor-pointer flex-col overflow-hidden rounded-2xl
+         border border-white/10 bg-zinc-950 p-5 transition duration-300;
+}
+
+/* Accent line that draws across the top on hover */
+.college-card::before {
+  content: "";
+  @apply absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-(--accent)
+         transition-transform duration-300;
+}
+
+.college-card:hover {
+  @apply -translate-y-1 border-white/20;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+.college-card:hover::before {
+  @apply scale-x-100;
+}
+
+/* Top row */
+
+.card-top {
+  @apply flex items-start justify-between;
+}
+
+.college-avatar {
+  @apply flex h-12 w-12 items-center justify-center rounded-xl bg-(--accent)
+         text-base font-bold tracking-wide text-(--on-accent);
+}
+
+.card-top-right {
+  @apply flex items-center gap-2;
+}
+
+.card-index {
+  @apply rounded-md border border-white/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-zinc-500;
+}
+
+.open-arrow {
+  @apply flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 text-zinc-500
+         transition duration-300;
+}
+
+.open-arrow svg {
+  @apply h-3.5 w-3.5;
+}
+
+.college-card:hover .open-arrow {
+  @apply rotate-45 border-(--accent) text-white;
+}
+
+/* Name + description */
+
+.college-name {
+  @apply mt-5 truncate text-lg font-semibold text-white;
+}
+
+.college-desc {
+  @apply mt-1.5 line-clamp-2 min-h-10 text-sm leading-5 text-zinc-400;
+}
+
+/* Meta chips */
+
+.card-meta {
+  @apply mt-4 flex flex-wrap gap-2;
+}
+
+.meta-chip {
+  @apply inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2 py-1
+         text-[11px] font-medium text-zinc-400;
+}
+
+.meta-chip svg {
+  @apply h-3.5 w-3.5;
+}
+
+/* Footer */
+
+.card-footer {
+  @apply mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4;
+}
+
+.footer-hint {
+  @apply truncate text-[11px] text-zinc-600;
+}
+
+.view-btn {
+  @apply inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-(--accent)
+         px-4 py-2 text-sm font-semibold text-(--on-accent) transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.97]
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950;
+}
+
+.view-btn svg {
+  @apply h-4 w-4 transition-transform duration-200;
+}
+
+.college-card:hover .view-btn svg {
+  @apply translate-x-0.5;
+}
+
+/* ---------------- SKELETON ---------------- */
+
+.skeleton-card {
+  @apply space-y-3 rounded-2xl border border-white/10 bg-zinc-950 p-5;
+}
+
+.skeleton-avatar {
+  @apply mb-5 h-12 w-12 animate-pulse rounded-xl bg-white/10;
+}
+
+.skeleton-line {
+  @apply h-3 animate-pulse rounded-full bg-white/10;
+}
+
+/* ---------------- EMPTY STATE ---------------- */
+
+.empty-state {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/10 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.empty-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--accent) text-(--on-accent);
+}
+
+.empty-icon svg {
+  @apply h-7 w-7;
+}
+
+.empty-state h2 {
+  @apply text-lg font-semibold text-white;
+}
+
+.empty-state p {
+  @apply mt-1 text-sm text-zinc-500;
+}
+
+.btn-outline {
+  @apply mt-5 cursor-pointer rounded-lg border border-(--accent) bg-transparent px-4 py-2
+         text-sm font-semibold text-white transition duration-200 hover:bg-(--accent);
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 640px) {
+  .header-text h1 {
+    @apply text-2xl;
+  }
+
+  .stat-card {
+    @apply w-full;
+  }
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .college-card,
+  .college-card::before,
+  .open-arrow,
+  .view-btn,
+  .view-btn svg,
+  .skeleton-avatar,
+  .skeleton-line {
+    @apply transition-none;
+    animation: none;
+  }
+
+  .college-card:hover {
+    @apply translate-y-0;
+  }
+}

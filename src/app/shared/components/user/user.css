@@ -92,8 +92,10 @@
   @apply text-white/80 hover:text-white text-xl leading-none;
 }
 
+/* The User dialog uses the shared .dlg frame (styles.css); its form keeps
+   its own grid and pins the action bar to the bottom while fields scroll. */
 .modal-form {
-  @apply p-6 overflow-y-auto;
+  @apply flex-1 overflow-y-auto px-6 pt-6;
 }
 
 /* ==========================
@@ -151,7 +153,7 @@
 
 .form-group label,
 .filter-group label {
-  @apply mb-2 text-sm font-medium text-zinc-300;
+  @apply mb-1.5 text-sm font-medium text-zinc-300;
 }
 
 .form-group label span {
@@ -163,13 +165,14 @@
 .filter-group input,
 .filter-group select,
 .search-card input {
-  @apply w-full px-3 py-2.5 rounded-lg
-    border border-white/15
+  @apply h-11 w-full px-3.5 rounded-lg
+    border border-white/10
     bg-black text-white
     text-sm outline-none
-    transition-all duration-200
-    focus:border-transparent
-    focus:ring-2 focus:ring-(--accent);
+    transition-all duration-150
+    hover:border-white/20
+    focus:border-(--accent)
+    focus:ring-4 focus:ring-(--accent)/20;
 }
 
 .form-group input::placeholder,
@@ -206,7 +209,7 @@
 ========================== */
 
 .error {
-  @apply mt-1 text-xs text-rose-400;
+  @apply mt-1.5 text-xs font-medium text-rose-400;
 }
 
 /* ==========================
@@ -214,8 +217,8 @@
 ========================== */
 
 .form-actions {
-  @apply flex items-center justify-end gap-3 mt-6 pt-5
-    border-t border-white/10;
+  @apply sticky bottom-0 -mx-6 mt-6 flex items-center justify-end gap-3
+    border-t border-white/10 bg-zinc-950 px-6 py-4;
 }
 
 .save-btn {

@@ -37,22 +37,27 @@
   <!-- ==========================
        ADD / EDIT USER DIALOG
   =========================== -->
-  <div class="modal-overlay" *ngIf="showModal">
+  <div class="dlg-overlay" *ngIf="showModal">
 
-    <div class="modal-card animate-modal">
+    <div class="dlg max-w-3xl">
 
-      <div class="modal-header">
+      <div class="dlg-header">
 
-        <h3>
-          {{ editMode ? 'Edit User' : 'Add User' }}
-        </h3>
+        <div class="dlg-heading">
+          <span class="dlg-icon"><ng-container *ngIf="editMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!editMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+          <div class="min-w-0">
+            <h3 class="dlg-title">{{ editMode ? 'Edit User' : 'Add User' }}</h3>
+            <p class="dlg-subtitle">{{ editMode ? 'Update the user details below and save your changes.' : 'Fill in the details below to add a new user.' }}</p>
+          </div>
+        </div>
 
         <button
           type="button"
-          class="modal-close"
+          class="dlg-close"
+          aria-label="Close"
           (click)="closeModal()"
         >
-          &times;
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
 
       </div>
@@ -461,7 +466,7 @@
 
         <button
           type="button"
-          class="cancel-btn"
+          class="dlg-btn dlg-btn-secondary"
           (click)="closeModal()"
         >
           Cancel
@@ -470,7 +475,7 @@
         <button
           *ngIf="!editMode"
           type="submit"
-          class="save-btn"
+          class="dlg-btn dlg-btn-primary"
           [disabled]="loading"
         >
           <span *ngIf="!loading">Save</span>
@@ -480,7 +485,7 @@
         <button
           *ngIf="editMode"
           type="submit"
-          class="update-btn"
+          class="dlg-btn dlg-btn-primary"
           [disabled]="loading"
         >
           <span *ngIf="!loading">Update</span>

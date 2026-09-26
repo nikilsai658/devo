@@ -59,6 +59,28 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges {
 
   selectedLanguage = 'python';
 
+  // File name shown on the editor tab / terminal prompt, per language.
+  private readonly fileNames: Record<string, string> = {
+    python: 'main.py',
+    javascript: 'main.js',
+    java: 'Main.java',
+    cpp: 'main.cpp',
+    csharp: 'Program.cs'
+  };
+
+  get fileName(): string {
+    return this.fileNames[this.selectedLanguage] ?? 'main';
+  }
+
+  // State shown on the terminal tab: idle, running, success or error.
+  get terminalState(): 'idle' | 'running' | 'success' | 'error' {
+    if (this.isRunning || this.isSubmitting) return 'running';
+    if (this.runError || this.submitError) return 'error';
+    if (this.submitResult) return this.submitResult.isAccepted ? 'success' : 'error';
+    if (this.runResult) return this.runResult.status === 'Accepted' && !this.runResult.error ? 'success' : 'error';
+    return 'idle';
+  }
+
   stdin = '';
 
   // Judge0 language IDs (from this backend's live /languages endpoint),
@@ -114,15 +136,55 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges {
       import('monaco-editor/esm/vs/basic-languages/csharp/csharp.contribution')
     ]);
 
+    // IDE-style dark theme matching the page (same in light and dark app
+    // themes — the component re-inverts itself in light mode).
+    this.monaco.editor.defineTheme('tripledot-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#0b0b0e',
+        'editor.lineHighlightBackground': '#16161b',
+        'editor.lineHighlightBorder': '#16161b',
+        'editorLineNumber.foreground': '#3f3f46',
+        'editorLineNumber.activeForeground': '#a1a1aa',
+        'editorCursor.foreground': '#e4e4e7',
+        'editor.selectionBackground': '#6B21D055',
+        'editorIndentGuide.background1': '#1f1f24',
+        'editorGutter.background': '#0b0b0e',
+        'minimap.background': '#0b0b0e',
+        'scrollbarSlider.background': '#ffffff14',
+        'scrollbarSlider.hoverBackground': '#ffffff24',
+        'editorWidget.background': '#141418',
+        'editorWidget.border': '#27272a',
+        'editorSuggestWidget.background': '#141418',
+        'editorSuggestWidget.border': '#27272a',
+        'editorSuggestWidget.selectedBackground': '#6B21D040'
+      }
+    });
+
     this.editor = this.monaco.editor.create(
       this.editorContainer.nativeElement,
       {
         value: this.getDefaultCode('python'),
         language: 'python',
-        theme: 'vs-dark',
+        theme: 'tripledot-dark',
         automaticLayout: true,
+        fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace",
+        fontSize: 14,
+        lineHeight: 22,
+        fontLigatures: true,
+        padding: { top: 16, bottom: 16 },
+        scrollBeyondLastLine: false,
+        smoothScrolling: true,
+        cursorBlinking: 'smooth',
+        cursorSmoothCaretAnimation: 'on',
+        renderLineHighlight: 'all',
+        roundedSelection: true,
+        bracketPairColorization: { enabled: true },
         minimap: {
-          enabled: true
+          enabled: true,
+          renderCharacters: false
         }
       }
     );

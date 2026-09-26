@@ -1,13 +1,25 @@
 <div class="editor-layout">
 
-    <!-- Toolbar -->
+    <!-- ================= TITLE BAR ================= -->
     <div class="editor-toolbar">
 
         <div class="toolbar-left">
 
+            <span class="window-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </span>
+
+            <span class="file-tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14" />
+                </svg>
+                {{ fileName }}
+            </span>
+
             <select
                 (change)="changeLanguage($any($event.target).value)"
-                class="language-select">
+                class="language-select"
+                aria-label="Language">
 
                 <option value="python">Python</option>
                 <option value="javascript">JavaScript</option>
@@ -24,11 +36,13 @@
             <button
                 class="reset-btn"
                 type="button"
+                title="Reset to starter code"
                 [disabled]="isRunning || isSubmitting"
                 (click)="resetCode()">
-
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M4.6 15a8 8 0 1 0 1.9-8.3L4 9" />
+                </svg>
                 Reset
-
             </button>
 
             <button
@@ -36,9 +50,11 @@
                 type="button"
                 [disabled]="isRunning || isSubmitting"
                 (click)="onRunClick()">
-
-                {{ isRunning ? 'Running...' : 'Run Code' }}
-
+                <svg *ngIf="!isRunning" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M7 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 7 5.5Z" />
+                </svg>
+                <span *ngIf="isRunning" class="spinner" aria-hidden="true"></span>
+                {{ isRunning ? 'Running...' : 'Run' }}
             </button>
 
             <button
@@ -46,38 +62,39 @@
                 type="button"
                 [disabled]="isRunning || isSubmitting"
                 (click)="onSubmitClick()">
-
+                <svg *ngIf="!isSubmitting" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5m0 0-6 6m6-6 6 6" />
+                </svg>
+                <span *ngIf="isSubmitting" class="spinner" aria-hidden="true"></span>
                 {{ isSubmitting ? 'Submitting...' : 'Submit' }}
-
             </button>
 
         </div>
 
     </div>
 
-    <!-- Monaco Editor -->
-
+    <!-- ================= MONACO EDITOR ================= -->
     <div
         #editorContainer
         class="editor-container">
     </div>
 
-    <!-- Custom Input -->
-
+    <!-- ================= STDIN ================= -->
     <div class="custom-input-panel">
 
         <button
             type="button"
             class="custom-input-toggle"
+            [attr.aria-expanded]="showCustomInput"
             (click)="showCustomInput = !showCustomInput">
 
-            <span>Custom Input</span>
-
-            <span
-                class="toggle-icon"
-                [class.open]="showCustomInput">
-                &#9656;
+            <span class="panel-tab">
+                <span class="toggle-icon" [class.open]="showCustomInput" aria-hidden="true">&#9656;</span>
+                STDIN
+                <span class="panel-hint">Custom input</span>
             </span>
+
+            <span class="stdin-state" *ngIf="stdin.trim()">input set</span>
 
         </button>
 
@@ -85,6 +102,7 @@
             *ngIf="showCustomInput"
             class="custom-input-box"
             rows="4"
+            spellcheck="false"
             placeholder="Enter stdin for your program..."
             [ngModel]="stdin"
             (ngModelChange)="onStdinChange($event)">
@@ -92,77 +110,81 @@
 
     </div>
 
-    <!-- Output -->
-
+    <!-- ================= TERMINAL ================= -->
     <div class="output-panel">
 
         <div class="output-header">
-
-            Output
-
+            <span class="panel-tab">
+                <span class="term-dot" [ngClass]="terminalState" aria-hidden="true"></span>
+                TERMINAL
+            </span>
+            <span class="term-state" [ngClass]="terminalState">
+                {{ terminalState === 'running' ? 'running' : terminalState === 'success' ? 'passed' : terminalState === 'error' ? 'failed' : 'ready' }}
+            </span>
         </div>
 
         <div class="output-body">
 
             <!-- Idle -->
-            <p *ngIf="!isRunning && !isSubmitting && !runResult && !submitResult && !runError && !submitError">
-
-                Run your code to see the output...
-
+            <p class="term-line" *ngIf="terminalState === 'idle'">
+                <span class="prompt">$</span>
+                <span class="muted">Run your code to see the output</span>
+                <span class="cursor" aria-hidden="true"></span>
             </p>
 
-            <!-- Loading -->
-            <p *ngIf="isRunning">
+            <!-- Running / submitting -->
+            <ng-container *ngIf="isRunning || isSubmitting">
+                <p class="term-line">
+                    <span class="prompt">$</span>
+                    {{ isRunning ? 'run' : 'submit' }} {{ fileName }}
+                </p>
+                <p class="term-line muted">
+                    {{ isRunning ? 'Running your code' : 'Running all test cases' }}<span class="dots"></span>
+                </p>
+            </ng-container>
 
-                Running your code...
-
+            <!-- Transport-level errors -->
+            <p class="term-line output-error" *ngIf="runError">
+                <span class="prompt err">✗</span> {{ runError }}
             </p>
 
-            <p *ngIf="isSubmitting">
-
-                Submitting your code...
-
-            </p>
-
-            <!-- Transport-level error -->
-            <p class="output-error" *ngIf="runError">
-
-                {{ runError }}
-
-            </p>
-
-            <p class="output-error" *ngIf="submitError">
-
-                {{ submitError }}
-
+            <p class="term-line output-error" *ngIf="submitError">
+                <span class="prompt err">✗</span> {{ submitError }}
             </p>
 
             <!-- Run result -->
             <div *ngIf="!isRunning && runResult">
 
-                <span
-                    class="status-badge"
-                    [ngClass]="{
-                        'passed': runResult.status === 'Accepted',
-                        'failed': runResult.status !== 'Accepted'
-                    }">
-
-                    {{ runResult.status }}
-
-                </span>
+                <p class="term-line">
+                    <span class="prompt">$</span> run {{ fileName }}
+                </p>
 
                 <pre class="code-block">{{ runResult.output }}</pre>
 
                 <pre class="code-block output-error" *ngIf="runResult.error">{{ runResult.error }}</pre>
 
-                <p class="output-meta">
-                    Time: {{ runResult.time }}s &nbsp;|&nbsp; Memory: {{ runResult.memory }} KB
+                <p class="term-status">
+                    <span
+                        class="status-badge"
+                        [ngClass]="{
+                            'passed': runResult.status === 'Accepted',
+                            'failed': runResult.status !== 'Accepted'
+                        }">
+                        {{ runResult.status === 'Accepted' ? '✓' : '✗' }} {{ runResult.status }}
+                    </span>
+                    <span class="output-meta">
+                        {{ runResult.time }}s &nbsp;·&nbsp; {{ runResult.memory }} KB
+                    </span>
                 </p>
 
             </div>
 
             <!-- Submit result -->
             <div *ngIf="!isSubmitting && submitResult">
+
+                <p class="term-line">
+                    <span class="prompt">$</span> submit {{ fileName }}
+                </p>
 
                 <div
                     class="verdict-banner"
@@ -191,8 +213,7 @@
                 <pre class="code-block output-error" *ngIf="submitResult.error">{{ submitResult.error }}</pre>
 
                 <p class="output-meta">
-                    Score: {{ submitResult.score }}
-                    &nbsp;|&nbsp; Time: {{ submitResult.time }}s
+                    score {{ submitResult.score }} &nbsp;·&nbsp; {{ submitResult.time }}s
                 </p>
 
             </div>

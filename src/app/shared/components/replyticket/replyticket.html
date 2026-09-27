@@ -1,382 +1,334 @@
-<div class="min-h-screen bg-black p-4 md:p-6">
+<div class="chat-page">
 
-  <!-- Page Container -->
-  <div
-    class="mx-auto max-w-5xl overflow-hidden
-           rounded-xl border border-white/10
-           bg-zinc-950 shadow-sm">
-
+  <div class="chat-shell">
 
     <!-- ====================================== -->
     <!-- HEADER -->
     <!-- ====================================== -->
 
-    <div
-      class="flex items-center justify-between
-             border-b border-white/10
-             bg-zinc-950 px-5 py-5">
+    <header class="chat-header">
 
-
-      <!-- Title -->
-      <div>
-
-        <h1
-          class="text-xl font-semibold
-                 text-zinc-200">
-
-          Conversation
-
-        </h1>
-
-        <p
-          class="mt-1 text-sm text-zinc-400">
-
-          Chat with the support team
-
-        </p>
-
-      </div>
-
-
-      <!-- Refresh -->
       <button
         type="button"
-        (click)="refresh()"
-        [disabled]="messagesLoading"
-        class="flex items-center gap-1.5
-               rounded-lg border
-               border-white/10
-               bg-zinc-950 px-4 py-2
-               text-sm text-zinc-400
-               transition
-               hover:bg-white/5
-               disabled:cursor-not-allowed
-               disabled:opacity-50">
+        class="icon-button"
+        (click)="back()"
+        title="Back to my tickets"
+        aria-label="Back to my tickets">
 
-        <span class="text-base">
-          ↻
-        </span>
-
-        Refresh
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
 
       </button>
 
-    </div>
+      <div class="header-avatar" aria-hidden="true">
 
+        <svg viewBox="0 0 24 24" class="icon">
+          <path d="M4 14v-2a8 8 0 0116 0v2" />
+          <path d="M18 19a2 2 0 002-2v-3h-3v5h1zM6 19a2 2 0 01-2-2v-3h3v5H6z" />
+        </svg>
 
-    <!-- ====================================== -->
-    <!-- CHAT AREA -->
-    <!-- ====================================== -->
-
-    <div
-      class="chat-messages h-[500px]
-             overflow-y-auto bg-white/[0.03]
-             px-5 py-5">
-
-
-      <!-- Loading -->
-      <div
-        *ngIf="
-          messagesLoading &&
-          messages.length === 0
-        "
-        class="flex h-full items-center
-               justify-center">
-
-        <div class="text-center">
-
-          <div
-            class="mx-auto mb-3 h-7 w-7
-                   animate-spin rounded-full
-                   border-4 border-white/10
-                   border-t-cyan-500">
-          </div>
-
-          <p
-            class="text-sm text-zinc-400">
-
-            Loading conversation...
-
-          </p>
-
-        </div>
+        <span class="online-dot"></span>
 
       </div>
 
+      <div class="header-text">
 
-      <!-- No Messages -->
-      <div
-        *ngIf="
-          !messagesLoading &&
-          messages.length === 0
-        "
-        class="flex h-full items-center
-               justify-center">
+        <h1 class="header-title">
+          {{ ticket?.subject || 'Support Conversation' }}
+        </h1>
 
-        <div class="text-center">
+        <div class="header-meta">
 
-          <div
-            class="mx-auto mb-3 flex h-12 w-12
-                   items-center justify-center
-                   rounded-full bg-white/5
-                   text-xl">
+          <span>Support Team</span>
 
-            💬
+          @if (ticket) {
 
-          </div>
+            <span class="meta-sep">•</span>
 
-          <p
-            class="font-medium text-zinc-400">
+            <span>#{{ ticket.id }}</span>
 
-            No messages yet
-
-          </p>
-
-          <p
-            class="mt-1 text-sm text-zinc-500">
-
-            Start the conversation below.
-
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- ==================================== -->
-      <!-- MESSAGE LIST -->
-      <!-- ==================================== -->
-
-      <div
-        *ngIf="messages.length > 0"
-        class="space-y-5">
-
-
-        <!-- Message -->
-        <div
-          *ngFor="let msg of messages"
-          class="flex w-full"
-          [ngClass]="{
-
-            'justify-end':
-              isMyMessage(msg),
-
-            'justify-start':
-              isAdminMessage(msg)
-
-          }">
-
-
-          <!-- Message Container -->
-          <div
-            class="max-w-[75%] md:max-w-[60%]">
-
-
-            <!-- Sender -->
-            <div
-              class="mb-1 px-1 text-xs
-                     text-zinc-500"
-              [ngClass]="{
-
-                'text-right':
-                  isMyMessage(msg),
-
-                'text-left':
-                  isAdminMessage(msg)
-
-              }">
-
-              {{ getSenderLabel(msg) }}
-
-            </div>
-
-
-            <!-- ================================= -->
-            <!-- MESSAGE BUBBLE -->
-            <!-- ================================= -->
-
-            <div
-  class="px-4 py-3 shadow-sm"
-  [ngClass]="{
-    'rounded-2xl rounded-br-sm bg-(--accent) text-white':
-      isMyMessage(msg),
-
-    'rounded-2xl rounded-bl-sm border border-white/10 bg-zinc-950 text-zinc-300':
-      isAdminMessage(msg)
-  }">
-
-  <p
-    class="whitespace-pre-wrap break-words text-sm leading-6">
-    {{ msg.message }}
-  </p>
-
-</div>
-
-
-            <!-- ================================= -->
-            <!-- TIME -->
-            <!-- ================================= -->
-
-            <div
-              class="mt-1 px-1 text-[11px]
-                     text-zinc-500"
-              [ngClass]="{
-
-                'text-right':
-                  isMyMessage(msg),
-
-                'text-left':
-                  isAdminMessage(msg)
-
-              }">
-
-              {{ msg.sentAt | date:'hh:mm a' }}
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- ====================================== -->
-    <!-- TICKET CLOSED NOTICE -->
-    <!-- ====================================== -->
-
-    <div
-      *ngIf="ticket?.status?.toLowerCase() === 'closed'"
-      class="border-t border-white/10
-             bg-white/[0.03] px-5 py-5
-             text-center text-sm
-             text-zinc-400">
-
-      This ticket is closed. You can no longer send replies.
-
-    </div>
-
-
-    <!-- ====================================== -->
-    <!-- REPLY INPUT -->
-    <!-- ====================================== -->
-
-    <div
-      *ngIf="ticket?.status?.toLowerCase() !== 'closed'"
-      class="border-t border-white/10
-             bg-zinc-950 px-5 py-5">
-
-
-      <div
-        class="flex items-end gap-3">
-
-
-        <!-- Textarea -->
-        <textarea
-          [(ngModel)]="message"
-          rows="3"
-          maxlength="1000"
-          [disabled]="sending"
-          placeholder="Write a reply to the support team..."
-          (keydown.enter)="sendOnEnter($event)"
-          class="min-h-[82px] flex-1
-                 resize-none rounded-xl
-                 border border-white/15
-                 px-4 py-4 text-sm
-                 text-zinc-300 outline-none
-                 transition
-                 placeholder:text-zinc-600
-                 focus:border-(--accent)
-                 focus:ring-2
-                 focus:ring-(--accent)/25
-                 disabled:cursor-not-allowed
-                 disabled:bg-white/5"></textarea>
-
-
-        <!-- Send Button -->
-        <button
-          type="button"
-          (click)="send()"
-          [disabled]="
-            sending ||
-            !message.trim() ||
-            message.length > maxMessageLength
-          "
-          class="flex h-[82px]
-                 min-w-[140px]
-                 items-center justify-center
-                 rounded-xl bg-(--accent)
-                 px-5 text-sm
-                 font-semibold text-(--on-accent)
-                 transition
-                 hover:bg-(--accent-hover)
-                 disabled:cursor-not-allowed
-                 disabled:bg-white/10">
-
-
-          <!-- Sending -->
-          <ng-container
-            *ngIf="sending">
-
-            <span
-              class="mr-2 h-4 w-4
-                     animate-spin rounded-full
-                     border-2 border-black
-                     border-t-transparent">
+            <span class="status-pill" [ngClass]="getStatusClass()">
+              {{ ticket.status || 'Open' }}
             </span>
 
-            Sending...
+          }
 
-          </ng-container>
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="icon-button"
+        (click)="refresh()"
+        [disabled]="messagesLoading"
+        title="Refresh conversation"
+        aria-label="Refresh conversation">
+
+        <svg
+          viewBox="0 0 24 24"
+          class="icon"
+          [class.spin]="messagesLoading"
+          aria-hidden="true">
+          <path d="M21 12a9 9 0 11-2.64-6.36" />
+          <path d="M21 3v6h-6" />
+        </svg>
+
+      </button>
+
+    </header>
 
 
-          <!-- Normal -->
-          <ng-container
-            *ngIf="!sending">
+    <!-- ====================================== -->
+    <!-- CHAT BODY -->
+    <!-- ====================================== -->
 
-            Send Reply
+    <div class="chat-body-wrap">
 
-          </ng-container>
+      <div
+        #chatScroll
+        class="chat-body"
+        (scroll)="onChatScroll()">
+
+        <div class="chat-inner">
+
+          <!-- Ticket summary card -->
+          @if (ticket) {
+
+            <div class="ticket-card">
+
+              <div class="ticket-card-label">
+                Ticket raised
+                @if (ticket.createdAt) {
+                  · {{ ticket.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+                }
+              </div>
+
+              <div class="ticket-card-subject">
+                {{ ticket.subject }}
+              </div>
+
+              @if (ticket.description) {
+                <p class="ticket-card-description">
+                  {{ ticket.description }}
+                </p>
+              }
+
+            </div>
+
+          }
+
+
+          <!-- Loading -->
+          @if (messagesLoading && messages.length === 0) {
+
+            <div class="chat-state">
+
+              <div class="state-spinner"></div>
+
+              <p class="state-text">Loading conversation…</p>
+
+            </div>
+
+          }
+
+
+          <!-- Empty -->
+          @if (!messagesLoading && messages.length === 0) {
+
+            <div class="chat-state">
+
+              <div class="state-icon" aria-hidden="true">
+
+                <svg viewBox="0 0 24 24" class="icon">
+                  <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z" />
+                </svg>
+
+              </div>
+
+              <p class="state-title">No messages yet</p>
+
+              <p class="state-text">
+                Send a message and our support team will get back to you here.
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- Messages -->
+          @for (msg of messages; track trackById($index, msg); let i = $index) {
+
+            @if (showDateDivider(i)) {
+
+              <div class="date-divider">
+                <span>{{ getDateLabel(msg.sentAt) }}</span>
+              </div>
+
+            }
+
+            <div
+              class="message-row"
+              [class.mine]="isMyMessage(msg)"
+              [class.theirs]="!isMyMessage(msg)"
+              [class.group-start]="isFirstInGroup(i)">
+
+              <!-- Support avatar (left side only) -->
+              @if (!isMyMessage(msg)) {
+
+                <div class="avatar-slot">
+
+                  @if (isFirstInGroup(i)) {
+                    <div class="avatar">{{ getInitials(msg) }}</div>
+                  }
+
+                </div>
+
+              }
+
+              <div class="message-stack">
+
+                @if (!isMyMessage(msg) && isFirstInGroup(i)) {
+
+                  <div class="sender-line">
+
+                    <span class="sender-name">{{ getSenderName(msg) }}</span>
+
+                    <span class="sender-role">{{ getSenderRole(msg) }}</span>
+
+                  </div>
+
+                }
+
+                <div class="bubble">
+
+                  <span class="bubble-text">{{ msg.message }}</span>
+
+                  <span class="bubble-time">
+                    {{ msg.sentAt | date:'hh:mm a' }}
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- Jump to latest -->
+      @if (!stickToBottom && messages.length > 0) {
+
+        <button
+          type="button"
+          class="jump-button"
+          (click)="scrollToBottom()"
+          title="Go to latest message"
+          aria-label="Go to latest message">
+
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+
+          @if (unreadCount > 0) {
+            <span class="jump-badge">{{ unreadCount }}</span>
+          }
 
         </button>
 
-      </div>
+      }
+
+    </div>
 
 
-      <!-- Bottom Information -->
-      <div
-        class="mt-2 flex items-center
-               justify-between">
+    <!-- ====================================== -->
+    <!-- FOOTER -->
+    <!-- ====================================== -->
 
-        <p
-          class="text-xs text-zinc-500">
+    @if (isClosed()) {
 
-          Your reply will be sent to the support team.
+      <div class="closed-banner">
 
-        </p>
+        <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V7a4 4 0 018 0v4" />
+        </svg>
 
-        <span
-          class="text-xs"
-          [ngClass]="{
-
-            'text-rose-400':
-              message.length >= maxMessageLength,
-
-            'text-zinc-500':
-              message.length < maxMessageLength
-
-          }">
-
-          {{ message.length }}/{{ maxMessageLength }}
-
+        <span>
+          This ticket has been closed. If you still need help, please raise a new ticket.
         </span>
 
       </div>
 
-    </div>
+    } @else {
+
+      <div class="composer">
+
+        <div
+          class="composer-box"
+          [class.disabled]="sending">
+
+          <textarea
+            #composer
+            [(ngModel)]="message"
+            (input)="autoGrow()"
+            (keydown.enter)="sendOnEnter($event)"
+            [disabled]="sending"
+            [attr.maxlength]="maxMessageLength"
+            rows="1"
+            placeholder="Type your message…"
+            aria-label="Message"
+            class="composer-input"></textarea>
+
+          <button
+            type="button"
+            class="send-button"
+            (click)="send()"
+            [disabled]="sending || !message.trim() || message.length > maxMessageLength"
+            title="Send"
+            aria-label="Send message">
+
+            @if (sending) {
+
+              <span class="send-spinner"></span>
+
+            } @else {
+
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                <path d="M22 2L11 13" />
+                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
+
+            }
+
+          </button>
+
+        </div>
+
+        <div class="composer-hint">
+
+          <span>
+            <kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line
+          </span>
+
+          <span
+            class="char-count"
+            [class.near-limit]="message.length > maxMessageLength * 0.9">
+            {{ message.length }}/{{ maxMessageLength }}
+          </span>
+
+        </div>
+
+      </div>
+
+    }
 
   </div>
 

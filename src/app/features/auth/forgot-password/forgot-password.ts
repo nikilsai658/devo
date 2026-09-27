@@ -14,7 +14,7 @@ import { AuthServices } from '../../services/auth/auth-services';
   standalone:true,
   imports: [Logo,FloatLabelModule,FormsModule,InputTextModule,ButtonModule,PasswordModule,CommonModule,ReactiveFormsModule,RouterLink],
   templateUrl: './forgot-password.html',
-  styleUrl: './forgot-password.css',
+  styleUrls: ['./forgot-password.css', '../auth-responsive.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ForgotPassword implements OnInit {

@@ -16,7 +16,7 @@ import { UserStore } from '../../../core/store/user';
   standalone:true,
   imports: [Logo, FloatLabelModule, FormsModule, InputTextModule, ButtonModule, PasswordModule, ReactiveFormsModule, CommonModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['./login.css', '../auth-responsive.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Login implements OnInit{
@@ -81,6 +81,12 @@ export class Login implements OnInit{
           this.cd.markForCheck();
         }
       })
+    }else if(this.Form.controls['collegeCode'].invalid){
+      this.router.navigate(['/auth/college'], { queryParams: { returnUrl: '/auth/login' } });
+    }else{
+      this.Form.markAllAsTouched();
+      this.errorMessage = 'Please enter your username and password.';
+      this.cd.markForCheck();
     }
    }
 

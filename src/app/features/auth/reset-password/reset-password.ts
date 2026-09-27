@@ -13,7 +13,7 @@ import {AuthServices} from '../../services/auth/auth-services';
   selector: 'app-reset-password',
   imports: [ReactiveFormsModule,CommonModule,Logo,InputTextModule,ButtonModule,PasswordModule,FloatLabelModule],
   templateUrl: './reset-password.html',
-  styleUrl: './reset-password.css',
+  styleUrls: ['./reset-password.css', '../auth-responsive.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResetPassword implements OnInit {

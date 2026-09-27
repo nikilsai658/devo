@@ -1,0 +1,262 @@
+/* =========================================================
+   AUTH PAGES — RESPONSIVE (shared by college, login,
+   forgot-password, reset-password)
+
+   Desktop (> 1024px) is untouched; every rule here lives
+   inside a max-width media query.
+========================================================= */
+
+
+/* =========================================================
+   TABLET / SMALL LAPTOP  (≤ 1024px) — keep split layout
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  .login-page {
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .login-card {
+    max-width: none;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .login-visual {
+    width: 46%;
+    min-height: 0;
+  }
+
+  .login-form-section {
+    width: 54%;
+    height: auto;
+    overflow: visible;
+    padding: 48px 0;
+  }
+
+  .login-content {
+    width: min(380px, calc(100% - 64px));
+  }
+
+  .orb-1 {
+    width: 340px;
+    height: 340px;
+    left: -150px;
+  }
+
+  .orb-2 {
+    width: 260px;
+    height: 400px;
+  }
+
+  .orb-3 {
+    width: 360px;
+    height: 180px;
+    left: 40px;
+  }
+
+  .brand {
+    top: 36px;
+    left: 36px;
+  }
+
+  .visual-content {
+    left: 36px;
+    right: 36px;
+    bottom: 72px;
+  }
+
+  .visual-content h2 {
+    font-size: 34px;
+  }
+
+  /* p-password's wrapper is inline-flex (shrink-to-fit), so the input
+     keeps its intrinsic width and overflows narrow screens. Stretch it. */
+  .input-wrapper p-password,
+  :host ::ng-deep .input-wrapper .p-password {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  :host ::ng-deep .input-wrapper .p-password-input {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET PORTRAIT / PHONES  (≤ 820px) — form only, with
+   the logo centred above it (purple panel hidden)
+========================================================= */
+
+@media (max-width: 820px) {
+
+  .login-page {
+    display: block;
+    padding: 0;
+  }
+
+  .login-card {
+    overflow: visible;
+  }
+
+  .login-visual {
+    display: none;
+  }
+
+  .login-form-section {
+    width: 100%;
+    min-height: 100dvh;
+
+    padding: 40px 0 calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .login-content {
+    width: min(440px, calc(100% - 48px));
+  }
+
+  .mobile-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .login-content h1,
+  .subtitle {
+    text-align: center;
+  }
+
+  .subtitle {
+    margin-bottom: 32px;
+  }
+
+  .form {
+    gap: 24px;
+  }
+
+  /* 16px stops iOS Safari from zooming into focused inputs */
+  .input-wrapper input,
+  :host ::ng-deep .custom-password,
+  :host ::ng-deep .country-select .p-select-label {
+    font-size: 16px !important;
+  }
+
+  ::ng-deep .p-select-overlay {
+    max-width: calc(100vw - 32px);
+  }
+
+}
+
+
+/* =========================================================
+   PHONES  (≤ 480px)
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .login-form-section {
+    padding-top: 32px;
+  }
+
+  .login-content {
+    width: calc(100% - 36px);
+  }
+
+  .mobile-logo {
+    margin-bottom: 16px;
+  }
+
+  .login-content h1 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    margin-bottom: 28px;
+    font-size: 13px;
+  }
+
+  .bottom-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .social-section {
+    margin-top: 40px;
+  }
+
+  .social-section p {
+    white-space: normal;
+    text-align: center;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL PHONES  (≤ 360px)
+========================================================= */
+
+@media (max-width: 360px) {
+
+  .login-content h1 {
+    font-size: 22px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE PHONES — short screens, form only with a
+   smaller logo
+========================================================= */
+
+@media (max-width: 1024px) and (max-height: 560px) and (orientation: landscape) {
+
+  .login-visual {
+    display: none;
+  }
+
+  .login-form-section {
+    width: 100%;
+    padding: 28px 0 calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .mobile-logo ::ng-deep .logo {
+    margin: 0;
+  }
+
+  .mobile-logo ::ng-deep .logo img {
+    width: 56px;
+  }
+
+  .subtitle {
+    margin-bottom: 24px;
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH — no hover lift on phones/tablets
+========================================================= */
+
+@media (max-width: 1024px) and (hover: none) {
+
+  :host ::ng-deep .login-button:hover {
+    transform: none;
+  }
+
+}

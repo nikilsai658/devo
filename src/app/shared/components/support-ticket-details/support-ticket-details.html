@@ -1,737 +1,479 @@
-<div class="min-h-screen bg-black p-4 sm:p-6">
+<div class="page">
 
-  <div class="max-w-6xl mx-auto">
+  <!-- ================================================= -->
+  <!-- TOP BAR -->
+  <!-- ================================================= -->
 
-    <!-- ================================================= -->
-    <!-- HEADER -->
-    <!-- ================================================= -->
+  <header class="topbar">
 
-    <div
-      class="flex flex-col sm:flex-row
-             sm:items-center
-             sm:justify-between
-             gap-4 mb-6">
-
-      <div>
-
-        <!-- Back -->
-        <button
-          type="button"
-          (click)="back()"
-          class="flex items-center gap-2
-                 text-sm text-zinc-400
-                 hover:text-(--accent-text)
-                 transition mb-2">
-
-          ← Back to Tickets
-
-        </button>
-
-        <h1
-          class="text-2xl font-bold
-                 text-white">
-
-          Support Ticket
-
-        </h1>
-
-        <p
-          class="text-sm text-zinc-400 mt-1">
-
-          View ticket and communicate with the student
-
-        </p>
-
-      </div>
-
-
-      <!-- STATUS -->
-      <div
-        *ngIf="ticket"
-        class="flex items-center gap-3">
-
-        <span
-          class="text-sm font-medium
-                 text-zinc-400">
-
-          Status
-
-        </span>
-
-        <select
-          [ngModel]="selectedStatus"
-          (ngModelChange)="changeStatus($event)"
-          [disabled]="updatingStatus"
-          class="rounded-lg
-                 border border-white/15
-                 bg-zinc-950
-                 px-4 py-2.5
-                 text-sm font-medium
-                 text-zinc-300
-                 focus:outline-none
-                 focus:ring-2
-                 focus:ring-(--accent)
-                 disabled:opacity-50">
-
-          <option value="Open">
-            Open
-          </option>
-          <option value="Resolved">
-            Resolved
-          </option>
-
-          <option value="Closed">
-            Closed
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- LOADING -->
-    <!-- ================================================= -->
-
-    <div
-      *ngIf="loading"
-      class="flex justify-center
-             py-20">
-
-      <div
-        class="w-10 h-10
-               border-4 border-white/10
-               border-t-cyan-600
-               rounded-full
-               animate-spin">
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- ERROR -->
-    <!-- ================================================= -->
-
-    <div
-      *ngIf="!loading && errorMessage"
-      class="rounded-xl
-             border border-rose-500/40
-             bg-rose-500/10
-             p-5">
-
-      <p
-        class="text-sm text-rose-400">
-
-        {{ errorMessage }}
-
-      </p>
+    <div class="topbar-left">
 
       <button
         type="button"
-        (click)="getTicket()"
-        class="mt-3
-               text-sm font-semibold
-               text-rose-400
-               underline">
+        class="back-link"
+        (click)="back()">
 
-        Try Again
+        <svg viewBox="0 0 24 24" class="icon icon-sm" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
 
+        All Tickets
+
+      </button>
+
+      <div class="title-row">
+
+        <h1 class="page-title">
+          {{ ticket?.subject || 'Support Ticket' }}
+        </h1>
+
+        @if (ticket) {
+
+          <span class="ticket-id">#{{ ticket.id }}</span>
+
+          <span class="status-pill" [ngClass]="getStatusClass()">
+            {{ ticket.status || 'Open' }}
+          </span>
+
+        }
+
+      </div>
+
+    </div>
+
+
+    @if (ticket) {
+
+      <div class="topbar-actions">
+
+        <label class="select-wrap">
+
+          <span class="select-label">Status</span>
+
+          <select
+            [ngModel]="selectedStatus"
+            (ngModelChange)="changeStatus($event)"
+            [disabled]="updatingStatus"
+            class="status-select">
+
+            <option value="Open">Open</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+
+          </select>
+
+        </label>
+
+        @if (!isClosed()) {
+
+          <button
+            type="button"
+            class="btn-danger"
+            (click)="closeTicket()"
+            [disabled]="updatingStatus">
+
+            <svg viewBox="0 0 24 24" class="icon icon-sm" aria-hidden="true">
+              <rect x="5" y="11" width="14" height="10" rx="2" />
+              <path d="M8 11V7a4 4 0 018 0v4" />
+            </svg>
+
+            {{ updatingStatus ? 'Closing…' : 'Close Ticket' }}
+
+          </button>
+
+        }
+
+      </div>
+
+    }
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  @if (loading && !ticket) {
+
+    <div class="page-state">
+      <div class="spinner"></div>
+      <p>Loading ticket…</p>
+    </div>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  @if (!loading && errorMessage) {
+
+    <div class="error-box">
+
+      <span>{{ errorMessage }}</span>
+
+      <button
+        type="button"
+        (click)="getTicket()">
+        Try again
       </button>
 
     </div>
 
-
-    <!-- ================================================= -->
-    <!-- MAIN CONTENT -->
-    <!-- ================================================= -->
-
-    <div
-      *ngIf="!loading && ticket"
-      class="grid grid-cols-1
-             lg:grid-cols-3
-             gap-6">
+  }
 
 
-      <!-- ================================================= -->
-      <!-- LEFT : TICKET DETAILS -->
-      <!-- ================================================= -->
+  <!-- ================================================= -->
+  <!-- MAIN -->
+  <!-- ================================================= -->
 
-      <div class="lg:col-span-1">
+  @if (ticket) {
 
-        <div
-          class="bg-zinc-950
-                 rounded-xl
-                 border border-white/10
-                 shadow-sm
-                 p-5">
+    <div class="layout">
 
-          <!-- Title -->
+      <!-- ============== LEFT: DETAILS ============== -->
+
+      <aside class="side">
+
+        <!-- Student -->
+        <section class="card">
+
+          <div class="card-label">Raised by</div>
+
+          <div class="person">
+
+            <div class="person-avatar">
+              {{ getInitials(ticket.studentName || 'Student') }}
+            </div>
+
+            <div class="person-text">
+
+              <div class="person-name">
+                {{ ticket.studentName || 'Student' }}
+              </div>
+
+              @if (ticket.studentEmail) {
+                <a
+                  class="person-email"
+                  [href]="'mailto:' + ticket.studentEmail">
+                  {{ ticket.studentEmail }}
+                </a>
+              }
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- Ticket -->
+        <section class="card">
+
+          <div class="card-label">Ticket details</div>
+
+          <dl class="facts">
+
+            <div class="fact">
+              <dt>Ticket ID</dt>
+              <dd>#{{ ticket.id }}</dd>
+            </div>
+
+            <div class="fact">
+              <dt>Status</dt>
+              <dd>
+                <span class="status-pill" [ngClass]="getStatusClass()">
+                  {{ ticket.status || 'Open' }}
+                </span>
+              </dd>
+            </div>
+
+            <div class="fact">
+              <dt>Created</dt>
+              <dd>{{ ticket.createdAt | date:'dd MMM yyyy, hh:mm a' }}</dd>
+            </div>
+
+            <div class="fact">
+              <dt>Messages</dt>
+              <dd>{{ messages.length }}</dd>
+            </div>
+
+          </dl>
+
+        </section>
+
+
+        <!-- Description -->
+        <section class="card card-grow">
+
+          <div class="card-label">Subject</div>
+
+          <p class="subject">{{ ticket.subject }}</p>
+
+          <div class="card-label mt">Description</div>
+
+          <p class="description">
+            {{ ticket.description || 'No description provided.' }}
+          </p>
+
+        </section>
+
+      </aside>
+
+
+      <!-- ============== RIGHT: CONVERSATION ============== -->
+
+      <section class="chat">
+
+        <!-- Chat header -->
+        <div class="chat-header">
+
+          <div class="chat-avatar">
+            {{ getInitials(ticket.studentName || 'Student') }}
+          </div>
+
+          <div class="chat-title">
+
+            <div class="chat-name">
+              {{ ticket.studentName || 'Student' }}
+            </div>
+
+            <div class="chat-sub">Conversation with student</div>
+
+          </div>
+
+          <button
+            type="button"
+            class="icon-button"
+            (click)="refreshMessages()"
+            [disabled]="messagesLoading"
+            title="Refresh conversation"
+            aria-label="Refresh conversation">
+
+            <svg
+              viewBox="0 0 24 24"
+              class="icon"
+              [class.spin]="messagesLoading"
+              aria-hidden="true">
+              <path d="M21 12a9 9 0 11-2.64-6.36" />
+              <path d="M21 3v6h-6" />
+            </svg>
+
+          </button>
+
+        </div>
+
+
+        <!-- Messages -->
+        <div class="chat-body-wrap">
 
           <div
-            class="flex items-center
-                   justify-between">
+            #chatScrollContainer
+            class="chat-body"
+            (scroll)="onChatScroll()">
 
-            <h2
-              class="text-lg font-semibold
-                     text-zinc-200">
+            <div class="chat-inner">
 
-              Ticket Details
+              @if (messagesLoading && messages.length === 0) {
 
-            </h2>
+                <div class="chat-state">
+                  <div class="spinner"></div>
+                  <p class="state-text">Loading conversation…</p>
+                </div>
 
-            <span
-              class="text-xs font-semibold
-                     text-zinc-500">
+              }
 
-              #{{ ticket.id }}
+              @if (!messagesLoading && messages.length === 0) {
 
-            </span>
+                <div class="chat-state">
 
-          </div>
+                  <div class="state-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" class="icon">
+                      <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z" />
+                    </svg>
+                  </div>
 
+                  <p class="state-title">No messages yet</p>
 
-          <!-- Subject -->
+                  <p class="state-text">
+                    Reply below to start the conversation with the student.
+                  </p>
 
-          <div class="mt-6">
+                </div>
 
-            <p
-              class="text-xs font-semibold
-                     text-zinc-500
-                     uppercase
-                     tracking-wide">
+              }
 
-              Subject
+              @for (msg of messages; track trackById($index, msg); let i = $index) {
 
-            </p>
+                @if (showDateDivider(i)) {
 
-            <p
-              class="text-sm font-semibold
-                     text-zinc-200
-                     mt-1">
+                  <div class="date-divider">
+                    <span>{{ getDateLabel(msg.sentAt) }}</span>
+                  </div>
 
-              {{ ticket.subject }}
+                }
 
-            </p>
+                <div
+                  class="message-row"
+                  [class.theirs]="isStudentMessage(msg)"
+                  [class.mine]="!isStudentMessage(msg)"
+                  [class.group-start]="isFirstInGroup(i)">
 
-          </div>
+                  @if (isStudentMessage(msg)) {
 
+                    <div class="avatar-slot">
 
-          <!-- Description -->
+                      @if (isFirstInGroup(i)) {
+                        <div class="avatar">{{ getInitials(getSenderLabel(msg)) }}</div>
+                      }
 
-          <div class="mt-5">
+                    </div>
 
-            <p
-              class="text-xs font-semibold
-                     text-zinc-500
-                     uppercase
-                     tracking-wide">
+                  }
 
-              Description
+                  <div class="message-stack">
 
-            </p>
+                    @if (isFirstInGroup(i)) {
 
-            <div
-              class="mt-2
-                     rounded-lg
-                     bg-white/[0.03]
-                     border border-white/10
-                     p-4">
+                      <div class="sender-line">
 
-              <p
-                class="text-sm
-                       leading-6
-                       text-zinc-400
-                       whitespace-pre-line">
+                        <span class="sender-name">{{ getSenderLabel(msg) }}</span>
 
-                {{ ticket.description }}
+                        <span class="sender-role">{{ getSenderRole(msg) }}</span>
 
-              </p>
+                      </div>
+
+                    }
+
+                    <div class="bubble">
+
+                      <span class="bubble-text">{{ msg.message }}</span>
+
+                      <span class="bubble-time">
+                        {{ msg.sentAt | date:'hh:mm a' }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              }
 
             </div>
 
           </div>
 
 
-          <!-- Student -->
+          <!-- Jump to latest -->
+          @if (!stickToBottom && messages.length > 0) {
 
-          <div class="mt-5">
+            <button
+              type="button"
+              class="jump-button"
+              (click)="scrollToBottom()"
+              title="Go to latest message"
+              aria-label="Go to latest message">
 
-            <p
-              class="text-xs font-semibold
-                     text-zinc-500
-                     uppercase
-                     tracking-wide">
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
 
-              Student
+              @if (unreadCount > 0) {
+                <span class="jump-badge">{{ unreadCount }}</span>
+              }
 
-            </p>
+            </button>
 
-            <p
-              class="text-sm font-semibold
-                     text-zinc-200
-                     mt-1">
-
-              {{ ticket.studentName || 'Student' }}
-
-            </p>
-
-            <p
-              *ngIf="ticket.studentEmail"
-              class="text-xs
-                     text-zinc-400
-                     mt-1
-                     break-all">
-
-              {{ ticket.studentEmail }}
-
-            </p>
-
-          </div>
-
-
-          <!-- Created -->
-
-          <div class="mt-5">
-
-            <p
-              class="text-xs font-semibold
-                     text-zinc-500
-                     uppercase
-                     tracking-wide">
-
-              Created
-
-            </p>
-
-            <p
-              class="text-sm
-                     text-zinc-300
-                     mt-1">
-
-              {{ ticket.createdAt
-                 | date:'dd MMM yyyy, hh:mm a' }}
-
-            </p>
-
-          </div>
-
-
-          <!-- Current Status -->
-
-          <div class="mt-5">
-
-            <p
-              class="text-xs font-semibold
-                     text-zinc-500
-                     uppercase
-                     tracking-wide">
-
-              Current Status
-
-            </p>
-
-            <span
-              class="inline-flex
-                     mt-2
-                     px-3 py-1.5
-                     rounded-full
-                     bg-sky-500/15
-                     text-sky-400
-                     text-xs
-                     font-semibold">
-
-              {{ ticket.status || 'Open' }}
-
-            </span>
-
-          </div>
-
-
-          <!-- Close Ticket -->
-
-          <button
-            *ngIf="
-              ticket.status?.toLowerCase() !== 'closed'
-            "
-            type="button"
-            (click)="closeTicket()"
-            [disabled]="updatingStatus"
-            class="w-full
-                   mt-6
-                   px-4 py-2.5
-                   rounded-lg
-                   border border-rose-500/40
-                   bg-rose-500/10
-                   text-rose-400
-                   text-sm font-semibold
-                   hover:bg-rose-500/20
-                   disabled:opacity-50
-                   disabled:cursor-not-allowed
-                   transition">
-
-            {{ updatingStatus
-              ? 'Closing...'
-              : 'Close Ticket' }}
-
-          </button>
+          }
 
         </div>
 
-      </div>
 
+        <!-- Footer -->
+        @if (isClosed()) {
 
-      <!-- ================================================= -->
-      <!-- RIGHT : CONVERSATION -->
-      <!-- ================================================= -->
+          <div class="closed-banner">
 
-     <!-- ================================================= -->
-<!-- RIGHT : CONVERSATION -->
-<!-- ================================================= -->
+            <svg viewBox="0 0 24 24" class="icon icon-sm" aria-hidden="true">
+              <rect x="5" y="11" width="14" height="10" rx="2" />
+              <path d="M8 11V7a4 4 0 018 0v4" />
+            </svg>
 
-<div class="lg:col-span-2">
-
-  <div
-    class="bg-zinc-950
-           rounded-xl
-           border border-white/10
-           shadow-sm
-           overflow-hidden
-           flex
-           flex-col">
-
-
-    <!-- ================================================= -->
-    <!-- CONVERSATION HEADER -->
-    <!-- ================================================= -->
-
-    <div
-      class="px-5 py-4
-             border-b border-white/10
-             flex items-center
-             justify-between
-             shrink-0">
-
-      <div>
-
-        <h2
-          class="text-lg
-                 font-semibold
-                 text-zinc-200">
-
-          Conversation
-
-        </h2>
-
-        <p
-          class="text-xs
-                 text-zinc-400
-                 mt-1">
-
-          Chat with the student
-
-        </p>
-
-      </div>
-
-
-      <!-- Refresh -->
-
-      <button
-        type="button"
-        (click)="refreshMessages()"
-        [disabled]="messagesLoading"
-        class="px-3 py-2
-               rounded-lg
-               border border-white/10
-               text-sm
-               text-zinc-400
-               hover:bg-white/5
-               hover:text-(--accent-text)
-               disabled:opacity-50
-               transition">
-
-        ↻ Refresh
-
-      </button>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- CHAT MESSAGES - ONLY THIS AREA SCROLLS -->
-    <!-- ================================================= -->
-
-    <div
-      #chatScrollContainer
-      class="h-[300px]
-             overflow-y-auto
-             bg-white/[0.03]
-             p-5
-             space-y-5
-             scroll-smooth">
-
-      <!-- Loading -->
-
-      <div
-        *ngIf="messagesLoading"
-        class="flex
-               justify-center
-               py-10">
-
-        <div
-          class="w-7 h-7
-                 border-4
-                 border-white/10
-                 border-t-cyan-600
-                 rounded-full
-                 animate-spin">
-        </div>
-
-      </div>
-
-
-      <!-- No Messages -->
-
-      <div
-        *ngIf="
-          !messagesLoading &&
-          messages.length === 0
-        "
-        class="flex
-               items-center
-               justify-center
-               h-full
-               text-sm
-               text-zinc-500">
-
-        No messages yet.
-
-      </div>
-
-
-      <!-- ================================================= -->
-      <!-- MESSAGE LIST -->
-      <!-- ================================================= -->
-
-      <div
-        *ngFor="let msg of messages"
-        class="flex w-full"
-        [ngClass]="{
-          'justify-start': msg.isStudent === true,
-          'justify-end': msg.isStudent === false
-        }">
-
-
-        <!-- Message Content -->
-
-        <div
-          class="max-w-[80%]
-                 sm:max-w-[65%]">
-
-
-          <!-- Sender -->
-
-          <p
-            class="text-xs
-                   text-zinc-500
-                   mb-1"
-            [ngClass]="{
-              'text-left': msg.isStudent === true,
-              'text-right': msg.isStudent === false
-            }">
-
-            {{ msg.isStudent ? 'Student' : 'Admin' }}
-
-          </p>
-
-
-          <!-- Message Bubble -->
-
-          <div
-            class="px-4
-                   py-3
-                   rounded-xl
-                   text-sm
-                   leading-relaxed
-                   shadow-sm
-                   break-words
-                   whitespace-pre-wrap"
-            [ngClass]="{
-              'bg-zinc-950
-               border
-               border-white/10
-               text-zinc-300
-               rounded-tl-none':
-                msg.isStudent === true,
-
-              'bg-(--accent)
-               text-white
-               rounded-tr-none':
-                msg.isStudent === false
-            }">
-
-            {{ msg.message }}
+            <span>This ticket is closed. Change the status to reopen the conversation.</span>
 
           </div>
 
+        } @else {
 
-          <!-- Time -->
+          <div class="composer">
 
-          <p
-            class="text-[11px]
-                   text-zinc-500
-                   mt-1"
-            [ngClass]="{
-              'text-left': msg.isStudent === true,
-              'text-right': msg.isStudent === false
-            }">
+            <div
+              class="composer-box"
+              [class.disabled]="sending">
 
-            {{ msg.sentAt | date:'hh:mm a' }}
+              <textarea
+                #composer
+                [(ngModel)]="message"
+                (input)="autoGrow()"
+                (keydown.enter)="sendOnEnter($event)"
+                [disabled]="sending"
+                [attr.maxlength]="maxMessageLength"
+                rows="1"
+                placeholder="Write a reply to the student…"
+                aria-label="Reply"
+                class="composer-input"></textarea>
 
-          </p>
+              <button
+                type="button"
+                class="send-button"
+                (click)="sendReply()"
+                [disabled]="sending || !message.trim() || message.length > maxMessageLength"
+                title="Send reply"
+                aria-label="Send reply">
 
-        </div>
+                @if (sending) {
 
-      </div>
+                  <span class="send-spinner"></span>
 
-    </div>
+                } @else {
 
+                  <svg viewBox="0 0 24 24" class="icon icon-sm" aria-hidden="true">
+                    <path d="M22 2L11 13" />
+                    <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                  </svg>
 
-    <!-- ================================================= -->
-    <!-- REPLY AREA -->
-    <!-- ================================================= -->
+                }
 
-    <div
-      *ngIf="
-        ticket.status?.toLowerCase() !== 'closed'
-      "
-      class="border-t
-             border-white/10
-             p-4
-             shrink-0">
+              </button>
 
-      <div
-        class="flex
-               flex-col
-               sm:flex-row
-               gap-3">
+            </div>
 
-        <textarea
-          [(ngModel)]="message"
-          rows="2"
-          maxlength="1000"
-          placeholder="Write a reply to the student..."
-          [disabled]="sending"
-          class="flex-1
-                 resize-none
-                 rounded-lg
-                 border border-white/15
-                 px-4 py-3
-                 text-sm
-                 text-zinc-300
-                 placeholder-zinc-600
-                 focus:outline-none
-                 focus:ring-2
-                 focus:ring-(--accent)
-                 focus:border-(--accent)
-                 disabled:bg-white/5
-                 disabled:cursor-not-allowed"></textarea>
+            <div class="composer-hint">
 
+              <span>
+                <kbd>Enter</kbd> to send · <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line
+              </span>
 
-        <button
-          type="button"
-          (click)="sendReply()"
-          [disabled]="
-            sending ||
-            !message.trim()
-          "
-          class="sm:self-end
-                 px-5 py-3
-                 rounded-lg
-                 bg-(--accent)
-                 text-(--on-accent)
-                 text-sm
-                 font-semibold
-                 hover:bg-(--accent-hover)
-                 disabled:opacity-50
-                 disabled:cursor-not-allowed
-                 transition">
+              <span
+                class="char-count"
+                [class.near-limit]="message.length > maxMessageLength * 0.9">
+                {{ message.length }}/{{ maxMessageLength }}
+              </span>
 
-          {{ sending
-            ? 'Sending...'
-            : 'Send Reply' }}
+            </div>
 
-        </button>
+          </div>
 
-      </div>
+        }
 
-
-      <!-- Character Count -->
-
-      <div
-        class="flex
-               items-center
-               justify-between
-               mt-2">
-
-        <p
-          class="text-xs
-                 text-zinc-500">
-
-          Your reply will be sent
-          to the student.
-
-        </p>
-
-        <p
-          class="text-xs
-                 text-zinc-500">
-
-          {{ message.length }}/1000
-
-        </p>
-
-      </div>
+      </section>
 
     </div>
 
-
-    <!-- ================================================= -->
-    <!-- CLOSED MESSAGE -->
-    <!-- ================================================= -->
-
-    <div
-      *ngIf="
-        ticket.status?.toLowerCase() === 'closed'
-      "
-      class="border-t
-             border-white/10
-             bg-white/[0.03]
-             px-5 py-4
-             text-center
-             shrink-0">
-
-      <p
-        class="text-sm
-               font-medium
-               text-zinc-400">
-
-        This ticket is closed.
-        No further replies can be sent.
-
-      </p>
-
-    </div>
-
-  </div>
-
-</div>
-
-    </div>
-
-  </div>
+  }
 
 </div>

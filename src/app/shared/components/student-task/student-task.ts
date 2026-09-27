@@ -12,7 +12,6 @@ import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
   styleUrl: './student-task.css',
 })
 export class StudentTask implements OnInit {
-
   taskId!: number;
   domainId!: number;
   courseId!: number;

@@ -5,20 +5,20 @@ import { FormBuilder, FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CollegeService } from '../../services/college/college-service';
 @Component({
   selector: 'app-college',
   imports: [Logo,ButtonModule,FormsModule,SelectModule,ReactiveFormsModule],
   templateUrl: './college.html',
-  styleUrl: './college.css',
+  styleUrls: ['./college.css', '../auth-responsive.css'],
 })
 export class College implements OnInit {
   form !:FormGroup;
    colleges: any[] | undefined;
     selectedcollege: any | undefined ;
-  constructor(private fb:FormBuilder, private router:Router,private api:CollegeService) {
+  constructor(private fb:FormBuilder, private router:Router,private route:ActivatedRoute,private api:CollegeService) {
    this.form=this.fb.group({
     college:['',Validators.required]
    })
@@ -47,7 +47,13 @@ export class College implements OnInit {
         localStorage.setItem('college',this.form.value.college.name);
          localStorage.setItem('collegecode',this.form.value.college.code);
           console.log(this.form.value);
-        this.router.navigate(['auth/login']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        // Only follow in-app auth paths to avoid open redirects.
+        if (returnUrl && returnUrl.startsWith('/auth/')) {
+          this.router.navigateByUrl(returnUrl);
+        } else {
+          this.router.navigate(['auth/login']);
+        }
       }
     }
 }

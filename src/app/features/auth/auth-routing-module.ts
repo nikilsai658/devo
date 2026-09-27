@@ -4,6 +4,7 @@ import { Login } from './login/login';
 import { ForgotPassword } from './forgot-password/forgot-password';
 import { College } from './college/college';
 import { ResetPassword } from './reset-password/reset-password';
+import { collegeGuard } from '../../core/guards/college-guard';
 
 const routes: Routes = [
   {
@@ -13,14 +14,14 @@ const routes: Routes = [
     path:'college',component:College
   },
   {
-    path:'login',component:Login
+    path:'login',component:Login,canActivate:[collegeGuard]
   },
   {
-    path:'forgot-password',component:ForgotPassword
+    path:'forgot-password',component:ForgotPassword,canActivate:[collegeGuard]
   },
- 
+
   {
-   path:'reset-password', component:ResetPassword
+   path:'reset-password', component:ResetPassword,canActivate:[collegeGuard]
   }
 ];
 

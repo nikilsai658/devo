@@ -61,6 +61,25 @@ private handleError(err: any, silent = false) {
   );
 
 }
+// Same as POST, but emits HttpEvents (upload progress, then the response)
+// so long uploads can show a progress indicator.
+POSTWithProgress(url: string, payload: any) {
+
+  return this.http.post(
+    `http://localhost:5000/api/${url}`,
+    payload,
+    {
+      headers: this.getHeaders(),
+      reportProgress: true,
+      observe: 'events'
+    }
+  ).pipe(
+
+    catchError((err) => this.handleError(err))
+
+  );
+
+}
 GET(url: string, params?: any) {
   return this.http.get(`http://localhost:5000/api/${url}`, {
     headers: this.getHeaders(),

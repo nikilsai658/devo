@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-year',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -100,6 +101,8 @@ export class Year implements OnInit {
     this.api.getYears().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
 
@@ -130,6 +133,8 @@ export class Year implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -198,6 +203,8 @@ export class Year implements OnInit {
     this.api.createYear(this.yearForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Year added successfully');
 
@@ -208,6 +215,8 @@ export class Year implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -276,6 +285,8 @@ export class Year implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Year updated successfully');
 
@@ -286,6 +297,8 @@ export class Year implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -316,6 +329,8 @@ export class Year implements OnInit {
     this.api.deleteYear(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Year deleted successfully');
 
@@ -324,6 +339,8 @@ export class Year implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

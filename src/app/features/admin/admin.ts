@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ElementRef, ViewChild, DestroyRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ElementRef, ViewChild, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,6 +29,7 @@ import { Department } from "../../shared/components/department/department";
 import { StudentAssignment } from "../../shared/components/studentassignment/studentassignment";
 @Component({
   selector: 'app-admin',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     Header,
@@ -89,6 +90,8 @@ export class Admin implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
+        this.cd.markForCheck();
+
         this.contentRef?.nativeElement.scrollTo({ top: 0, left: 0 });
       });
   }
@@ -131,6 +134,8 @@ loadDepartments(): void {
   this.api.getDepartments().subscribe({
 
     next: (res: any) => {
+      this.cd.markForCheck();
+
 
       console.log('Department Response:', res);
 
@@ -161,6 +166,8 @@ loadDepartments(): void {
     },
 
     error: (err) => {
+      this.cd.markForCheck();
+
       console.error(err);
       this.departments = [];
     }
@@ -186,6 +193,8 @@ loadDepartments(): void {
     this.api.createDepartment(this.departmentForm.value).subscribe({
 
       next: (res) => {
+        this.cd.markForCheck();
+
 
         console.log(res);
 
@@ -198,6 +207,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -249,6 +260,8 @@ loadDepartments(): void {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         alert('Department Updated Successfully');
 
@@ -263,6 +276,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -285,6 +300,8 @@ loadDepartments(): void {
     this.api.deleteDepartment(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         alert('Department Deleted Successfully');
 
@@ -293,6 +310,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 

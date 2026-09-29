@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-role',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -101,6 +102,8 @@ export class Role implements OnInit {
     this.api.getRoles().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
           this.roles = res;
@@ -117,6 +120,8 @@ export class Role implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         console.error(err);
         this.roles = [];
       }
@@ -169,6 +174,8 @@ export class Role implements OnInit {
     this.api.createRole(this.roleForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Role added successfully');
 
@@ -179,6 +186,8 @@ export class Role implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -237,6 +246,8 @@ export class Role implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Role updated successfully');
 
@@ -247,6 +258,8 @@ export class Role implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -272,6 +285,8 @@ export class Role implements OnInit {
     this.api.deleteRole(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Role deleted successfully');
 
@@ -280,6 +295,8 @@ export class Role implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

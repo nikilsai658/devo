@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-domain',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -94,6 +95,8 @@ export class DomainComponent implements OnInit {
     this.api.getDomains().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -111,6 +114,8 @@ export class DomainComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -166,6 +171,8 @@ export class DomainComponent implements OnInit {
     this.api.createDomain(this.domainForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Domain added successfully');
 
@@ -176,6 +183,8 @@ export class DomainComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -234,6 +243,8 @@ export class DomainComponent implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Domain updated successfully');
 
@@ -244,6 +255,8 @@ export class DomainComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -267,6 +280,8 @@ export class DomainComponent implements OnInit {
     this.api.deleteDomain(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Domain deleted successfully');
 
@@ -275,6 +290,8 @@ export class DomainComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

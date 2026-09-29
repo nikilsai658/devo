@@ -3,7 +3,7 @@ import {
   OnInit,
   Inject,
   PLATFORM_ID,
-  ChangeDetectorRef
+  ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -30,6 +30,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-domaincoursemap',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -136,6 +137,8 @@ export class DomainCourseMapComponent implements OnInit {
     this.domainService.getDomains().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.domains = res.data || res.result || res || [];
 
@@ -156,6 +159,8 @@ export class DomainCourseMapComponent implements OnInit {
     this.courseService.getCourses().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.courses = res.data || res.result || res || [];
 
@@ -178,6 +183,8 @@ export class DomainCourseMapComponent implements OnInit {
     this.api.getDomaincourses().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -196,6 +203,8 @@ export class DomainCourseMapComponent implements OnInit {
       },
 
       error: err => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -242,6 +251,8 @@ export class DomainCourseMapComponent implements OnInit {
       this.api.updateDomaincourse(this.selectedId, payload).subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
 
@@ -251,6 +262,8 @@ export class DomainCourseMapComponent implements OnInit {
         },
 
         error: err => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -261,6 +274,8 @@ export class DomainCourseMapComponent implements OnInit {
       this.api.createDomaincourse(payload).subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
 
@@ -270,6 +285,8 @@ export class DomainCourseMapComponent implements OnInit {
         },
 
         error: err => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -320,6 +337,8 @@ export class DomainCourseMapComponent implements OnInit {
     this.api.deleteDomaincourse(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.loadMappings();
         this.feedback.ok('Mapping deleted successfully');
@@ -327,6 +346,8 @@ export class DomainCourseMapComponent implements OnInit {
       },
 
       error: err => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

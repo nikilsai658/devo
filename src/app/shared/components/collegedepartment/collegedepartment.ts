@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -29,6 +29,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-collegedepartment',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -103,6 +104,8 @@ export class CollegeDepartmentComponent implements OnInit {
     this.collegeService.getcollege().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         console.log('College Response', res);
 
@@ -135,6 +138,8 @@ export class CollegeDepartmentComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -155,6 +160,8 @@ loadDepartments(): void {
   this.departmentService.getDepartments().subscribe({
 
     next: (res: any) => {
+      this.cd.markForCheck();
+
 
       console.log('Department Response:', res);
 
@@ -185,6 +192,8 @@ loadDepartments(): void {
     },
 
     error: (err) => {
+      this.cd.markForCheck();
+
       console.error(err);
       this.departments = [];
     }
@@ -203,10 +212,12 @@ loadDepartments(): void {
 
     this.collegeDepartmentService
       .getCollegedepartments()
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           this.mappings = res.data || [];
 
@@ -217,6 +228,8 @@ loadDepartments(): void {
         },
 
         error: () => {
+          this.cd.markForCheck();
+
 
           this.mappings = [];
           this.filteredMappings = [];
@@ -267,10 +280,12 @@ loadDepartments(): void {
        }
       this.collegeDepartmentService
         .updateCollegedepartment(this.selectedId, payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
 
             this.loadMappings();
 
@@ -279,7 +294,7 @@ loadDepartments(): void {
 
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -287,10 +302,12 @@ loadDepartments(): void {
 
       this.collegeDepartmentService
         .createCollegedepartment(payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
 
             this.loadMappings();
 
@@ -299,7 +316,7 @@ loadDepartments(): void {
 
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -342,11 +359,13 @@ delete(id: number) {
   this.collegeDepartmentService.deleteCollegedepartment(id)
     .subscribe({
       next: () => {
+        this.cd.markForCheck();
+
         this.loadMappings();
         this.feedback.ok('Mapping deleted successfully');
       },
 
-      error: (err: any) => this.feedback.fail(err)
+      error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
     });
 }

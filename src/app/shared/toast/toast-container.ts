@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ToastService } from './toast';
 
 @Component({
   selector: 'app-toast-container',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
     <div class="toast-stack" aria-live="polite">
@@ -13,7 +14,7 @@ import { ToastService } from './toast';
           [class.toast-error]="toast.type === 'error'"
           [attr.role]="toast.type === 'error' ? 'alert' : 'status'">
 
-          <span class="toast-icon">{{ toast.type === 'success' ? '✔' : '✖' }}</span>
+          <span class="toast-icon" aria-hidden="true">{{ toast.type === 'success' ? '✔' : '✖' }}</span>
 
           <span class="toast-message">{{ toast.message }}</span>
 

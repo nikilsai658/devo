@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { Student } from '../../../features/services/student/student';
 import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -7,6 +7,7 @@ import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-courses',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule,FormsModule,ReactiveFormsModule, Breadcrumb],
   templateUrl: './student-courses.html',
   styleUrl: './student-courses.css',
@@ -55,6 +56,8 @@ export class StudentCourses {
   this.api.getstudentcourse(this.domainId).subscribe({
 
     next: (res: any) => {
+      this.cd.markForCheck();
+
       const allCourses = res?.data ?? [];
 
       const hasDomainField = allCourses.some(
@@ -70,6 +73,8 @@ export class StudentCourses {
     },
 
     error: (err) => {
+      this.cd.markForCheck();
+
       console.error('Courses API error:', err);
 
       this.courses = [];

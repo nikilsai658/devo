@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -31,6 +31,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-rolepermission',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -126,6 +127,8 @@ export class RolePermissionComponent implements OnInit {
     this.roleService.getRoles().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.roles = Array.isArray(res)
           ? res
@@ -140,6 +143,8 @@ export class RolePermissionComponent implements OnInit {
       },
 
       error: () => {
+        this.cd.markForCheck();
+
 
         this.roles = [];
 
@@ -158,6 +163,8 @@ export class RolePermissionComponent implements OnInit {
     this.permissionService.getPermissions().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.permissions = Array.isArray(res)
           ? res
@@ -172,6 +179,8 @@ export class RolePermissionComponent implements OnInit {
       },
 
       error: () => {
+        this.cd.markForCheck();
+
 
         this.permissions = [];
 
@@ -191,10 +200,12 @@ export class RolePermissionComponent implements OnInit {
 
     this.rolePermissionService
       .getRolepermissions()
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           const data = res?.data ?? res ?? {};
 
@@ -230,6 +241,8 @@ export class RolePermissionComponent implements OnInit {
         },
 
         error: () => {
+          this.cd.markForCheck();
+
 
           this.mappings = [];
 
@@ -265,10 +278,12 @@ export class RolePermissionComponent implements OnInit {
 
     this.rolePermissionService
       .createRolepermission(payload)
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
 
@@ -277,7 +292,7 @@ export class RolePermissionComponent implements OnInit {
 
         },
 
-        error: (err: any) => this.feedback.fail(err)
+        error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
 
@@ -298,13 +313,15 @@ export class RolePermissionComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
           this.feedback.ok('Mapping deleted successfully');
 
         },
 
-        error: (err: any) => this.feedback.fail(err)
+        error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
 

@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -30,6 +30,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-course-task',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -115,11 +116,15 @@ export class CourseTask implements OnInit {
     this.courseService.getCourses().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
         this.courses = this.toArray(res);
         this.cd.detectChanges();
       },
 
       error: () => {
+        this.cd.markForCheck();
+
         this.courses = [];
       }
 
@@ -136,11 +141,15 @@ export class CourseTask implements OnInit {
     this.taskService.getTask().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
         this.tasks = this.toArray(res);
         this.cd.detectChanges();
       },
 
       error: () => {
+        this.cd.markForCheck();
+
         this.tasks = [];
       }
 
@@ -159,12 +168,16 @@ export class CourseTask implements OnInit {
     this.courseTaskService
       .getCourseTask()
       .pipe(finalize(() => {
+        this.cd.markForCheck();
+
         this.loading = false;
         this.cd.detectChanges();
       }))
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           this.mappings = this.toArray(res);
 
@@ -173,6 +186,8 @@ export class CourseTask implements OnInit {
         },
 
         error: () => {
+          this.cd.markForCheck();
+
 
           this.mappings = [];
           this.filteredMappings = [];
@@ -225,16 +240,18 @@ export class CourseTask implements OnInit {
 
       this.courseTaskService
         .UpdateCourseTask(this.selectedId, payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
             this.loadMappings();
             this.closeModal();
             this.feedback.ok('Mapping updated successfully');
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -244,16 +261,18 @@ export class CourseTask implements OnInit {
 
       this.courseTaskService
         .postCourseTask(payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
             this.loadMappings();
             this.closeModal();
             this.feedback.ok('Mapping added successfully');
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -297,11 +316,13 @@ export class CourseTask implements OnInit {
     this.courseTaskService.deleteCourseTask(id)
       .subscribe({
         next: () => {
+          this.cd.markForCheck();
+
           this.loadMappings();
           this.feedback.ok('Mapping deleted successfully');
         },
 
-        error: (err: any) => this.feedback.fail(err)
+        error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
   }

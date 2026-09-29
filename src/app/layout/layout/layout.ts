@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-layout',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   templateUrl: './layout.html',
   styleUrl: './layout.css',

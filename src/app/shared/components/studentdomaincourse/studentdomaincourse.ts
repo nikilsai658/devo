@@ -3,7 +3,7 @@ import {
   OnInit,
   Inject,
   PLATFORM_ID,
-  ChangeDetectorRef
+  ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -29,6 +29,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-studentdomainmap',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -133,6 +134,8 @@ export class StudentDomainMapComponent implements OnInit {
     this.domainService.getDomains().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.domains = res.data || res.result || res || [];
 
@@ -140,7 +143,7 @@ export class StudentDomainMapComponent implements OnInit {
 
       },
 
-      error: err => console.log(err)
+      error: err => { this.cd.markForCheck(); return console.log(err); }
 
     });
 
@@ -157,6 +160,8 @@ export class StudentDomainMapComponent implements OnInit {
     this.api.getStudentdomaincoursemap().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -177,6 +182,8 @@ export class StudentDomainMapComponent implements OnInit {
       },
 
       error: err => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -211,6 +218,8 @@ export class StudentDomainMapComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
 
@@ -220,6 +229,8 @@ export class StudentDomainMapComponent implements OnInit {
         },
 
         error: err => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -242,6 +253,8 @@ export class StudentDomainMapComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
           this.feedback.ok('Mapping deleted successfully');
@@ -249,6 +262,8 @@ export class StudentDomainMapComponent implements OnInit {
         },
 
         error: err => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

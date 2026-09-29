@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-course',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -95,6 +96,8 @@ export class Course implements OnInit {
     this.api.getCourses().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
           this.courses = res;
@@ -112,6 +115,8 @@ export class Course implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
         this.courses = [];
@@ -173,6 +178,8 @@ export class Course implements OnInit {
     this.api.createCourse(this.courseForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.resetForm();
 
@@ -183,6 +190,8 @@ export class Course implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to add course');
 
@@ -247,6 +256,8 @@ export class Course implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.resetForm();
 
@@ -257,6 +268,8 @@ export class Course implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to update course');
 
@@ -284,6 +297,8 @@ export class Course implements OnInit {
     this.api.deleteCourse(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Course deleted successfully');
 
@@ -292,6 +307,8 @@ export class Course implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to delete course');
 

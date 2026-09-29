@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -31,6 +31,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-year-updation',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -140,6 +141,8 @@ export class YearUpdation implements OnInit {
     this.collegeService.getcollege().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
           this.colleges = res;
@@ -159,6 +162,8 @@ export class YearUpdation implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         console.error(err);
         this.colleges = [];
       }
@@ -176,6 +181,8 @@ export class YearUpdation implements OnInit {
     this.departmentService.getDepartments().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
           this.departments = res;
@@ -195,6 +202,8 @@ export class YearUpdation implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         console.error(err);
         this.departments = [];
       }
@@ -212,6 +221,8 @@ export class YearUpdation implements OnInit {
     this.branchService.getBranches().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res)) {
           this.branches = res;
@@ -231,6 +242,8 @@ export class YearUpdation implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         console.error(err);
         this.branches = [];
       }
@@ -287,15 +300,19 @@ export class YearUpdation implements OnInit {
     this.loading = true;
 
     this.yearService.YearUpdate(payload)
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
           this.resetForm();
           this.promoteFeedback.ok('Students promoted successfully');
         },
 
         error: (err) => {
+          this.cd.markForCheck();
+
           this.promoteFeedback.fail(err, 'Failed to promote students');
         }
 
@@ -332,15 +349,19 @@ export class YearUpdation implements OnInit {
     this.uploadLoading = true;
 
     this.yearService.YearUpdatewithDomain(this.selectedFile)
-      .pipe(finalize(() => this.uploadLoading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.uploadLoading = false; }))
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
           this.uploadFeedback.ok('Students promoted successfully');
           this.selectedFile = null;
         },
 
         error: (err) => {
+          this.cd.markForCheck();
+
           this.uploadFeedback.fail(err, 'Failed to promote students from file');
         }
 

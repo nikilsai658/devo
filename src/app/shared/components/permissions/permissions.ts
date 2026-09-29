@@ -3,7 +3,7 @@ import {
   OnInit,
   Inject,
   PLATFORM_ID,
-  ChangeDetectorRef
+  ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-permission',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -100,6 +101,8 @@ export class Permission implements OnInit {
     this.api.getPermissions().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         if (Array.isArray(res))
           this.permissions = res;
@@ -117,7 +120,7 @@ export class Permission implements OnInit {
 
       },
 
-      error: err => console.error(err)
+      error: err => { this.cd.markForCheck(); return console.error(err); }
 
     });
 
@@ -171,6 +174,8 @@ export class Permission implements OnInit {
     this.api.createPermission(this.permissionForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.resetForm();
 
@@ -180,7 +185,7 @@ export class Permission implements OnInit {
 
       },
 
-      error: err => this.feedback.fail(err, 'Failed to add permission')
+      error: err => { this.cd.markForCheck(); return this.feedback.fail(err, 'Failed to add permission'); }
 
     });
 
@@ -238,6 +243,8 @@ export class Permission implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.resetForm();
 
@@ -247,7 +254,7 @@ export class Permission implements OnInit {
 
       },
 
-      error: err => this.feedback.fail(err, 'Failed to update permission')
+      error: err => { this.cd.markForCheck(); return this.feedback.fail(err, 'Failed to update permission'); }
 
     });
 
@@ -270,6 +277,8 @@ export class Permission implements OnInit {
     this.api.deletePermission(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Permission deleted successfully');
 
@@ -277,7 +286,7 @@ export class Permission implements OnInit {
 
       },
 
-      error: err => this.feedback.fail(err, 'Failed to delete permission')
+      error: err => { this.cd.markForCheck(); return this.feedback.fail(err, 'Failed to delete permission'); }
 
     });
 

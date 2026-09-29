@@ -1,10 +1,17 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   ChangeDetectorRef,
+  ElementRef,
+  HostListener,
+  ViewChild,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
+
+import { HttpEventType } from '@angular/common/http';
+import { A11yModule } from '@angular/cdk/a11y';
 
 import {
   CommonModule,
@@ -19,7 +26,13 @@ import {
   FormsModule
 } from '@angular/forms';
 
-import { finalize, forkJoin } from 'rxjs';
+import {
+  finalize,
+  forkJoin,
+  Subscription,
+  timeout,
+  TimeoutError
+} from 'rxjs';
 import { Router } from '@angular/router';
 
 import { Auth } from '../../../core/auth/auth';
@@ -31,18 +44,24 @@ import { RoleService } from '../../../features/services/role/role-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
 
+// A 21-row file takes ~40s on the server; allow plenty of headroom before
+// treating a silent connection as dead.
+const UPLOAD_TIMEOUT_MS = 180_000;
+
 @Component({
   selector: 'app-user',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    A11yModule
   ],
   templateUrl: './user.html',
   styleUrls: ['./user.css']
 })
-export class UserComponent implements OnInit {
+export class UserComponent implements OnInit, OnDestroy {
   Math = Math;
   constructor(
     private fb: FormBuilder,
@@ -83,6 +102,16 @@ export class UserComponent implements OnInit {
   // ==========================
 
   uploadId: string | null = null;
+
+  // Kept separate from `loading` (the users table), so a table refresh
+  // can't re-enable the Upload button mid-upload.
+  uploading = false;
+  uploadPhase: 'sending' | 'processing' | null = null;
+  uploadPercent = 0;
+  uploadElapsed = 0;
+  private uploadSub: Subscription | null = null;
+  private uploadTimer: ReturnType<typeof setInterval> | null = null;
+
   uploadResultsLoading = false;
   showUploadResults = false;
   successUsers: any[] = [];
@@ -102,6 +131,12 @@ export class UserComponent implements OnInit {
   uploadFeedback = new Feedback();
 
   selectedUserId: number | null = null;
+
+  // Text for the page's screen-reader live region (visually hidden).
+  srMessage = '';
+  private srTimer: ReturnType<typeof setTimeout> | null = null;
+
+  @ViewChild('userDialog') userDialog?: ElementRef<HTMLElement>;
 
   // ==========================
   // Filters
@@ -164,26 +199,32 @@ export class UserComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
 
       this.userForm.get('roleName')?.valueChanges.subscribe(() => {
+        this.cdr.markForCheck();
+
         this.loadUsers();
       });
 
       this.userForm.get('collegeName')?.valueChanges.subscribe(() => {
+        this.cdr.markForCheck();
+
         this.loadUsers();
       });
 
       this.userForm.get('departmentName')?.valueChanges.subscribe(() => {
+        this.cdr.markForCheck();
+
         this.loadUsers();
       });
 
       this.userForm.get('branchName')?.valueChanges.subscribe(() => {
+        this.cdr.markForCheck();
+
         this.loadUsers();
       });
 
       this.userForm.get('yearNumber')?.valueChanges.subscribe(() => {
-        this.loadUsers();
-      });
+        this.cdr.markForCheck();
 
-      this.userForm.get('isActive')?.valueChanges.subscribe(() => {
         this.loadUsers();
       });
 
@@ -206,7 +247,33 @@ export class UserComponent implements OnInit {
 
     this.resetForm();
 
+    this.reloadMissingOptions();
+
     this.showModal = true;
+
+  }
+
+  // Retry any dropdown list that came back empty (e.g. a failed first
+  // load), so the dialog doesn't open with a blank College/Department/Branch.
+  private reloadMissingOptions(): void {
+
+    if (!this.colleges.length) {
+
+      this.loadColleges();
+
+    }
+
+    if (!this.departments.length) {
+
+      this.loadDepartments();
+
+    }
+
+    if (!this.branches.length) {
+
+      this.loadBranches();
+
+    }
 
   }
 
@@ -215,6 +282,101 @@ export class UserComponent implements OnInit {
     this.showModal = false;
 
     this.resetForm();
+
+  }
+
+  // Escape closes the dialog. Focus goes back to the button that opened it
+  // (cdkTrapFocusAutoCapture restores it).
+  onDialogKeydown(event: KeyboardEvent): void {
+
+    if (event.key === 'Escape') {
+
+      event.stopPropagation();
+
+      this.closeModal();
+
+    }
+
+  }
+
+  // ==========================
+  // Screen Reader Announcements
+  // ==========================
+
+  // Updates the polite live region. Debounced so fast typing in search
+  // or quick filter changes read out only the final result.
+  announce(message: string): void {
+
+    if (this.srTimer) {
+
+      clearTimeout(this.srTimer);
+
+    }
+
+    this.srTimer = setTimeout(() => {
+      this.cdr.markForCheck();
+
+
+      // Clear first so the same message twice in a row is still read.
+      this.srMessage = '';
+
+      this.cdr.detectChanges();
+
+      this.srMessage = message;
+
+      this.cdr.detectChanges();
+
+    }, 400);
+
+  }
+
+  private announceUserCount(): void {
+
+    this.announce(
+      `${this.totalRecords} ${this.totalRecords === 1 ? 'user' : 'users'} found.`
+    );
+
+  }
+
+  // Name shown in the table, also used to give row buttons a specific
+  // accessible name ("Edit Priya Sharma" rather than a list of "Edit").
+  displayName(user: any): string {
+
+    return user?.fullName ||
+      ((user?.firstName || '') + ' ' + (user?.lastName || '')).trim() ||
+      user?.email ||
+      `user ${user?.id}`;
+
+  }
+
+  // Value for aria-sort on a sortable column header.
+  ariaSort(column: string): 'ascending' | 'descending' | 'none' {
+
+    if (this.sortColumn !== column) {
+
+      return 'none';
+
+    }
+
+    return this.sortDirection === 'asc' ? 'ascending' : 'descending';
+
+  }
+
+  // After a failed submit, move focus to the first field with an error so
+  // keyboard and screen-reader users land on the problem.
+  private focusFirstInvalidField(): void {
+
+    setTimeout(() => {
+      this.cdr.markForCheck();
+
+
+      const field = this.userDialog?.nativeElement.querySelector<HTMLElement>(
+        'input.ng-invalid, select.ng-invalid'
+      );
+
+      field?.focus();
+
+    });
 
   }
 
@@ -294,20 +456,21 @@ export class UserComponent implements OnInit {
     const yearNumber =
       this.userForm?.get('yearNumber')?.value;
 
-    const isActive =
-      this.userForm?.get('isActive')?.value;
-
+    // No status filter: the list shows active and inactive users, and
+    // the Status column shows which is which. (`isActive` on the form is
+    // only the Add/Edit dialog's field now.)
     this.userService
       .getUsers(
         roleName,
         collegeName,
         departmentName,
         branchName,
-        yearNumber,
-        isActive
+        yearNumber
       )
       .pipe(
         finalize(() => {
+          this.cdr.markForCheck();
+
           this.loading = false;
           this.cdr.detectChanges();
         })
@@ -315,6 +478,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           console.log(
             'Users Response:',
@@ -349,9 +514,13 @@ export class UserComponent implements OnInit {
 
           }
 
+          this.announceUserCount();
+
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Users Error:',
@@ -379,6 +548,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           this.colleges =
             Array.isArray(res?.data)
@@ -387,9 +558,14 @@ export class UserComponent implements OnInit {
                 ? res
                 : [];
 
+          // Zoneless app: re-render once the options arrive.
+          this.cdr.detectChanges();
+
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Colleges Error:',
@@ -397,6 +573,10 @@ export class UserComponent implements OnInit {
           );
 
           this.colleges = [];
+
+          this.feedback.fail(err, 'Unable to load colleges.');
+
+          this.cdr.detectChanges();
 
         }
 
@@ -415,6 +595,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           this.departments =
             Array.isArray(res?.data)
@@ -423,9 +605,13 @@ export class UserComponent implements OnInit {
                 ? res
                 : [];
 
+          this.cdr.detectChanges();
+
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Departments Error:',
@@ -433,6 +619,10 @@ export class UserComponent implements OnInit {
           );
 
           this.departments = [];
+
+          this.feedback.fail(err, 'Unable to load departments.');
+
+          this.cdr.detectChanges();
 
         }
 
@@ -451,6 +641,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           this.branches =
             Array.isArray(res?.data)
@@ -459,9 +651,13 @@ export class UserComponent implements OnInit {
                 ? res
                 : [];
 
+          this.cdr.detectChanges();
+
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Branches Error:',
@@ -469,6 +665,10 @@ export class UserComponent implements OnInit {
           );
 
           this.branches = [];
+
+          this.feedback.fail(err, 'Unable to load branches.');
+
+          this.cdr.detectChanges();
 
         }
 
@@ -487,6 +687,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           console.log(
             'Roles Response:',
@@ -524,6 +726,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Roles Error:',
@@ -584,6 +788,8 @@ export class UserComponent implements OnInit {
     if (this.userForm.invalid) {
 
       this.userForm.markAllAsTouched();
+
+      this.focusFirstInvalidField();
 
       return;
 
@@ -671,6 +877,8 @@ export class UserComponent implements OnInit {
       .createUser(payload)
       .pipe(
         finalize(() => {
+          this.cdr.markForCheck();
+
 
           this.loading = false;
 
@@ -679,6 +887,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           console.log(
             'Create User Response:',
@@ -697,6 +907,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Create User Error:',
@@ -891,6 +1103,8 @@ export class UserComponent implements OnInit {
       )
       .pipe(
         finalize(() => {
+          this.cdr.markForCheck();
+
 
           this.loading = false;
 
@@ -899,6 +1113,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           console.log(
             'Update User Response:',
@@ -917,6 +1133,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Update User Error:',
@@ -953,6 +1171,8 @@ export class UserComponent implements OnInit {
       .deleteUser(id)
       .pipe(
         finalize(() => {
+          this.cdr.markForCheck();
+
 
           this.loading = false;
 
@@ -961,6 +1181,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           this.feedback.ok(
             res?.message ||
@@ -972,6 +1194,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Delete User Error:',
@@ -1101,6 +1325,8 @@ export class UserComponent implements OnInit {
 
     this.page = 1;
 
+    this.announceUserCount();
+
   }
 
   // ==========================
@@ -1158,6 +1384,11 @@ export class UserComponent implements OnInit {
         return 0;
 
       }
+    );
+
+    this.announce(
+      `Sorted by ${column === 'fullName' ? 'name' : column === 'roleName' ? 'role' : column}, ` +
+      `${this.sortDirection === 'asc' ? 'ascending' : 'descending'}.`
     );
 
   }
@@ -1241,6 +1472,17 @@ export class UserComponent implements OnInit {
 
     this.page = page;
 
+    this.announcePage();
+
+  }
+
+  private announcePage(): void {
+
+    this.announce(
+      `Page ${this.page} of ${this.totalPages}, ` +
+      `showing users ${this.rangeStart} to ${this.rangeEnd} of ${this.totalRecords}.`
+    );
+
   }
 
   nextPage(): void {
@@ -1256,6 +1498,8 @@ export class UserComponent implements OnInit {
 
       this.page++;
 
+      this.announcePage();
+
     }
 
   }
@@ -1266,6 +1510,8 @@ export class UserComponent implements OnInit {
 
       this.page--;
 
+      this.announcePage();
+
     }
 
   }
@@ -1274,51 +1520,25 @@ export class UserComponent implements OnInit {
   // College Changed
   // ==========================
 
+  // A new college clears the chosen department/branch. The option lists
+  // themselves stay loaded: they're shared with the filters, and emptying
+  // them (as this used to) left the Branch dropdown blank on both.
   onCollegeChange(): void {
 
-    const college =
-      this.userForm.value.collegeName;
+    // null, not '', so the "Select …" / "All …" placeholder shows.
+    this.userForm.patchValue({
 
-    console.log(
-      'Selected College:',
-      college
-    );
+      departmentName: null,
 
-    this.departmentService
-      .getDepartments()
-      .subscribe({
+      branchName: null
 
-        next: (res: any) => {
+    });
 
-          this.departments =
-            Array.isArray(res?.data)
-              ? res.data
-              : Array.isArray(res)
-                ? res
-                : [];
+    if (!this.departments.length) {
 
-          this.branches = [];
+      this.loadDepartments();
 
-          this.userForm.patchValue({
-
-            departmentName: '',
-
-            branchName: ''
-
-          });
-
-        },
-
-        error: (err) => {
-
-          console.error(
-            'College Change Error:',
-            err
-          );
-
-        }
-
-      });
+    }
 
   }
 
@@ -1328,45 +1548,17 @@ export class UserComponent implements OnInit {
 
   onDepartmentChange(): void {
 
-    const department =
-      this.userForm.value.departmentName;
+    this.userForm.patchValue({
 
-    console.log(
-      'Selected Department:',
-      department
-    );
+      branchName: null
 
-    this.branchService
-      .getBranches()
-      .subscribe({
+    });
 
-        next: (res: any) => {
+    if (!this.branches.length) {
 
-          this.branches =
-            Array.isArray(res?.data)
-              ? res.data
-              : Array.isArray(res)
-                ? res
-                : [];
+      this.loadBranches();
 
-          this.userForm.patchValue({
-
-            branchName: ''
-
-          });
-
-        },
-
-        error: (err) => {
-
-          console.error(
-            'Department Change Error:',
-            err
-          );
-
-        }
-
-      });
+    }
 
   }
 
@@ -1393,6 +1585,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cdr.markForCheck();
+
 
           user.isActive =
             !user.isActive;
@@ -1400,6 +1594,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Change Status Error:',
@@ -1426,6 +1622,8 @@ export class UserComponent implements OnInit {
     this.superadmin.student1ocked().subscribe({
 
       next: (res: any) => {
+        this.cdr.markForCheck();
+
 
         console.log('Locked Students Response:', res);
 
@@ -1444,6 +1642,8 @@ export class UserComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cdr.markForCheck();
+
 
         console.error('Load Locked Students Error:', err);
 
@@ -1544,6 +1744,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cdr.markForCheck();
+
 
           user.isLocked = true;
 
@@ -1554,6 +1756,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Lock User Error:',
@@ -1585,6 +1789,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cdr.markForCheck();
+
 
           user.isLocked = false;
 
@@ -1595,6 +1801,8 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Unlock User Error:',
@@ -1644,15 +1852,13 @@ export class UserComponent implements OnInit {
 
       roleName: '',
 
-      collegeName: '',
+      collegeName: null,
 
-      departmentName: '',
+      departmentName: null,
 
-      branchName: '',
+      branchName: null,
 
-      yearNumber: null,
-
-      isActive: true
+      yearNumber: null
 
     });
 
@@ -1721,7 +1927,15 @@ export class UserComponent implements OnInit {
   // Upload File
   // ==========================
 
-  uploadFile(): void {
+  uploadFile(fileInput?: HTMLInputElement): void {
+
+    // Guard against double-clicks that land before the button re-renders
+    // as disabled.
+    if (this.uploading) {
+
+      return;
+
+    }
 
     if (!this.selectedFile) {
 
@@ -1731,7 +1945,13 @@ export class UserComponent implements OnInit {
 
     }
 
-    this.loading = true;
+    this.uploading = true;
+
+    this.uploadPhase = 'sending';
+
+    this.uploadPercent = 0;
+
+    this.uploadElapsed = 0;
 
     this.showUploadResults = false;
 
@@ -1739,20 +1959,73 @@ export class UserComponent implements OnInit {
 
     this.failedUsers = [];
 
-    this.userService
+    this.uploadTimer = setInterval(() => {
+      this.cdr.markForCheck();
+
+
+      this.uploadElapsed++;
+
+      this.cdr.detectChanges();
+
+    }, 1000);
+
+    this.uploadSub = this.userService
       .uploadUsers(
         this.selectedFile
       )
       .pipe(
+        // `each` resets on every progress event, so this only fires when
+        // the connection goes quiet — not while a big file is sending.
+        timeout({ each: UPLOAD_TIMEOUT_MS }),
         finalize(() => {
+          this.cdr.markForCheck();
 
-          this.loading = false;
+
+          this.stopUploadTracking();
 
         })
       )
       .subscribe({
 
-        next: (res: any) => {
+        next: (event: any) => {
+          this.cdr.markForCheck();
+
+
+          if (event.type === HttpEventType.UploadProgress) {
+
+            this.uploadPercent = event.total
+              ? Math.round((100 * event.loaded) / event.total)
+              : 0;
+
+            // Whole file sent — the rest of the wait is the server
+            // creating the users.
+            if (
+              event.total &&
+              event.loaded >= event.total &&
+              this.uploadPhase !== 'processing'
+            ) {
+
+              this.uploadPhase = 'processing';
+
+              this.announce(
+                'File sent. Creating users on the server, this can take a minute or more.'
+              );
+
+            }
+
+            this.cdr.detectChanges();
+
+            return;
+
+          }
+
+          if (event.type !== HttpEventType.Response) {
+
+            return;
+
+          }
+
+          const res = event.body;
 
           console.log(
             'Upload Response:',
@@ -1767,6 +2040,14 @@ export class UserComponent implements OnInit {
             null;
 
           this.selectedFile = null;
+
+          // Clear the native input too, so the same file can be picked
+          // again and the old name isn't left showing.
+          if (fileInput) {
+
+            fileInput.value = '';
+
+          }
 
           this.loadUsers();
 
@@ -1788,17 +2069,111 @@ export class UserComponent implements OnInit {
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Upload Error:',
             err
           );
 
+          if (err instanceof TimeoutError || err?.status === 504) {
+
+            // The server may still finish the import after we stop
+            // waiting, so re-uploading straight away could create
+            // duplicates. Refresh the list so the admin can check first.
+            this.uploadFeedback.fail(
+              'The upload timed out. The server may still be processing it — ' +
+              'check the user list before uploading the same file again.'
+            );
+
+            this.loadUsers();
+
+            return;
+
+          }
+
           this.uploadFeedback.fail(err, 'Unable to upload users.');
 
         }
 
       });
+
+  }
+
+  // ==========================
+  // Cancel Upload
+  // ==========================
+
+  cancelUpload(): void {
+
+    if (!this.uploading) {
+
+      return;
+
+    }
+
+    // Unsubscribing aborts the HTTP request (finalize resets the state).
+    this.uploadSub?.unsubscribe();
+
+    this.uploadFeedback.fail(
+      'Upload cancelled. If the file had already been sent, some users ' +
+      'may still have been created — check the user list before retrying.'
+    );
+
+    this.loadUsers();
+
+  }
+
+  private stopUploadTracking(): void {
+
+    if (this.uploadTimer) {
+
+      clearInterval(this.uploadTimer);
+
+      this.uploadTimer = null;
+
+    }
+
+    this.uploadSub = null;
+
+    this.uploading = false;
+
+    this.uploadPhase = null;
+
+    // markForCheck, not detectChanges: this also runs from ngOnDestroy,
+    // when the view is already gone.
+    this.cdr.markForCheck();
+
+  }
+
+  // Leaving the page drops the request; warn while one is in flight.
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+
+    if (this.uploading) {
+
+      event.preventDefault();
+
+    }
+
+  }
+
+  ngOnDestroy(): void {
+
+    this.uploadSub?.unsubscribe();
+
+    if (this.uploadTimer) {
+
+      clearInterval(this.uploadTimer);
+
+    }
+
+    if (this.srTimer) {
+
+      clearTimeout(this.srTimer);
+
+    }
 
   }
 
@@ -1827,6 +2202,8 @@ export class UserComponent implements OnInit {
     })
       .pipe(
         finalize(() => {
+          this.cdr.markForCheck();
+
 
           this.uploadResultsLoading = false;
 
@@ -1837,6 +2214,8 @@ export class UserComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
+          this.cdr.markForCheck();
+
 
           console.log(
             'Upload Results:',
@@ -1853,9 +2232,16 @@ export class UserComponent implements OnInit {
               res.failed
             );
 
+          this.announce(
+            `Upload finished. ${this.successUsers.length} users created, ` +
+            `${this.failedUsers.length} failed.`
+          );
+
         },
 
         error: (err) => {
+          this.cdr.markForCheck();
+
 
           console.error(
             'Load Upload Results Error:',
@@ -1931,6 +2317,7 @@ export class UserComponent implements OnInit {
   const printWindow = window.open('', '_blank', 'width=1000,height=700');
 
   if (!printWindow) {
+    this.uploadFeedback.fail('Pop-up blocked. Allow pop-ups for this site to print.');
     return;
   }
 
@@ -2021,6 +2408,8 @@ export class UserComponent implements OnInit {
   printWindow.focus();
 
   setTimeout(() => {
+    this.cdr.markForCheck();
+
     printWindow.print();
     printWindow.close();
   }, 300);
@@ -2036,19 +2425,14 @@ printFailedUsers(): void {
     <tr>
       <td>${this.escapeHtml(user?.fullName ?? user?.name ?? '-')}</td>
       <td>${this.escapeHtml(user?.email ?? '-')}</td>
-      <td>${this.escapeHtml(
-        user?.reason ??
-        user?.error ??
-        user?.errorMessage ??
-        user?.message ??
-        '-'
-      )}</td>
+      <td>${this.escapeHtml(this.failedReason(user))}</td>
     </tr>
   `).join('');
 
   const printWindow = window.open('', '_blank', 'width=1000,height=700');
 
   if (!printWindow) {
+    this.uploadFeedback.fail('Pop-up blocked. Allow pop-ups for this site to print.');
     return;
   }
 
@@ -2140,9 +2524,73 @@ printFailedUsers(): void {
   printWindow.focus();
 
   setTimeout(() => {
+    this.cdr.markForCheck();
+
     printWindow.print();
     printWindow.close();
   }, 300);
+}
+
+
+/**
+ * Download the failed users as a CSV file (opens in Excel).
+ */
+exportFailedUsers(): void {
+  if (!this.failedUsers?.length) {
+    return;
+  }
+
+  const header = ['Name', 'Email', 'Reason'];
+
+  const rows = this.failedUsers.map((user: any) => {
+    const reason = this.failedReason(user);
+
+    return [
+      user?.fullName ?? user?.name ?? '',
+      user?.email ?? '',
+      reason === '-' ? '' : reason
+    ];
+  });
+
+  const csv = [header, ...rows]
+    .map(row => row.map(cell => this.csvCell(cell)).join(','))
+    .join('\r\n');
+
+  // BOM so Excel reads UTF-8 names correctly.
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `failed-users${this.uploadId ? '-' + this.uploadId : ''}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+
+failedReason(user: any): string {
+  return user?.reason ??
+    user?.error ??
+    user?.errorMessage ??
+    user?.message ??
+    '-';
+}
+
+
+/**
+ * Quote a CSV cell and neutralise spreadsheet formula injection.
+ */
+private csvCell(value: any): string {
+  let text = String(value ?? '');
+
+  if (/^[=+\-@\t\r]/.test(text)) {
+    text = "'" + text;
+  }
+
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 

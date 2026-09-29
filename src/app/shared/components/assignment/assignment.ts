@@ -3,7 +3,7 @@ import {
   OnInit,
   Inject,
   PLATFORM_ID,
-  ChangeDetectorRef
+  ChangeDetectorRef, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -28,6 +28,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-assignment',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -178,6 +179,8 @@ export class AssignmentComponent implements OnInit {
     this.api.getAssign().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -196,6 +199,8 @@ export class AssignmentComponent implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -227,6 +232,8 @@ export class AssignmentComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.feedback.ok('Assignment added successfully');
 
@@ -236,7 +243,7 @@ export class AssignmentComponent implements OnInit {
 
         },
 
-        error: (err) => this.feedback.fail(err)
+        error: (err) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
 
@@ -327,6 +334,8 @@ export class AssignmentComponent implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Assignment updated successfully');
 
@@ -336,7 +345,7 @@ export class AssignmentComponent implements OnInit {
 
       },
 
-      error: (err) => this.feedback.fail(err)
+      error: (err) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
     });
 
@@ -359,6 +368,8 @@ export class AssignmentComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.feedback.ok('Assignment deleted successfully');
 
@@ -366,7 +377,7 @@ export class AssignmentComponent implements OnInit {
 
         },
 
-        error: (err) => this.feedback.fail(err)
+        error: (err) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
 

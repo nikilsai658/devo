@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectorRef, Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 @Component({
   selector: 'app-student-assignment',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone:true,
   imports: [CommonModule, ReactiveFormsModule, CodeEditorComponent, RouterLink, Breadcrumb],
   templateUrl: './student-assignment.html',
@@ -78,7 +79,7 @@ export class StudentAssignment implements OnInit, OnDestroy{
       this.lockService.startLock();
 
       this.violationSubscription = this.lockService.violations$.subscribe(
-        (violation) => this.onViolation(violation)
+        (violation) => { this.cd.markForCheck(); return this.onViolation(violation); }
       );
     }
   }
@@ -92,7 +93,9 @@ export class StudentAssignment implements OnInit, OnDestroy{
       sessionStorage.removeItem('activeAssignmentId');
 
       if (document.fullscreenElement) {
-        document.exitFullscreen?.().catch(() => {});
+        document.exitFullscreen?.().catch(() => {
+  this.cd.markForCheck();
+});
       }
     }
   }
@@ -134,9 +137,13 @@ export class StudentAssignment implements OnInit, OnDestroy{
   loadAssignment():void{
     this.api.getstudentassignmentId(this.assignmentId).subscribe({
          next:(res:any)=>{
+        this.cd.markForCheck();
+
         this.assignment = res.data?.[0] ?? null;
         this.cd.detectChanges();
     },error:(err:any)=>{
+        this.cd.markForCheck();
+
         this.assignment = null;
        console.log(err);
     }
@@ -166,6 +173,8 @@ export class StudentAssignment implements OnInit, OnDestroy{
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           this.runResult = res?.data ?? null;
 
@@ -175,6 +184,8 @@ export class StudentAssignment implements OnInit, OnDestroy{
         },
 
         error: (err: any) => {
+          this.cd.markForCheck();
+
 
           this.runError = err?.error?.message || 'Failed to run code.';
 
@@ -207,6 +218,8 @@ export class StudentAssignment implements OnInit, OnDestroy{
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           this.submitResult = res?.data ?? null;
 
@@ -220,6 +233,8 @@ export class StudentAssignment implements OnInit, OnDestroy{
         },
 
         error: (err: any) => {
+          this.cd.markForCheck();
+
 
           this.submitError = err?.error?.message || 'Failed to submit code.';
 

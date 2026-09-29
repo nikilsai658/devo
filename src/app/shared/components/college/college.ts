@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -28,6 +28,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-college',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -127,6 +128,8 @@ export class College implements OnInit {
     this.api.getcollege().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         console.log('College Response', res);
 
@@ -151,6 +154,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -176,6 +181,8 @@ export class College implements OnInit {
     this.superadmin.collegelocked().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         const lockedIds = this.extractIds(res, ['collegeId', 'CollegeId', 'id', 'Id']);
 
@@ -190,6 +197,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error('Load Locked Colleges Error:', err);
 
@@ -409,6 +418,8 @@ export class College implements OnInit {
     this.superadmin.collegelicense(this.selectedLicenseCollege.id, payload).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.selectedLicenseCollege.isLicensed = payload.isLicensed;
 
@@ -423,6 +434,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Unable to update license.');
 
@@ -489,6 +502,8 @@ export class College implements OnInit {
     this.api.createcollege(this.collegeForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('College added successfully');
 
@@ -499,6 +514,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -571,6 +588,8 @@ export class College implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('College updated successfully');
 
@@ -581,6 +600,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -611,6 +632,8 @@ export class College implements OnInit {
     this.api.deletecollege(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('College deleted successfully');
 
@@ -619,6 +642,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -649,6 +674,8 @@ export class College implements OnInit {
     this.superadmin.collegelock(college.id, {}).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         college.isLocked = true;
 
@@ -659,6 +686,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -685,6 +714,8 @@ export class College implements OnInit {
     this.superadmin.collegeunlock(college.id, {}).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         college.isLocked = false;
 
@@ -695,6 +726,8 @@ export class College implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

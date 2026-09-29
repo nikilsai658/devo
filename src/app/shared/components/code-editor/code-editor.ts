@@ -9,7 +9,7 @@ import {
   Output,
   PLATFORM_ID,
   SimpleChanges,
-  ViewChild
+  ViewChild, ChangeDetectionStrategy
 } from '@angular/core';
 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -23,6 +23,7 @@ export interface CodeSubmission {
 
 @Component({
   selector: 'app-code-editor',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './code-editor.html',

@@ -1,4 +1,4 @@
-import { Component, OnInit, effect } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy, inject, ChangeDetectorRef } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -8,12 +8,15 @@ import { AuthServices } from '../../../features/services/auth/auth-services';
 import { ThemeStore } from '../../../core/store/theme';
 @Component({
   selector: 'app-header',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [RouterLink,RouterLinkActive,CommonModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
 })
 export class Header implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   username:string|undefined='';
   collegeLogo = '';
 colleges = [
@@ -58,12 +61,16 @@ colleges = [
   logout(){
     this.api.logoutAll({}).subscribe({
       next:(res:any)=>{
+      this.cdr.markForCheck();
+
       this.userStore.clearUser();
     this.cookie.delete('token','/');
     this.cookie.delete('refresh','/');
     this.router.navigate(['/auth/login']);
       },
       error:(err:any)=>{
+      this.cdr.markForCheck();
+
       console.log(err);
       }
     })

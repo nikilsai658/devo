@@ -284,6 +284,52 @@
   @apply text-sm text-zinc-400;
 }
 
+.upload-progress {
+  @apply flex flex-col gap-3 px-6 pb-6;
+}
+
+.upload-progress-text {
+  @apply flex items-start justify-between gap-4 text-sm text-zinc-300;
+}
+
+.upload-progress-elapsed {
+  @apply shrink-0 tabular-nums text-zinc-500;
+}
+
+.upload-progress-track {
+  @apply relative h-2 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.upload-progress-bar {
+  @apply h-full rounded-full bg-(--accent) transition-[width] duration-200;
+}
+
+/* The server gives no progress while it creates users, so show motion
+   instead of a fake percentage. */
+.upload-progress-bar-indeterminate {
+  position: absolute;
+  width: 35%;
+  animation: upload-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes upload-indeterminate {
+  from { left: -35%; }
+  to   { left: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-progress-bar-indeterminate {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
+.upload-progress .cancel-btn {
+  @apply self-start;
+}
+
 /* ==========================
    UPLOAD RESULTS
 ========================== */
@@ -390,12 +436,33 @@ thead th {
     whitespace-nowrap;
 }
 
-thead th:not(:last-child) {
-  @apply cursor-pointer;
+/* Only the sortable columns react to the pointer. */
+thead th.sortable {
+  @apply p-0;
 }
 
-thead th:hover {
+thead th.sortable:hover {
   background-color: #27272a;
+}
+
+/* Full-cell button so the whole header stays clickable, and now also
+   reachable by Tab and Enter/Space. */
+.sort-btn {
+  @apply flex w-full items-center gap-1.5
+    px-5 py-3.5
+    bg-transparent border-0
+    text-left text-xs font-semibold
+    uppercase tracking-wide text-white
+    cursor-pointer;
+}
+
+.sort-icon {
+  @apply text-[10px] text-zinc-500;
+}
+
+th[aria-sort="ascending"] .sort-icon,
+th[aria-sort="descending"] .sort-icon {
+  @apply text-(--accent);
 }
 
 tbody tr {
@@ -599,7 +666,8 @@ tbody td {
 }
 
 .print-success-btn,
-.print-failed-btn {
+.print-failed-btn,
+.export-failed-btn {
   border: none;
   padding: 9px 15px;
   border-radius: 8px;
@@ -627,6 +695,15 @@ tbody td {
   background: rgba(244, 63, 94, 0.25);
 }
 
+.export-failed-btn {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.export-failed-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
 @media (max-width: 768px) {
   .upload-results-actions {
     width: 100%;
@@ -634,7 +711,37 @@ tbody td {
 
   .print-success-btn,
   .print-failed-btn,
+  .export-failed-btn,
   .upload-results-actions .cancel-btn {
     flex: 1;
   }
+}
+
+/* ==========================
+   ACCESSIBILITY
+========================== */
+
+/* Hidden on screen, still read by screen readers. */
+.visually-hidden {
+  @apply sr-only;
+}
+
+/* Clear focus ring for keyboard users on every control on this page
+   (mouse clicks don't trigger :focus-visible on buttons). */
+.user-page button:focus-visible,
+.user-page input[type="file"]:focus-visible,
+.user-page .table-wrapper:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Inside a header cell the ring would be clipped, so draw it inset. */
+.user-page .sort-btn:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Flag invalid fields by border as well as the red text below them. */
+.form-group input[aria-invalid="true"],
+.form-group select[aria-invalid="true"] {
+  @apply border-rose-500;
 }

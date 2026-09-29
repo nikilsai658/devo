@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, PLATFORM_ID  } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, ChangeDetectionStrategy  } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-department',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone:true,
   imports: [CommonModule,ReactiveFormsModule],
   templateUrl: './department.html',
@@ -75,6 +76,8 @@ loadDepartments(): void {
   this.api.getDepartments().subscribe({
 
     next: (res: any) => {
+      this.cd.markForCheck();
+
 
       console.log('Department Response:', res);
 
@@ -105,6 +108,8 @@ loadDepartments(): void {
     },
 
     error: (err) => {
+      this.cd.markForCheck();
+
       console.error(err);
       this.departments = [];
     }
@@ -158,6 +163,8 @@ loadDepartments(): void {
     this.api.createDepartment(this.departmentForm.value).subscribe({
 
       next: (res) => {
+        this.cd.markForCheck();
+
 
         console.log(res);
 
@@ -172,6 +179,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to add department');
 
@@ -225,6 +234,8 @@ loadDepartments(): void {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.departmentForm.reset();
 
@@ -241,6 +252,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to update department');
 
@@ -263,6 +276,8 @@ loadDepartments(): void {
     this.api.deleteDepartment(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Department deleted successfully');
 
@@ -271,6 +286,8 @@ loadDepartments(): void {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to delete department');
 

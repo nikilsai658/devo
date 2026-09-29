@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
-  OnInit
+  OnInit, ChangeDetectionStrategy
 } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -19,6 +19,7 @@ const LANGUAGES: Record<number, { name: string; ext: string }> = {
 
 @Component({
   selector: 'app-superadmin-student-assignment-code',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule],
   templateUrl: './superadmin-student-assignment-code.html',
@@ -95,6 +96,8 @@ export class SuperadminStudentAssignmentCode implements OnInit {
       )
       .subscribe({
         next: (response) => {
+          this.cd.markForCheck();
+
 
           this.assignmentCode = response;
           if ((response as any)?.isFailure || !(response as any)?.data) {
@@ -107,6 +110,8 @@ export class SuperadminStudentAssignmentCode implements OnInit {
         },
 
         error: (err) => {
+          this.cd.markForCheck();
+
 
           console.error('Failed to load assignment code:', err);
 
@@ -166,6 +171,8 @@ export class SuperadminStudentAssignmentCode implements OnInit {
       this.cd.markForCheck();
 
       setTimeout(() => {
+        this.cd.markForCheck();
+
         this.copied = false;
         this.copyFailed = false;
         this.cd.markForCheck();
@@ -174,7 +181,7 @@ export class SuperadminStudentAssignmentCode implements OnInit {
 
     // The async clipboard API needs a secure context; fall back otherwise.
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(sourceCode).then(() => done(true), () => done(this.legacyCopy(sourceCode)));
+      navigator.clipboard.writeText(sourceCode).then(() => { this.cd.markForCheck(); return done(true); }, () => { this.cd.markForCheck(); return done(this.legacyCopy(sourceCode)); });
     } else {
       done(this.legacyCopy(sourceCode));
     }

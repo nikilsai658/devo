@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
@@ -6,6 +6,7 @@ import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
   selector: 'app-student-task',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, Breadcrumb],
   templateUrl: './student-task.html',
@@ -69,11 +70,15 @@ export class StudentTask implements OnInit {
   loadTask(): void {
     this.api.gettaskbyId(this.taskId).subscribe({
       next: (res: any) => {
+        this.cd.markForCheck();
+
         this.task = res?.data ?? null;
         this.loading = false;
         this.cd.detectChanges();
       },
       error: () => {
+        this.cd.markForCheck();
+
         this.task = null;
         this.loading = false;
         this.cd.detectChanges();
@@ -94,11 +99,15 @@ export class StudentTask implements OnInit {
     this.uploadError = '';
     this.api.uploadtask(this.taskId, file).subscribe({
       next: () => {
+        this.cd.markForCheck();
+
         this.uploading = false;
         input.value = '';
         this.loadTask();
       },
       error: () => {
+        this.cd.markForCheck();
+
         this.uploading = false;
         this.uploadError = 'Upload failed. Please try again.';
         input.value = '';
@@ -113,6 +122,8 @@ export class StudentTask implements OnInit {
     this.downloadError = '';
     this.api.downloadtask(this.taskId).subscribe({
       next: (res: any) => {
+        this.cd.markForCheck();
+
         this.downloading = false;
         this.cd.detectChanges();
         const blob: Blob = res.body;
@@ -128,6 +139,8 @@ export class StudentTask implements OnInit {
         URL.revokeObjectURL(url);
       },
       error: () => {
+        this.cd.markForCheck();
+
         this.downloading = false;
         this.downloadError = 'Download failed. Please try again.';
         this.cd.detectChanges();

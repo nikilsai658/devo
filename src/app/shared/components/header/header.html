@@ -104,24 +104,6 @@
       </a>
 
 
-      <!-- Certifications -->
-      <a
-        *ngIf="auth.hasPermission('LEADERBOARD_DOMAIN')"
-        routerLink="/main/certificate"
-        routerLinkActive="active-link"
-        (click)="toggleSidebar()"
-        class="nav-item">
-
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="8" r="4"/>
-          <path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/>
-        </svg>
-
-        <span>Certifications</span>
-
-      </a>
-
-
       <!-- Raise Ticket -->
       <a
         *ngIf="auth.hasPermission('CREATE_TICKET')"

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, ChangeDetectorRef } from '@angular/core';
 import {ButtonModule} from 'primeng/button';
 import { Logo } from '../../../shared/logo/logo';
 import { FormBuilder, FormsModule } from '@angular/forms';
@@ -10,11 +10,14 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CollegeService } from '../../services/college/college-service';
 @Component({
   selector: 'app-college',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [Logo,ButtonModule,FormsModule,SelectModule,ReactiveFormsModule],
   templateUrl: './college.html',
   styleUrls: ['./college.css', '../auth-responsive.css'],
 })
 export class College implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   form !:FormGroup;
    colleges: any[] | undefined;
     selectedcollege: any | undefined ;
@@ -26,6 +29,8 @@ export class College implements OnInit {
     ngOnInit() {
         this.api.getcollege().subscribe({
           next: (res: any) => {
+            this.cdr.markForCheck();
+
             if (Array.isArray(res)) {
               this.colleges = res;
             } else if (Array.isArray(res?.data)) {
@@ -37,6 +42,8 @@ export class College implements OnInit {
             }
           },
           error: (err) => {
+            this.cdr.markForCheck();
+
             console.error(err);
             this.colleges = [];
           }

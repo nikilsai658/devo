@@ -19,6 +19,8 @@
       >
         <span class="plus">+</span>
         Add User
+
+        
       </button>
 
       <button
@@ -276,7 +278,7 @@
             (change)="onCollegeChange()"
           >
 
-            <option value="">
+            <option [ngValue]="null">
               Select College
             </option>
 
@@ -310,7 +312,7 @@
             (change)="onDepartmentChange()"
           >
 
-            <option value="">
+            <option [ngValue]="null">
               Select Department
             </option>
 
@@ -343,7 +345,7 @@
             formControlName="branchName"
           >
 
-            <option value="">
+            <option [ngValue]="null">
               Select Branch
             </option>
 
@@ -509,18 +511,20 @@
     <div class="upload-content">
 
       <input
+        #bulkFileInput
         type="file"
         (change)="onFileSelected($event)"
         accept=".csv,.xlsx,.xls"
+        [disabled]="uploading"
       />
 
       <button
         type="button"
         class="upload-btn"
-        (click)="uploadFile()"
-        [disabled]="loading || !selectedFile"
+        (click)="uploadFile(bulkFileInput)"
+        [disabled]="uploading || !selectedFile"
       >
-        Upload Users
+        {{ uploading ? 'Uploading…' : 'Upload Users' }}
       </button>
 
       <span
@@ -529,6 +533,52 @@
       >
         {{ selectedFile.name }}
       </span>
+
+    </div>
+
+    <!-- Upload Progress -->
+    <div
+      class="upload-progress"
+      *ngIf="uploading"
+      role="status"
+      aria-live="polite"
+    >
+
+      <div class="upload-progress-text">
+        <span *ngIf="uploadPhase === 'sending'">
+          Sending file… {{ uploadPercent }}%
+        </span>
+        <span *ngIf="uploadPhase === 'processing'">
+          Creating users on the server — this can take a minute or more
+          for large files. Please keep this page open.
+        </span>
+        <span class="upload-progress-elapsed">
+          {{ uploadElapsed }}s
+        </span>
+      </div>
+
+      <div
+        class="upload-progress-track"
+        role="progressbar"
+        aria-label="Bulk upload progress"
+        [attr.aria-valuenow]="uploadPhase === 'sending' ? uploadPercent : null"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div
+          class="upload-progress-bar"
+          [class.upload-progress-bar-indeterminate]="uploadPhase === 'processing'"
+          [style.width.%]="uploadPhase === 'sending' ? uploadPercent : null"
+        ></div>
+      </div>
+
+      <button
+        type="button"
+        class="cancel-btn"
+        (click)="cancelUpload()"
+      >
+        Cancel
+      </button>
 
     </div>
 
@@ -577,6 +627,16 @@
             (click)="printFailedUsers()"
           >
             🖨 Print Failed
+          </button>
+
+          <!-- Export Failed -->
+          <button
+            type="button"
+            class="export-failed-btn"
+            *ngIf="failedUsers.length"
+            (click)="exportFailedUsers()"
+          >
+            ⬇ Export Failed (CSV)
           </button>
 
           <!-- Close -->
@@ -640,7 +700,7 @@
               <tr *ngFor="let user of failedUsers">
                 <td>{{ user?.fullName ?? user?.name ?? '-' }}</td>
                 <td>{{ user?.email ?? '-' }}</td>
-                <td>{{ user?.reason ?? user?.error ?? user?.errorMessage ?? user?.message ?? '-' }}</td>
+                <td>{{ failedReason(user) }}</td>
               </tr>
             </tbody>
           </table>
@@ -732,7 +792,7 @@
           formControlName="collegeName"
         >
 
-          <option value="">
+          <option [ngValue]="null">
             All Colleges
           </option>
 
@@ -765,7 +825,7 @@
           formControlName="departmentName"
         >
 
-          <option value="">
+          <option [ngValue]="null">
             All Departments
           </option>
 
@@ -798,7 +858,7 @@
           formControlName="branchName"
         >
 
-          <option value="">
+          <option [ngValue]="null">
             All Branches
           </option>
 
@@ -849,30 +909,6 @@
 
           <option [ngValue]="4">
             4th Year
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <!-- Status Filter -->
-      <div class="filter-group">
-
-        <label>
-          Status
-        </label>
-
-        <select
-          formControlName="isActive"
-        >
-
-          <option [ngValue]="true">
-            Active
-          </option>
-
-          <option [ngValue]="false">
-            Inactive
           </option>
 
         </select>

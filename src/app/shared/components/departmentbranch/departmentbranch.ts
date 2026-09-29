@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -30,6 +30,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-departmentbranch',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -116,6 +117,8 @@ export class DepartmentBranchComponent implements OnInit {
     this.departmentService.getDepartments().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.departments = res.data || [];
 
@@ -124,6 +127,8 @@ export class DepartmentBranchComponent implements OnInit {
       },
 
       error: () => {
+        this.cd.markForCheck();
+
 
         this.departments = [];
 
@@ -142,6 +147,8 @@ export class DepartmentBranchComponent implements OnInit {
     this.branchService.getBranches().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.branches = res.data || [];
 
@@ -150,6 +157,8 @@ export class DepartmentBranchComponent implements OnInit {
       },
 
       error: () => {
+        this.cd.markForCheck();
+
 
         this.branches = [];
 
@@ -169,10 +178,12 @@ export class DepartmentBranchComponent implements OnInit {
 
     this.departmentBranchService
       .getDeptbranches()
-      .pipe(finalize(() => this.loading = false))
+      .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
       .subscribe({
 
         next: (res: any) => {
+          this.cd.markForCheck();
+
 
           this.mappings = res.data || [];
 
@@ -183,6 +194,8 @@ export class DepartmentBranchComponent implements OnInit {
         },
 
         error: () => {
+          this.cd.markForCheck();
+
 
           this.mappings = [];
           this.filteredMappings = [];
@@ -219,10 +232,12 @@ export class DepartmentBranchComponent implements OnInit {
 
       this.departmentBranchService
         .updateDeptbranch(this.selectedId, payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
 
             this.loadMappings();
 
@@ -231,7 +246,7 @@ export class DepartmentBranchComponent implements OnInit {
 
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -239,10 +254,12 @@ export class DepartmentBranchComponent implements OnInit {
 
       this.departmentBranchService
         .createDeptbranch(payload)
-        .pipe(finalize(() => this.loading = false))
+        .pipe(finalize(() => { this.cd.markForCheck(); return this.loading = false; }))
         .subscribe({
 
           next: () => {
+            this.cd.markForCheck();
+
 
             this.loadMappings();
 
@@ -251,7 +268,7 @@ export class DepartmentBranchComponent implements OnInit {
 
           },
 
-          error: (err: any) => this.feedback.fail(err)
+          error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
         });
 
@@ -297,13 +314,15 @@ export class DepartmentBranchComponent implements OnInit {
       .subscribe({
 
         next: () => {
+          this.cd.markForCheck();
+
 
           this.loadMappings();
           this.feedback.ok('Mapping deleted successfully');
 
         },
 
-        error: (err: any) => this.feedback.fail(err)
+        error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }
 
       });
 

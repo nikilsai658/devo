@@ -20,7 +20,6 @@ import { AssignmentComponent } from './shared/components/assignment/assignment';
 import {  StudentProfile } from './shared/components/student-profile/student-profile';
 import { College } from './shared/components/college/college';
 import { Leadership } from './shared/components/leadership/leadership';
-import { Certificate } from './shared/components/certificate/certificate';
 import { Role } from './shared/components/role/role';
 import { TicketComponent } from './shared/components/ticket/ticket';
 import { MyTicketComponent } from './shared/components/mytickets/mytickets';
@@ -46,7 +45,6 @@ import { authGuard } from './core/auth/auth-guard';
 import { assignmentGuard } from './core/guards/assignment-guard';
 import { defaultChildRedirect, permissionGuard } from './core/guards/permission-guard';
 import { NotFoundComponent } from './shared/components/page-not-found/page-not-found';
-import { Viewcertificate } from './shared/components/viewcertificate/viewcertificate';
 import { ChangePassword } from './shared/components/change-password/change-password';
 import { Task } from './shared/components/task/task';
 // Order matters: the first route the user has permission for becomes their
@@ -114,9 +112,6 @@ const mainChildren: Routes = [
        path:'leadership',component:Leadership, data: { permission: 'VIEW_STUDENT_DOMAIN' }
       },
       {
-        path:'certificate',component:Certificate, data: { permission: 'VIEW_STUDENT_DOMAIN' }
-      },
-      {
         path:'ticket',component:TicketComponent, data: { permission: 'CREATE_TICKET' }
       },
       {
@@ -172,9 +167,6 @@ const mainChildren: Routes = [
       },
       {
         path:'superadmin-student-tasks',component:SuperadminStudentTasks,data:{permission:'VIEW_SUPERADMIN_STUDENT_ASSIGNMENTS'}
-      },
-      {
-        path:'view-certificate',component:Viewcertificate
       },
       {
         path:'change_password',component:ChangePassword

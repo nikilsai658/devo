@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-branch',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -120,6 +121,8 @@ export class Branch implements OnInit {
     this.api.getBranches().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         console.log('Branch Response', res);
 
@@ -152,6 +155,8 @@ export class Branch implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         console.error(err);
 
@@ -204,6 +209,8 @@ export class Branch implements OnInit {
     this.api.createBranch(this.branchForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.branchForm.reset();
 
@@ -216,6 +223,8 @@ export class Branch implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to add branch');
 
@@ -272,6 +281,8 @@ export class Branch implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.branchForm.reset();
 
@@ -288,6 +299,8 @@ export class Branch implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to update branch');
 
@@ -312,6 +325,8 @@ export class Branch implements OnInit {
     this.api.deleteBranch(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Branch deleted successfully');
 
@@ -320,6 +335,8 @@ export class Branch implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.feedback.fail(err, 'Failed to delete branch');
 

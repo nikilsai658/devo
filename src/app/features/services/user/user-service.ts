@@ -61,7 +61,7 @@ uploadUsers(file: File) {
   // Fixed key expected by backend
   formData.append('file', file);
 
-  return this.api.POST('User/BulkUpload', formData);
+  return this.api.POSTWithProgress('User/BulkUpload', formData);
 
 }
 successusers(uploadId: string) {

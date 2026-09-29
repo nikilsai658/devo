@@ -3,7 +3,7 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID, ChangeDetectionStrategy
 } from '@angular/core';
 
 import {
@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 
 @Component({
   selector: 'app-task',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -108,6 +109,8 @@ export class Task implements OnInit {
     this.api.getTask().subscribe({
 
       next: (res: any) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -140,6 +143,8 @@ export class Task implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
 
         this.loading = false;
 
@@ -212,6 +217,8 @@ export class Task implements OnInit {
     this.api.postTask(this.taskForm.value).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Task added successfully');
 
@@ -222,6 +229,8 @@ export class Task implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -292,6 +301,8 @@ export class Task implements OnInit {
     ).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Task updated successfully');
 
@@ -302,6 +313,8 @@ export class Task implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 
@@ -332,6 +345,8 @@ export class Task implements OnInit {
     this.api.deleteTask(id).subscribe({
 
       next: () => {
+        this.cd.markForCheck();
+
 
         this.feedback.ok('Task deleted successfully');
 
@@ -340,6 +355,8 @@ export class Task implements OnInit {
       },
 
       error: (err) => {
+        this.cd.markForCheck();
+
         this.feedback.fail(err);
       }
 

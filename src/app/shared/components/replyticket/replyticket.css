@@ -201,9 +201,9 @@
   color: #7dd3fc;
 }
 
-.status-resolved {
-  background: rgba(34, 197, 94, 0.12);
-  color: #86efac;
+.status-inprogress {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fcd34d;
 }
 
 .status-closed {

@@ -1,8 +1,389 @@
-<div >
-    <div class="header">
-        <div><img src="../../../assets/images/tripledot-logo.jpeg"><span class="title">Tripledot AI Technologies</span></div>
-    <div><a routerLink="/auth/college">
-  <p-button label="Login"></p-button>
-</a></div>
+<ng-template #ico let-paths>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    @for (d of paths; track $index) { <path [attr.d]="d" /> }
+  </svg>
+</ng-template>
+
+<div class="page">
+  <!-- ================= NAVBAR ================= -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <button type="button" class="brand" (click)="scrollTop()">
+        <img src="assets/images/tripledot-logo.jpeg" alt="Tripledot AI Technologies logo" />
+        <span>Tripledot AI Technologies</span>
+      </button>
+
+      <nav class="nav-links" [class.open]="menuOpen()">
+        @for (n of nav; track n.id) {
+          <button type="button" (click)="scrollTo(n.id)">{{ n.label }}</button>
+        }
+        <a routerLink="/auth/college" class="btn btn-primary nav-login-mobile">Login</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a routerLink="/auth/college" class="btn btn-primary nav-login">Login</a>
+        <button type="button" class="menu-btn" (click)="menuOpen.set(!menuOpen())" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            @if (menuOpen()) { <path d="M18 6 6 18M6 6l12 12" /> } @else { <path d="M4 7h16M4 12h16M4 17h16" /> }
+          </svg>
+        </button>
+      </div>
     </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="grid-bg"></div>
+
+    <div class="wrap hero-inner">
+      <h1>
+        One portal from <span class="grad">classroom</span><br />
+        to <span class="grad">career</span>.
+      </h1>
+      <p class="lead">
+        The Tripledot AI learning portal connects students, faculty and colleges — structured domain courses,
+        hands-on coding assignments, and a direct path to placements and internship opportunities.
+      </p>
+      <div class="hero-cta">
+        <a routerLink="/auth/college" class="btn btn-primary btn-lg">
+          Get started
+          <ng-container *ngTemplateOutlet="ico; context: { $implicit: icons.send }" />
+        </a>
+        <button type="button" class="btn btn-ghost btn-lg" (click)="scrollTo('process')">See how it works</button>
+      </div>
+
+      <div class="stats">
+        @for (s of stats; track s.label) {
+          <div class="stat">
+            <strong>{{ countValue(s.target) }}{{ s.suffix }}</strong>
+            <span>{{ s.label }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESS ================= -->
+  <section id="process" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Portal process</span>
+        <h2>How the portal works</h2>
+        <p>Six simple steps take every student from their first login to a verified, placement-ready profile.</p>
+      </div>
+
+      <ol class="process">
+        @for (p of process; track p.title; let i = $index) {
+          <li class="card process-card">
+            <div class="card-top">
+              <span class="icon-box"><ng-container *ngTemplateOutlet="ico; context: { $implicit: p.icon }" /></span>
+              <span class="step-no">{{ (i + 1).toString().padStart(2, '0') }}</span>
+            </div>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.text }}</p>
+          </li>
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= HOW TO USE ================= -->
+  <section id="guide" class="section section-alt">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">How to use</span>
+        <h2>Built for every role on campus</h2>
+        <p>Your dashboard adapts to your role and permissions — here is what each user can do.</p>
+      </div>
+
+      <div class="roles">
+        @for (r of roles; track r.role) {
+          <article class="card role-card">
+            <div class="role-head">
+              <span class="icon-box"><ng-container *ngTemplateOutlet="ico; context: { $implicit: r.icon }" /></span>
+              <h3>{{ r.role }}</h3>
+            </div>
+            <ul class="checklist">
+              @for (s of r.steps; track s) {
+                <li>
+                  <ng-container *ngTemplateOutlet="ico; context: { $implicit: icons.check }" />
+                  <span>{{ s }}</span>
+                </li>
+              }
+            </ul>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PLACEMENTS ================= -->
+  <section id="placements" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Placement process</span>
+        <h2>Your roadmap to getting placed</h2>
+        <p>Every course you finish and every assignment you submit strengthens your placement profile.</p>
+      </div>
+
+      <ol class="timeline">
+        @for (p of placement; track p.title; let i = $index) {
+          <li class="tl-item">
+            <span class="tl-marker">{{ i + 1 }}</span>
+            <div class="card tl-card">
+              <span class="icon-box sm"><ng-container *ngTemplateOutlet="ico; context: { $implicit: p.icon }" /></span>
+              <div>
+                <h3>{{ p.title }}</h3>
+                <p>{{ p.text }}</p>
+              </div>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= INTERNSHIPS ================= -->
+  <section id="internships" class="section section-alt">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Internship opportunities</span>
+        <h2>Get an internship. Offer an internship.</h2>
+        <p>Tripledot AI bridges students looking for real-world experience and companies looking for skilled talent.</p>
+      </div>
+
+      <div class="intern-grid">
+        <article class="card intern-card">
+          <span class="tag">For students</span>
+          <h3>Getting an internship</h3>
+          <ol class="mini-steps">
+            @for (s of getInternship; track s.title; let i = $index) {
+              <li>
+                <span class="icon-box sm"><ng-container *ngTemplateOutlet="ico; context: { $implicit: s.icon }" /></span>
+                <div><h4>{{ s.title }}</h4><p>{{ s.text }}</p></div>
+              </li>
+            }
+          </ol>
+          <a routerLink="/auth/college" class="btn btn-primary">Login to apply</a>
+        </article>
+
+        <article class="card intern-card featured">
+          <span class="tag">For companies</span>
+          <h3>Giving an internship</h3>
+          <ol class="mini-steps">
+            @for (s of giveInternship; track s.title) {
+              <li>
+                <span class="icon-box sm"><ng-container *ngTemplateOutlet="ico; context: { $implicit: s.icon }" /></span>
+                <div><h4>{{ s.title }}</h4><p>{{ s.text }}</p></div>
+              </li>
+            }
+          </ol>
+          <a [href]="'mailto:' + contact.email + '?subject=Internship%20partnership'" class="btn btn-ghost">Become a hiring partner</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HELP & SUPPORT ================= -->
+  <section id="support" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Help &amp; support</span>
+        <h2>We're here whenever you need us</h2>
+        <p>Stuck on a task, can't find a course, or facing a login issue? Our support team keeps your learning on track.</p>
+      </div>
+
+      <div class="support-grid">
+        <!-- Line-art sketch: support agent with headset, laptop, chat bubbles and a ticket -->
+        <figure class="sketch-card">
+          <svg class="sketch" viewBox="0 0 360 300" role="img" aria-label="Sketch of a support agent with a headset answering chats and tickets">
+            <!-- dashed orbit -->
+            <circle class="sk sk-faint" cx="180" cy="150" r="128" stroke-dasharray="4 8" />
+
+            <!-- agent: shoulders + head -->
+            <path class="sk sk-fill" d="M118 176c0-40 28-62 62-62s62 22 62 62" />
+            <circle class="sk sk-fill" cx="180" cy="80" r="27" />
+            <path class="sk" d="M170 80h.01M190 80h.01" />
+            <path class="sk" d="M172 92q8 6 16 0" />
+            <!-- headset -->
+            <path class="sk sk-accent" d="M149 82a31 31 0 0 1 62 0" />
+            <rect class="sk sk-accent sk-fill" x="144" y="76" width="10" height="18" rx="4" />
+            <rect class="sk sk-accent sk-fill" x="206" y="76" width="10" height="18" rx="4" />
+            <path class="sk sk-accent" d="M149 94q0 20 24 20" />
+            <circle class="sk sk-accent sk-fill" cx="176" cy="114" r="3.5" />
+
+            <!-- laptop (back of screen) with tripledot mark -->
+            <rect class="sk sk-fill" x="108" y="150" width="144" height="92" rx="9" />
+            <circle class="sk sk-accent" cx="166" cy="196" r="5" />
+            <circle class="sk sk-accent" cx="180" cy="196" r="5" />
+            <circle class="sk sk-accent" cx="194" cy="196" r="5" />
+            <path class="sk sk-fill" d="M88 242h184l-12 16H100z" />
+
+            <!-- chat bubble: question -->
+            <g class="float-a">
+              <path class="sk sk-fill" d="M22 38h84a10 10 0 0 1 10 10v30a10 10 0 0 1-10 10H50l-14 12v-12h-14a10 10 0 0 1-10-10V48a10 10 0 0 1 10-10z" />
+              <path class="sk sk-accent" d="M58 55a6 6 0 1 1 8 5.6c-1.4.6-2 1.6-2 3v1.4M64 71h.01" />
+            </g>
+
+            <!-- chat bubble: resolved -->
+            <g class="float-b">
+              <path class="sk sk-fill" d="M258 104h78a10 10 0 0 1 10 10v26a10 10 0 0 1-10 10h-12v12l-14-12h-52a10 10 0 0 1-10-10v-26a10 10 0 0 1 10-10z" />
+              <path class="sk sk-ok" d="m274 127 8 8 16-16" />
+              <path class="sk sk-faint" d="M308 122h24M308 132h16" />
+            </g>
+
+            <!-- ticket -->
+            <g class="float-b">
+              <path class="sk sk-fill" d="M262 30h66a6 6 0 0 1 6 6v8a8 8 0 0 0 0 16v8a6 6 0 0 1-6 6h-66a6 6 0 0 1-6-6v-8a8 8 0 0 0 0-16v-8a6 6 0 0 1 6-6z" />
+              <path class="sk sk-faint" d="M298 32v40" stroke-dasharray="3 4" />
+              <path class="sk" d="M268 46h20M268 56h14" />
+              <path class="sk sk-accent" d="M306 52h18" />
+            </g>
+
+            <!-- sparkles -->
+            <path class="sk sk-accent" d="M40 200v12M34 206h12" />
+            <path class="sk sk-accent" d="M318 214v10M313 219h10" />
+            <circle class="sk sk-faint" cx="64" cy="250" r="4" />
+            <circle class="sk sk-faint" cx="300" cy="262" r="3" />
+          </svg>
+        </figure>
+
+        <div class="support-side">
+          <div class="support-channels">
+            @for (c of supportChannels; track c.title) {
+              <div class="card channel">
+                <span class="icon-box sm"><ng-container *ngTemplateOutlet="ico; context: { $implicit: c.icon }" /></span>
+                <div>
+                  <h3>{{ c.title }}</h3>
+                  <p>{{ c.text }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="support-cta">
+            <a routerLink="/auth/college" class="btn btn-primary">Login to raise a ticket</a>
+            <a [href]="'mailto:' + contact.email + '?subject=Portal%20support'" class="btn btn-ghost">Email support</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq">
+        <div class="faq-intro">
+          <span class="eyebrow">FAQ</span>
+          <h3>Frequently Asked Questions</h3>
+          <p>Quick answers to the questions students and faculty ask us most often about the portal.</p>
+
+          <div class="faq-help">
+            <h4>Still have questions?</h4>
+            <p>Our support team is happy to help with anything not covered here.</p>
+            <a [href]="'mailto:' + contact.email + '?subject=Portal%20support'" class="btn btn-primary">Contact support</a>
+          </div>
+        </div>
+
+        <div class="accordion">
+          @for (f of faqs; track f.q; let i = $index) {
+            <div class="acc-item" [class.open]="openFaq() === i">
+              <h4 class="acc-heading">
+                <button
+                  type="button"
+                  class="acc-trigger"
+                  [id]="'faq-q-' + i"
+                  [attr.aria-expanded]="openFaq() === i"
+                  [attr.aria-controls]="'faq-a-' + i"
+                  (click)="toggleFaq(i)"
+                >
+                  <span class="acc-no">{{ (i + 1).toString().padStart(2, '0') }}</span>
+                  <span class="acc-q">{{ f.q }}</span>
+                  <span class="acc-chevron" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </span>
+                </button>
+              </h4>
+              <div class="acc-panel" role="region" [id]="'faq-a-' + i" [attr.aria-labelledby]="'faq-q-' + i">
+                <div class="acc-panel-inner">
+                  <p>{{ f.a }}</p>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer id="contact" class="footer">
+    <div class="wrap footer-grid">
+      <div class="footer-brand">
+        <div class="brand static">
+          <img src="assets/images/tripledot-logo.jpeg" alt="" />
+          <div class="brand-text">
+            <span class="brand-name">Tripledot AI Technologies</span>
+           
+          </div>
+        </div>
+        <p>
+          Empowering colleges with an AI-driven learning platform &mdash; bridging the gap between academics and industry
+          through skill-based training, placements and internships.
+        </p>
+      </div>
+
+      <nav aria-label="Portal">
+        <h4>Portal</h4>
+        <ul class="f-links">
+          @for (n of nav.slice(0, 5); track n.id) {
+            <li><button type="button" (click)="scrollTo(n.id)">{{ n.label }}</button></li>
+          }
+        </ul>
+      </nav>
+
+      <nav aria-label="Quick links">
+        <h4>Quick Links</h4>
+        <ul class="f-links">
+          <li><a routerLink="/auth/college">Student Login</a></li>
+          <li><a routerLink="/auth/college">Faculty Login</a></li>
+          <li><a [href]="'mailto:' + contact.email + '?subject=Internship%20partnership'">Hire Interns</a></li>
+          <li><a [href]="'mailto:' + contact.email + '?subject=College%20partnership'">Partner With Us</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h4>Get in Touch</h4>
+        <ul class="contact-list">
+          <li>
+            <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" /><path d="m22 6-10 7L2 6" /></svg></span>
+            <div>
+              <span class="c-label">Email</span>
+              <a class="c-value" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+            </div>
+          </li>
+          <li>
+            <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+            <div>
+              <span class="c-label">Phone</span>
+              <a class="c-value" [href]="'tel:' + contact.phone.replaceAll(' ', '')">{{ contact.phone }}</a>
+            </div>
+          </li>
+          <li>
+            <span class="c-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg></span>
+            <div>
+              <span class="c-label">Office</span>
+              <span class="c-value">{{ contact.address }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="wrap footer-bottom">
+      <span>&copy; {{ year }} <strong>Tripledot AI Technologies</strong>. All rights reserved.</span>
+      <button type="button" class="to-top" (click)="scrollTop()">
+        Back to top
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+      </button>
+    </div>
+  </footer>
 </div>

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
@@ -8,10 +8,11 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
+import { AppValidators, FieldError } from '../../shared/validation';
 @Component({
   selector: 'app-changepassword',
   standalone:true,
-  imports: [CommonModule,ReactiveFormsModule,FloatLabelModule,ButtonModule,PasswordModule,Logo],
+  imports: [CommonModule,ReactiveFormsModule,FloatLabelModule,ButtonModule,PasswordModule,Logo,FieldError],
   templateUrl: './changepassword.html',
   styleUrl: './changepassword.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,9 +23,14 @@ export class Changepassword {
   loading = false;
   constructor(private router:Router,private api:AuthServices, private fb:FormBuilder,private cookie:CookieService,private cd:ChangeDetectorRef){
     this.Form=this.fb.group({
-      oldPassword:['',Validators.required],
-      newPassword:['',Validators.required],
-      confirmPassword:['',Validators.required]
+      oldPassword:['',AppValidators.required],
+      newPassword:['',[AppValidators.required, AppValidators.strongPassword]],
+      confirmPassword:['',AppValidators.required]
+    }, {
+      validators: [
+        AppValidators.differentFrom('oldPassword', 'newPassword'),
+        AppValidators.matchFields('newPassword', 'confirmPassword')
+      ]
     })
   }
 
@@ -50,7 +56,9 @@ export class Changepassword {
         }
         )
       }else{
-        this.errorMessage = 'Please fill in all the fields.';
+        this.Form.markAllAsTouched();
+        this.errorMessage = 'Please correct the highlighted fields and try again.';
+        this.cd.markForCheck();
       }
   }
 

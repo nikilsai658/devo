@@ -84,9 +84,7 @@
             />
           </div>
 
-          <p *ngIf="ticketForm.get('subject')?.touched && ticketForm.get('subject')?.invalid" class="form-error">
-            Subject is required.
-          </p>
+          <app-field-error [control]="ticketForm.get('subject')" label="Subject" />
         </div>
 
         <!-- Description -->
@@ -108,9 +106,7 @@
             </textarea>
           </div>
 
-          <p *ngIf="ticketForm.get('description')?.touched && ticketForm.get('description')?.invalid" class="form-error">
-            Description is required.
-          </p>
+          <app-field-error [control]="ticketForm.get('description')" label="Description" />
         </div>
 
       </div>

@@ -244,10 +244,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && courseAssignmentForm.get('courseName')?.invalid">
-                        Course is required
-                    </p>
+                    <app-field-error [control]="courseAssignmentForm.get('courseName')" label="Course" />
                 </div>
 
                 <div class="dlg-field">
@@ -269,10 +266,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && courseAssignmentForm.get('assignmentTitle')?.invalid">
-                        Assignment is required
-                    </p>
+                    <app-field-error [control]="courseAssignmentForm.get('assignmentTitle')" label="Assignment" />
                 </div>
 
                 <div class="dlg-field">
@@ -283,10 +277,7 @@
                         type="number"
                         formControlName="sequenceNo"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="submitted && courseAssignmentForm.get('sequenceNo')?.invalid">
-                        Sequence No is required
-                    </p>
+                    <app-field-error [control]="courseAssignmentForm.get('sequenceNo')" label="Sequence number" />
                 </div>
 
                 <div class="flex items-center gap-6 mb-2">

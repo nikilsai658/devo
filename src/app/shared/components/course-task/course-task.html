@@ -219,10 +219,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && courseTaskForm.get('courseName')?.invalid">
-                        Course is required
-                    </p>
+                    <app-field-error [control]="courseTaskForm.get('courseName')" label="Course" />
                 </div>
 
                 <div class="dlg-field">
@@ -244,10 +241,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && courseTaskForm.get('taskTitle')?.invalid">
-                        Task is required
-                    </p>
+                    <app-field-error [control]="courseTaskForm.get('taskTitle')" label="Task" />
                 </div>
 
             </form>

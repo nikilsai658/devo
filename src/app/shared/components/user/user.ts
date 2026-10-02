@@ -8,7 +8,7 @@ import {
   ViewChild,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import { HttpEventType } from '@angular/common/http';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -21,17 +21,25 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
 
 import {
+  exhaustMap,
+  filter,
   finalize,
   forkJoin,
+  map,
+  of,
+  retry,
   Subscription,
+  switchMap,
+  takeWhile,
+  tap,
   timeout,
-  TimeoutError
+  TimeoutError,
+  timer
 } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -43,10 +51,15 @@ import { BranchService } from '../../../features/services/branch/branch-service'
 import { RoleService } from '../../../features/services/role/role-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 // A 21-row file takes ~40s on the server; allow plenty of headroom before
 // treating a silent connection as dead.
 const UPLOAD_TIMEOUT_MS = 180_000;
+
+// How often the bulk upload job status is polled while the server works.
+const UPLOAD_POLL_MS = 1000;
 
 @Component({
   selector: 'app-user',
@@ -56,12 +69,17 @@ const UPLOAD_TIMEOUT_MS = 180_000;
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    A11yModule
+    A11yModule,
+    FieldError,
+    DigitsOnly
   ],
   templateUrl: './user.html',
   styleUrls: ['./user.css']
 })
 export class UserComponent implements OnInit, OnDestroy {
+
+  private confirmDialog = inject(ConfirmService);
+
   Math = Math;
   constructor(
     private fb: FormBuilder,
@@ -109,6 +127,19 @@ export class UserComponent implements OnInit, OnDestroy {
   uploadPhase: 'sending' | 'processing' | null = null;
   uploadPercent = 0;
   uploadElapsed = 0;
+  // Latest job status from User/BulkUpload/{jobId}/status (totalRows,
+  // processedRows, successCount, failedCount, percentComplete, …).
+  uploadJob: any = null;
+  // Final counts from the job, shown in the results badges.
+  uploadSummary: { success: number; failed: number } | null = null;
+  // Set when an upload finishes, so the progress bar stays on screen at
+  // 100% with the outcome instead of vanishing.
+  uploadComplete: {
+    total: number | null;
+    success: number | null;
+    failed: number;
+    completed: boolean;
+  } | null = null;
   private uploadSub: Subscription | null = null;
   private uploadTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -390,27 +421,36 @@ export class UserComponent implements OnInit, OnDestroy {
 
       fullName: [
         '',
-        Validators.required
+        [
+          AppValidators.required,
+          AppValidators.personName,
+          AppValidators.minLength(3),
+          AppValidators.maxLength(100)
+        ]
       ],
 
       email: [
         '',
         [
-          Validators.required,
-          Validators.email
+          AppValidators.required,
+          AppValidators.email,
+          AppValidators.maxLength(100)
         ]
       ],
 
       password: [
         '',
-        Validators.required
+        [
+          AppValidators.required,
+          AppValidators.strongPassword
+        ]
       ],
 
       // IMPORTANT:
       // Backend expects roleName
       roleName: [
         '',
-        Validators.required
+        AppValidators.required
       ],
 
       collegeName: [null],
@@ -419,13 +459,13 @@ export class UserComponent implements OnInit, OnDestroy {
 
       branchName: [null],
 
-      yearNumber: [null],
+      yearNumber: [null, [AppValidators.integer, AppValidators.min(1), AppValidators.max(4)]],
 
-      semester: [null],
+      semester: [null, [AppValidators.integer, AppValidators.min(1), AppValidators.max(8)]],
 
-      phoneNumber: [null],
+      phoneNumber: [null, AppValidators.phone],
 
-      registerNumber: [null],
+      registerNumber: [null, [AppValidators.code, AppValidators.maxLength(20)]],
 
       isActive: [true]
 
@@ -944,10 +984,11 @@ export class UserComponent implements OnInit, OnDestroy {
     /*
      * Password is optional during edit —
      * drop the required validator so a
-     * blank password doesn't block the form.
+     * blank password doesn't block the form,
+     * but a new one must still be strong.
      */
 
-    this.userForm.get('password')?.clearValidators();
+    this.userForm.get('password')?.setValidators([AppValidators.strongPassword]);
     this.userForm.get('password')?.updateValueAndValidity();
 
     /*
@@ -994,7 +1035,7 @@ export class UserComponent implements OnInit, OnDestroy {
         user?.semester ?? null,
 
       phoneNumber:
-        user?.phoneNumber ?? null,
+        normalizePhone(user?.phoneNumber) || null,
 
       registerNumber:
         user?.registerNumber ?? null,
@@ -1153,12 +1194,12 @@ export class UserComponent implements OnInit, OnDestroy {
   // Delete User
   // ==========================
 
-  deleteUser(id: number): void {
+  async deleteUser(id: number): Promise<void> {
 
     if (
-      !confirm(
+      !(await this.confirmDialog.ask(
         'Are you sure you want to delete this user?'
-      )
+      ))
     ) {
 
       return;
@@ -1249,7 +1290,7 @@ export class UserComponent implements OnInit, OnDestroy {
      * password is required again.
      */
 
-    this.userForm.get('password')?.setValidators([Validators.required]);
+    this.userForm.get('password')?.setValidators([AppValidators.required, AppValidators.strongPassword]);
     this.userForm.get('password')?.updateValueAndValidity();
 
     this.editMode = false;
@@ -1727,12 +1768,13 @@ export class UserComponent implements OnInit, OnDestroy {
   // Lock / Unlock Student
   // ==========================
 
-  lockUser(user: any): void {
+  async lockUser(user: any): Promise<void> {
 
     if (
-      !confirm(
-        `Lock "${user?.fullName || user?.email}"? This user will lose access.`
-      )
+      !(await this.confirmDialog.ask(
+        `"${user?.fullName || user?.email}" will lose access until unlocked.`,
+        { title: 'Lock this user?', confirmText: 'Lock' }
+      ))
     ) {
 
       return;
@@ -1743,13 +1785,13 @@ export class UserComponent implements OnInit, OnDestroy {
       .studentlock(user.id, {})
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cdr.markForCheck();
 
 
           user.isLocked = true;
 
-          this.feedback.ok('User locked successfully');
+          this.feedback.ok('User locked successfully', res);
 
           this.cdr.detectChanges();
 
@@ -1772,12 +1814,13 @@ export class UserComponent implements OnInit, OnDestroy {
 
   }
 
-  unlockUser(user: any): void {
+  async unlockUser(user: any): Promise<void> {
 
     if (
-      !confirm(
-        `Unlock "${user?.fullName || user?.email}"?`
-      )
+      !(await this.confirmDialog.ask(
+        `"${user?.fullName || user?.email}" will be able to sign in again.`,
+        { title: 'Unlock this user?', confirmText: 'Unlock', danger: false }
+      ))
     ) {
 
       return;
@@ -1788,13 +1831,13 @@ export class UserComponent implements OnInit, OnDestroy {
       .studentunlock(user.id, {})
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cdr.markForCheck();
 
 
           user.isLocked = false;
 
-          this.feedback.ok('User unlocked successfully');
+          this.feedback.ok('User unlocked successfully', res);
 
           this.cdr.detectChanges();
 
@@ -1953,6 +1996,12 @@ export class UserComponent implements OnInit, OnDestroy {
 
     this.uploadElapsed = 0;
 
+    this.uploadJob = null;
+
+    this.uploadSummary = null;
+
+    this.uploadComplete = null;
+
     this.showUploadResults = false;
 
     this.successUsers = [];
@@ -1977,53 +2026,41 @@ export class UserComponent implements OnInit, OnDestroy {
         // `each` resets on every progress event, so this only fires when
         // the connection goes quiet — not while a big file is sending.
         timeout({ each: UPLOAD_TIMEOUT_MS }),
-        finalize(() => {
-          this.cdr.markForCheck();
+        tap((event: any) => {
 
-
-          this.stopUploadTracking();
-
-        })
-      )
-      .subscribe({
-
-        next: (event: any) => {
-          this.cdr.markForCheck();
-
-
-          if (event.type === HttpEventType.UploadProgress) {
-
-            this.uploadPercent = event.total
-              ? Math.round((100 * event.loaded) / event.total)
-              : 0;
-
-            // Whole file sent — the rest of the wait is the server
-            // creating the users.
-            if (
-              event.total &&
-              event.loaded >= event.total &&
-              this.uploadPhase !== 'processing'
-            ) {
-
-              this.uploadPhase = 'processing';
-
-              this.announce(
-                'File sent. Creating users on the server, this can take a minute or more.'
-              );
-
-            }
-
-            this.cdr.detectChanges();
+          if (event.type !== HttpEventType.UploadProgress) {
 
             return;
 
           }
 
-          if (event.type !== HttpEventType.Response) {
+          this.uploadPercent = event.total
+            ? Math.round((100 * event.loaded) / event.total)
+            : 0;
 
-            return;
+          // Whole file sent — the rest of the wait is the server
+          // creating the users.
+          if (
+            event.total &&
+            event.loaded >= event.total &&
+            this.uploadPhase !== 'processing'
+          ) {
+
+            this.uploadPhase = 'processing';
+
+            this.announce(
+              'File sent. Creating users on the server, this can take a minute or more.'
+            );
 
           }
+
+          this.cdr.detectChanges();
+
+        }),
+        filter((event: any) => event.type === HttpEventType.Response),
+        // File accepted: poll the job status until the server finishes,
+        // emitting each status so the progress bar can follow along.
+        switchMap((event: any) => {
 
           const res = event.body;
 
@@ -2032,7 +2069,9 @@ export class UserComponent implements OnInit, OnDestroy {
             res
           );
 
-          const uploadId =
+          const jobId =
+            res?.data?.jobId ??
+            res?.jobId ??
             res?.uploadId ??
             res?.data?.uploadId ??
             res?.id ??
@@ -2049,22 +2088,103 @@ export class UserComponent implements OnInit, OnDestroy {
 
           }
 
-          this.loadUsers();
+          if (!jobId) {
 
-          if (uploadId) {
-
-            this.uploadId = uploadId;
-
-            this.loadUploadResults(
-              uploadId
-            );
+            return of(null);
 
           }
-          else {
+
+          this.uploadId = jobId;
+
+          this.uploadPhase = 'processing';
+
+          return timer(0, UPLOAD_POLL_MS).pipe(
+            exhaustMap(() =>
+              this.userService
+                .progress(jobId)
+                // Ride out a brief network blip instead of losing the job.
+                .pipe(retry({ count: 3, delay: UPLOAD_POLL_MS }))
+            ),
+            map((statusRes: any) => statusRes?.data ?? statusRes),
+            takeWhile((job: any) => !this.isJobDone(job), true)
+          );
+
+        }),
+        finalize(() => {
+          this.cdr.markForCheck();
+
+
+          this.stopUploadTracking();
+
+        })
+      )
+      .subscribe({
+
+        next: (job: any) => {
+          this.cdr.markForCheck();
+
+
+          // No job id in the upload response — nothing to track.
+          if (!job) {
+
+            this.uploadComplete = {
+              total: null,
+              success: null,
+              failed: 0,
+              completed: true
+            };
+
+            this.loadUsers();
 
             this.uploadFeedback.ok('Users uploaded successfully');
 
+            return;
+
           }
+
+          this.uploadJob = job;
+
+          this.cdr.detectChanges();
+
+          if (!this.isJobDone(job)) {
+
+            return;
+
+          }
+
+          const result = job.result;
+
+          this.uploadSummary = {
+            success: result?.success ?? job.successCount ?? 0,
+            failed: result?.failed ?? job.failedCount ?? 0
+          };
+
+          const completed =
+            String(job.status).toLowerCase() === 'completed';
+
+          this.uploadComplete = {
+            total:
+              job.totalRows ??
+              this.uploadSummary.success + this.uploadSummary.failed,
+            success: this.uploadSummary.success,
+            failed: this.uploadSummary.failed,
+            completed
+          };
+
+          if (!completed) {
+
+            this.uploadFeedback.fail(
+              job.message || 'Bulk upload did not complete.'
+            );
+
+          }
+
+          this.loadUsers();
+
+          this.loadUploadResults(
+            this.uploadId as string,
+            result?.errors
+          );
 
         },
 
@@ -2125,6 +2245,114 @@ export class UserComponent implements OnInit, OnDestroy {
 
   }
 
+  // A job with no status is treated as finished so an unexpected
+  // response shape can't leave the page polling forever.
+  private isJobDone(job: any): boolean {
+
+    const status = String(job?.status ?? '').toLowerCase();
+
+    return !['pending', 'queued', 'processing', 'inprogress', 'running']
+      .includes(status);
+
+  }
+
+  // Percent of rows the server has processed so far.
+  get uploadJobPercent(): number {
+
+    const job = this.uploadJob;
+
+    if (!job) {
+
+      return 0;
+
+    }
+
+    const percent =
+      job.percentComplete ??
+      (job.totalRows ? (100 * (job.processedRows ?? 0)) / job.totalRows : 0);
+
+    return Math.min(100, Math.max(0, Math.round(percent)));
+
+  }
+
+  // Overall result of the finished upload, drives the summary card's look.
+  get uploadOutcome(): 'success' | 'partial' | 'failed' {
+
+    const done = this.uploadComplete;
+
+    if (!done || (done.completed && !done.failed)) {
+
+      return 'success';
+
+    }
+
+    return done.success ? 'partial' : 'failed';
+
+  }
+
+  // Share of rows created / rejected, for the split bar on the summary card.
+  get uploadSuccessPercent(): number {
+
+    const done = this.uploadComplete;
+
+    if (!done || done.success === null) {
+
+      return 100;
+
+    }
+
+    const total = done.total || done.success + done.failed;
+
+    return total ? Math.round((100 * done.success) / total) : 0;
+
+  }
+
+  get uploadFailedPercent(): number {
+
+    const done = this.uploadComplete;
+
+    if (!done || done.success === null) {
+
+      return 0;
+
+    }
+
+    const total = done.total || done.success + done.failed;
+
+    return total ? Math.round((100 * done.failed) / total) : 0;
+
+  }
+
+  // The status API reports failures as "email - reason" strings.
+  private parseUploadErrors(errors: any): any[] {
+
+    if (!Array.isArray(errors)) {
+
+      return [];
+
+    }
+
+    return errors.map((error: any) => {
+
+      const text = String(error ?? '');
+
+      const index = text.indexOf(' - ');
+
+      if (index === -1) {
+
+        return { email: null, reason: text.trim() };
+
+      }
+
+      return {
+        email: text.slice(0, index).trim() || null,
+        reason: text.slice(index + 3).trim()
+      };
+
+    });
+
+  }
+
   private stopUploadTracking(): void {
 
     if (this.uploadTimer) {
@@ -2181,8 +2409,11 @@ export class UserComponent implements OnInit, OnDestroy {
   // Load Bulk Upload Results
   // ==========================
 
+  // `errors` are the job status's "email - reason" strings, used for the
+  // failed list when the failed endpoint returns no rows.
   loadUploadResults(
-    uploadId: string
+    uploadId: string,
+    errors?: any
   ): void {
 
     this.uploadResultsLoading = true;
@@ -2232,9 +2463,15 @@ export class UserComponent implements OnInit, OnDestroy {
               res.failed
             );
 
+          if (!this.failedUsers.length) {
+
+            this.failedUsers = this.parseUploadErrors(errors);
+
+          }
+
           this.announce(
-            `Upload finished. ${this.successUsers.length} users created, ` +
-            `${this.failedUsers.length} failed.`
+            `Upload finished. ${this.uploadSummary?.success ?? this.successUsers.length} users created, ` +
+            `${this.uploadSummary?.failed ?? this.failedUsers.length} failed.`
           );
 
         },
@@ -2250,7 +2487,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
           this.successUsers = [];
 
-          this.failedUsers = [];
+          this.failedUsers = this.parseUploadErrors(errors);
 
         }
 
@@ -2297,6 +2534,10 @@ export class UserComponent implements OnInit, OnDestroy {
     this.successUsers = [];
 
     this.failedUsers = [];
+
+    this.uploadSummary = null;
+
+    this.uploadJob = null;
 
     this.uploadId = null;
 

@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { YearService } from '../../../features/services/year/year-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-year',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./year.css']
 })
 export class Year implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -64,9 +69,9 @@ export class Year implements OnInit {
 
     this.yearForm = this.fb.group({
 
-      yearNumber: ['', Validators.required],
+      yearNumber: ['', [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(10)]],
 
-      semester: ['', Validators.required]
+      semester: ['', [AppValidators.required]]
 
     });
 
@@ -310,7 +315,7 @@ export class Year implements OnInit {
   // Delete
   //==============================
 
-  deleteYear(id: number): void {
+  async deleteYear(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_YEAR')) {
 
@@ -320,7 +325,7 @@ export class Year implements OnInit {
 
     }
 
-    if (!confirm('Delete this Year?')) {
+    if (!(await this.confirmDialog.ask('Delete this Year?'))) {
 
       return;
 
@@ -328,11 +333,11 @@ export class Year implements OnInit {
 
     this.api.deleteYear(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Year deleted successfully');
+        this.feedback.ok('Year deleted successfully', res);
 
         this.loadYears();
 

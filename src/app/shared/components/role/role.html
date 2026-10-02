@@ -195,17 +195,11 @@
 
           <input
             type="text"
-            formControlName="name"
+            formControlName="name" maxlength="50"
             placeholder="Enter Role Name"
             class="dlg-input">
 
-          <p
-            class="dlg-error"
-            *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched">
-
-            Role Name is required.
-
-          </p>
+          <app-field-error [control]="roleForm.get('name')" label="Role name" />
 
         </div>
 

@@ -64,6 +64,9 @@ uploadUsers(file: File) {
   return this.api.POSTWithProgress('User/BulkUpload', formData);
 
 }
+progress(jobId: string) {
+  return this.api.GET(`User/BulkUpload/${jobId}/status`);
+}
 successusers(uploadId: string) {
   return this.api.GET(`User/BulkUpload/${uploadId}/success`);
 }

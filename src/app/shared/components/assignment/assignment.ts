@@ -4,7 +4,7 @@ import {
   Inject,
   PLATFORM_ID,
   ChangeDetectorRef, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -25,12 +25,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { AssignmentService } from '../../../features/services/assignment/assignment-service';
 import { Feedback } from '../../feedback/feedback';
+import { AppValidators, FieldError } from '../../validation';
 
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-assignment',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -38,6 +41,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./assignment.css']
 })
 export class AssignmentComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -67,31 +73,31 @@ export class AssignmentComponent implements OnInit {
 
     this.assignmentForm = this.fb.group({
 
-      title: ['', Validators.required],
+      title: ['', [AppValidators.required, AppValidators.minLength(3), AppValidators.maxLength(150)]],
 
-      description: [''],
+      description: ['', [AppValidators.maxLength(2000)]],
 
-      questionId: ['', Validators.required],
+      questionId: ['', [AppValidators.required, AppValidators.maxLength(50)]],
 
-      platform: ['', Validators.required],
+      platform: ['', [AppValidators.required]],
 
-      difficulty: ['', Validators.required],
+      difficulty: ['', [AppValidators.required]],
 
-      score: [1, Validators.required],
+      score: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(1000)]],
 
-      languageSupport: [''],
+      languageSupport: ['', [AppValidators.maxLength(200)]],
 
-      iframeUrl: [''],
+      iframeUrl: ['', [AppValidators.url, AppValidators.maxLength(500)]],
 
-      timeLimit: [1, Validators.required],
+      timeLimit: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(600)]],
 
-      memoryLimit: [1, Validators.required],
+      memoryLimit: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(4096)]],
 
       isActive: [true],
 
-      contestId: [null],
+      contestId: [null, [AppValidators.maxLength(50)]],
 
-      challengeUrl: [''],
+      challengeUrl: ['', [AppValidators.url, AppValidators.maxLength(500)]],
 
       testCases: this.fb.array([this.createTestCase(true)])
 
@@ -355,23 +361,23 @@ export class AssignmentComponent implements OnInit {
   // DELETE
   //=========================
 
-  deleteAssignment(id: number): void {
+  async deleteAssignment(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_ASSIGNMENT')) {
       this.feedback.fail('You do not have permission to perform this action.');
       return;
     }
 
-    if (!confirm('Delete Assignment?')) return;
+    if (!(await this.confirmDialog.ask('Delete Assignment?'))) return;
 
     this.api.deleteAssign(id)
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cd.markForCheck();
 
 
-          this.feedback.ok('Assignment deleted successfully');
+          this.feedback.ok('Assignment deleted successfully', res);
 
           this.loadAssignments();
 

@@ -219,10 +219,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && collegeDepartmentForm.get('collegeName')?.invalid">
-                        College is required
-                    </p>
+                    <app-field-error [control]="collegeDepartmentForm.get('collegeName')" label="College" />
                 </div>
 
                 <div class="dlg-field">
@@ -244,10 +241,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && collegeDepartmentForm.get('departmentName')?.invalid">
-                        Department is required
-                    </p>
+                    <app-field-error [control]="collegeDepartmentForm.get('departmentName')" label="Department" />
                 </div>
 
             </form>

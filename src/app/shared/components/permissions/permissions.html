@@ -181,13 +181,10 @@
           </label>
           <input
             type="text"
-            formControlName="name"
+            formControlName="name" maxlength="100"
             placeholder="VIEW_COLLEGE"
             class="dlg-input">
-          <p class="dlg-error"
-             *ngIf="permissionForm.get('name')?.invalid && permissionForm.get('name')?.touched">
-            Permission name is required
-          </p>
+          <app-field-error [control]="permissionForm.get('name')" label="Permission name" />
         </div>
 
         <div class="dlg-field">
@@ -196,13 +193,10 @@
           </label>
           <input
             type="text"
-            formControlName="code"
+            formControlName="code" maxlength="50"
             placeholder="VIEW_COLLEGE"
             class="dlg-input">
-          <p class="dlg-error"
-             *ngIf="permissionForm.get('code')?.invalid && permissionForm.get('code')?.touched">
-            Permission code is required
-          </p>
+          <app-field-error [control]="permissionForm.get('code')" label="Permission code" />
         </div>
 
       </form>

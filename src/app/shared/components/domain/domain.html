@@ -406,13 +406,10 @@
           </label>
           <input
             type="text"
-            formControlName="name"
+            formControlName="name" maxlength="100"
             placeholder="e.g. Web Development"
             class="dlg-input">
-          <p class="dlg-error"
-             *ngIf="domainForm.get('name')?.invalid && domainForm.get('name')?.touched">
-            Domain name is required
-          </p>
+          <app-field-error [control]="domainForm.get('name')" label="Domain name" />
         </div>
 
         <div class="dlg-field">
@@ -421,13 +418,10 @@
           </label>
           <textarea
             rows="3"
-            formControlName="description"
+            formControlName="description" maxlength="1000"
             placeholder="Describe what this domain covers..."
             class="dlg-input"></textarea>
-          <p class="dlg-error"
-             *ngIf="domainForm.get('description')?.invalid && domainForm.get('description')?.touched">
-            Description is required
-          </p>
+          <app-field-error [control]="domainForm.get('description')" label="Description" />
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-4">
@@ -442,6 +436,7 @@
               formControlName="eligibleFromYear"
               placeholder="1"
               class="dlg-input">
+            <app-field-error [control]="domainForm.get('eligibleFromYear')" label="Eligible from year" />
           </div>
 
           <div>
@@ -454,6 +449,8 @@
               formControlName="eligibleToYear"
               placeholder="4"
               class="dlg-input">
+            <app-field-error [control]="domainForm.get('eligibleToYear')" label="Eligible to year"
+              [messages]="{ range: 'Eligible to year must be the same as or later than eligible from year.' }" />
           </div>
 
         </div>

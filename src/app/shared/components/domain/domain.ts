@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { DomainServices } from '../../../features/services/domain/domain-services';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-domain',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./domain.css']
 })
 export class DomainComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -65,12 +70,12 @@ export class DomainComponent implements OnInit {
   ngOnInit(): void {
 
     this.domainForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      eligibleFromYear: [1, Validators.required],
-      eligibleToYear: [1, Validators.required],
+      name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(2), AppValidators.maxLength(100)]],
+      description: ['', [AppValidators.required, AppValidators.minLength(10), AppValidators.maxLength(1000)]],
+      eligibleFromYear: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(10)]],
+      eligibleToYear: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(10)]],
       isActive: [true]
-    });
+    }, { validators: AppValidators.range('eligibleFromYear', 'eligibleToYear') });
 
     if (!isPlatformBrowser(this.platformId)) return;
 
@@ -268,22 +273,22 @@ export class DomainComponent implements OnInit {
   // DELETE
   //=============================
 
-  deleteDomain(id: number): void {
+  async deleteDomain(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_DOMAIN')) {
       this.feedback.fail('You do not have permission to perform this action.');
       return;
     }
 
-    if (!confirm('Delete this Domain?')) return;
+    if (!(await this.confirmDialog.ask('Delete this Domain?'))) return;
 
     this.api.deleteDomain(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Domain deleted successfully');
+        this.feedback.ok('Domain deleted successfully', res);
 
         this.loadDomains();
 

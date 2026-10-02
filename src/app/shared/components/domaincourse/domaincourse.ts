@@ -4,7 +4,7 @@ import {
   Inject,
   PLATFORM_ID,
   ChangeDetectorRef, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -27,12 +26,15 @@ import { DomaincourseService } from '../../../features/services/domaincourse/dom
 import { DomainServices } from '../../../features/services/domain/domain-services';
 import { CourseService } from '../../../features/services/course/course-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-domaincoursemap',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -42,6 +44,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./domaincourse.css']
 })
 export class DomainCourseMapComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -102,13 +107,13 @@ export class DomainCourseMapComponent implements OnInit {
 
     this.domainCourseForm = this.fb.group({
 
-      domainName: ['', Validators.required],
+      domainName: ['', [AppValidators.required]],
 
-      courseName: ['', Validators.required],
+      courseName: ['', [AppValidators.required]],
 
-      yearNumber: [1, [Validators.required, Validators.min(1)]],
+      yearNumber: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(10)]],
 
-      semester: [1, [Validators.required, Validators.min(1)]]
+      semester: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(2)]]
 
     });
 
@@ -328,20 +333,20 @@ export class DomainCourseMapComponent implements OnInit {
   // DELETE
   //========================
 
-  delete(id: number) {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_DOMAIN_COURSE_MAP')) return;
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.api.deleteDomaincourse(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
         this.loadMappings();
-        this.feedback.ok('Mapping deleted successfully');
+        this.feedback.ok('Mapping deleted successfully', res);
 
       },
 

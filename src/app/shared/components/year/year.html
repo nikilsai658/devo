@@ -197,13 +197,7 @@
                         placeholder="Enter Year Number"
                         class="dlg-input">
 
-                    <p
-                        class="dlg-error"
-                        *ngIf="yearForm.get('yearNumber')?.invalid && yearForm.get('yearNumber')?.touched">
-
-                        Year Number is required
-
-                    </p>
+                    <app-field-error [control]="yearForm.get('yearNumber')" label="Year number" />
 
                 </div>
 
@@ -227,13 +221,7 @@
 
                     </select>
 
-                    <p
-                        class="dlg-error"
-                        *ngIf="yearForm.get('semester')?.invalid && yearForm.get('semester')?.touched">
-
-                        Semester is required
-
-                    </p>
+                    <app-field-error [control]="yearForm.get('semester')" label="Semester" />
 
                 </div>
 

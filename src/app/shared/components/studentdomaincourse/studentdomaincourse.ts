@@ -4,7 +4,7 @@ import {
   Inject,
   PLATFORM_ID,
   ChangeDetectorRef, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -26,12 +25,15 @@ import { Auth } from '../../../core/auth/auth';
 import { StudentdomaincoursemapService } from '../../../features/services/studentdomaincourse/studentdomaincoursemap-ser';
 import { DomainServices } from '../../../features/services/domain/domain-services';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-studentdomainmap',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -41,6 +43,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./studentdomaincourse.css']
 })
 export class StudentDomainMapComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -103,9 +108,9 @@ export class StudentDomainMapComponent implements OnInit {
 
     this.studentDomainForm = this.fb.group({
 
-      studentEmail: ['', Validators.required],
+      studentEmail: ['', [AppValidators.required, AppValidators.email, AppValidators.maxLength(100)]],
 
-      domainName: ['', Validators.required]
+      domainName: ['', [AppValidators.required]]
 
     });
 
@@ -242,22 +247,22 @@ export class StudentDomainMapComponent implements OnInit {
   // DELETE
   //============================
 
-  delete(id: number) {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_STUDENT_DOMAIN_COURSE_MAP')) return;
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.api.deleteStudentdomaincoursemap(id)
 
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cd.markForCheck();
 
 
           this.loadMappings();
-          this.feedback.ok('Mapping deleted successfully');
+          this.feedback.ok('Mapping deleted successfully', res);
 
         },
 

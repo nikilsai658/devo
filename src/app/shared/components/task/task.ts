@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { TaskService } from '../../../features/services/task/task-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-task',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./task.css']
 })
 export class Task implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -67,10 +72,8 @@ export class Task implements OnInit {
     // Create Form
     this.taskForm = this.fb.group({
 
-      title: ['', Validators.required],
-
-      question: ['', Validators.required],
-
+      title: ['', [AppValidators.required, AppValidators.minLength(3), AppValidators.maxLength(150)]],
+      question: ['', [AppValidators.required, AppValidators.minLength(5), AppValidators.maxLength(2000)]],
       isActive: [true]
 
     });
@@ -326,7 +329,7 @@ export class Task implements OnInit {
   // Delete Task
   //=====================================
 
-  deleteTask(id: number): void {
+  async deleteTask(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_TASK')) {
 
@@ -336,7 +339,7 @@ export class Task implements OnInit {
 
     }
 
-    if (!confirm('Are you sure you want to delete this task?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this task?'))) {
 
       return;
 
@@ -344,11 +347,11 @@ export class Task implements OnInit {
 
     this.api.deleteTask(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Task deleted successfully');
+        this.feedback.ok('Task deleted successfully', res);
 
         this.loadTasks();
 

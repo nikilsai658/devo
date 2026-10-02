@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -28,12 +27,14 @@ import { CollegeService } from '../../../features/services/college/college-servi
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { Feedback } from '../../feedback/feedback';
+import { AppValidators, FieldError } from '../../validation';
 
 @Component({
   selector: 'app-year-updation',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -102,9 +103,9 @@ export class YearUpdation implements OnInit {
 
     this.promoteForm = this.fb.group({
 
-      fromYearId: ['', Validators.required],
+      fromYearId: ['', [AppValidators.required, AppValidators.integer, AppValidators.min(1)]],
 
-      toYearId: ['', Validators.required],
+      toYearId: ['', [AppValidators.required, AppValidators.integer, AppValidators.min(1)]],
 
       collegeName: [''],
 
@@ -114,7 +115,7 @@ export class YearUpdation implements OnInit {
 
       branchId: [null]
 
-    });
+    }, { validators: AppValidators.differentFrom('fromYearId', 'toYearId') });
 
     this.singlePromoteForm = this.fb.group({
 
@@ -122,11 +123,11 @@ export class YearUpdation implements OnInit {
 
       collegeCode: [''],
 
-      studentEmail: ['', [Validators.required, Validators.email]],
+      studentEmail: ['', [AppValidators.required, AppValidators.email, AppValidators.maxLength(100)]],
 
-      domainName: ['', Validators.required],
+      domainName: ['', AppValidators.required],
 
-      toYearId: ['', Validators.required]
+      toYearId: ['', [AppValidators.required, AppValidators.integer, AppValidators.min(1)]]
 
     });
 

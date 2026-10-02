@@ -269,13 +269,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="studentEmail"
+                        formControlName="studentEmail" maxlength="100"
                         placeholder="student@example.com"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="submitted && studentDomainForm.get('studentEmail')?.invalid">
-                        Student email is required
-                    </p>
+                    <app-field-error [control]="studentDomainForm.get('studentEmail')" label="Student email" />
                 </div>
 
                 <div class="dlg-field">
@@ -297,10 +294,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && studentDomainForm.get('domainName')?.invalid">
-                        Domain is required
-                    </p>
+                    <app-field-error [control]="studentDomainForm.get('domainName')" label="Domain" />
                 </div>
 
             </form>

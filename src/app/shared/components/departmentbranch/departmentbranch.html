@@ -219,10 +219,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && departmentBranchForm.get('departmentName')?.invalid">
-                        Department is required
-                    </p>
+                    <app-field-error [control]="departmentBranchForm.get('departmentName')" label="Department" />
                 </div>
 
                 <div class="dlg-field">
@@ -244,10 +241,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && departmentBranchForm.get('branchName')?.invalid">
-                        Branch is required
-                    </p>
+                    <app-field-error [control]="departmentBranchForm.get('branchName')" label="Branch" />
                 </div>
 
             </form>

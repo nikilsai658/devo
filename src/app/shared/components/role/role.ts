@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { RoleService } from '../../../features/services/role/role-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-role',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./role.css']
 })
 export class Role implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -62,7 +67,7 @@ export class Role implements OnInit {
 
     // Initialize form here
    this.roleForm = this.fb.group({
-  name: ['', Validators.required],
+  name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(2), AppValidators.maxLength(50)]],
   requiresCollege: [true],
   requiresDepartment: [true],
   requiresBranch: [true],
@@ -271,24 +276,24 @@ export class Role implements OnInit {
   // Delete Role
   //==============================
 
-  deleteRole(id: number): void {
+  async deleteRole(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_ROLE')) {
       this.feedback.fail('You do not have permission to delete Role.');
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this Role?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this Role?'))) {
       return;
     }
 
     this.api.deleteRole(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Role deleted successfully');
+        this.feedback.ok('Role deleted successfully', res);
 
         this.loadRoles();
 

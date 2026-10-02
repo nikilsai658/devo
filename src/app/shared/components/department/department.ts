@@ -1,21 +1,26 @@
-import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, ChangeDetectionStrategy  } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, ChangeDetectionStrategy  , inject } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/auth/auth';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CookieService } from 'ngx-cookie-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-department',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone:true,
-  imports: [CommonModule,ReactiveFormsModule],
+  imports: [FieldError, CommonModule,ReactiveFormsModule],
   templateUrl: './department.html',
   styleUrl: './department.css',
 })
 export class Department {
+
+  private confirmDialog = inject(ConfirmService);
+
     departments: any[] = [];
 
   departmentForm!: FormGroup;
@@ -44,8 +49,8 @@ export class Department {
   ngOnInit(): void {
 
     this.departmentForm = this.fb.group({
-      name: ['', Validators.required],
-      code: ['', Validators.required]
+      name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(2), AppValidators.maxLength(100)]],
+      code: ['', [AppValidators.required, AppValidators.code, AppValidators.minLength(2), AppValidators.maxLength(20)]]
     });
 
     if (!isPlatformBrowser(this.platformId)) {
@@ -267,19 +272,19 @@ loadDepartments(): void {
   // Delete
   //=====================================
 
-  deleteDepartment(id: number): void {
+  async deleteDepartment(id: number): Promise<void> {
 
-    if (!confirm('Are you sure you want to delete this department?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this department?'))) {
       return;
     }
 
     this.api.deleteDepartment(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Department deleted successfully');
+        this.feedback.ok('Department deleted successfully', res);
 
         this.loadDepartments();
 

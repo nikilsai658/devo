@@ -185,17 +185,11 @@
 
           <input
             type="text"
-            formControlName="name"
+            formControlName="name" maxlength="100"
             placeholder="Enter Course Name"
             class="dlg-input">
 
-          <p
-            class="dlg-error"
-            *ngIf="courseForm.get('name')?.touched && courseForm.get('name')?.invalid">
-
-            Course Name is required
-
-          </p>
+          <app-field-error [control]="courseForm.get('name')" label="Course name" />
 
         </div>
 
@@ -209,17 +203,11 @@
 
           <textarea
             rows="4"
-            formControlName="description"
+            formControlName="description" maxlength="1000"
             placeholder="Enter Description"
             class="dlg-input"></textarea>
 
-          <p
-            class="dlg-error"
-            *ngIf="courseForm.get('description')?.touched && courseForm.get('description')?.invalid">
-
-            Description is required
-
-          </p>
+          <app-field-error [control]="courseForm.get('description')" label="Description" />
 
         </div>
 

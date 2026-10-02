@@ -8,10 +8,11 @@ import { PasswordModule } from 'primeng/password';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ActivatedRoute, Router } from '@angular/router';
 import {AuthServices} from '../../services/auth/auth-services';
+import { AppValidators, FieldError } from '../../../shared/validation';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [ReactiveFormsModule,CommonModule,Logo,InputTextModule,ButtonModule,PasswordModule,FloatLabelModule],
+  imports: [ReactiveFormsModule,CommonModule,Logo,InputTextModule,ButtonModule,PasswordModule,FloatLabelModule,FieldError],
   templateUrl: './reset-password.html',
   styleUrls: ['./reset-password.css', '../auth-responsive.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -24,10 +25,10 @@ export class ResetPassword implements OnInit {
   messageType: 'success' | 'error' = 'error';
   constructor(private router:Router,private auth:AuthServices , private fb:FormBuilder, private route:ActivatedRoute,private cd: ChangeDetectorRef,@Inject(PLATFORM_ID) private platformId: Object){
     this.Form=this.fb.group({
-      newPassword:['',Validators.required],
-      confirmPassword:['',Validators.required],
+      newPassword:['',[AppValidators.required, AppValidators.strongPassword]],
+      confirmPassword:['',AppValidators.required],
       CollegeCode:['',Validators.required]
-    })
+    }, { validators: AppValidators.matchFields('newPassword', 'confirmPassword') })
   }
  
    userId!:string;
@@ -80,7 +81,7 @@ export class ResetPassword implements OnInit {
     this.Form.markAllAsTouched();
 
     this.messageType = 'error';
-    this.message = 'Please fill the form';
+    this.message = 'Please correct the highlighted fields and try again.';
     this.cd.markForCheck();
    }
   }

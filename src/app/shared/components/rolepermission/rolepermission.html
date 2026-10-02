@@ -326,10 +326,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && rolePermissionForm.get('roleName')?.invalid">
-                        Role is required
-                    </p>
+                    <app-field-error [control]="rolePermissionForm.get('roleName')" label="Role" />
                 </div>
 
                 <div class="dlg-field">
@@ -351,10 +348,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && rolePermissionForm.get('permissionCode')?.invalid">
-                        Permission is required
-                    </p>
+                    <app-field-error [control]="rolePermissionForm.get('permissionCode')" label="Permission" />
                 </div>
 
                 <div class="dlg-field">

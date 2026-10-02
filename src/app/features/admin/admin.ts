@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ElementRef, ViewChild, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ElementRef, ViewChild, DestroyRef, ChangeDetectionStrategy , inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -25,6 +25,9 @@ import { CourseAssignmentMapComponent } from '../../shared/components/courseassi
 import { StudentDomainMapComponent } from '../../shared/components/studentdomaincourse/studentdomaincourse';
 import { RolePermissionComponent } from '../../shared/components/rolepermission/rolepermission';
 import { UserComponent } from '../../shared/components/user/user';
+import { ConfirmService } from '../../shared/components/confirm-dailog/confirm';
+import { ToastService } from '../../shared/toast/toast';
+import { extractSuccessMessage } from '../../shared/feedback/feedback';
 import { Department } from "../../shared/components/department/department";
 import { StudentAssignment } from "../../shared/components/studentassignment/studentassignment";
 @Component({
@@ -59,6 +62,10 @@ import { StudentAssignment } from "../../shared/components/studentassignment/stu
   styleUrls: ['./admin.css']
 })
 export class Admin implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+  private toast = inject(ToastService);
+
 
   departments: any[] = [];
 
@@ -198,7 +205,7 @@ loadDepartments(): void {
 
         console.log(res);
 
-        alert('Department Created Successfully');
+        this.toast.success('Department created successfully');
 
         this.departmentForm.reset();
 
@@ -263,7 +270,7 @@ loadDepartments(): void {
         this.cd.markForCheck();
 
 
-        alert('Department Updated Successfully');
+        this.toast.success('Department updated successfully');
 
         this.departmentForm.reset();
 
@@ -291,19 +298,19 @@ loadDepartments(): void {
   // Delete
   //=====================================
 
-  deleteDepartment(id: number): void {
+  async deleteDepartment(id: number): Promise<void> {
 
-    if (!confirm('Are you sure you want to delete this department?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this department?'))) {
       return;
     }
 
     this.api.deleteDepartment(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        alert('Department Deleted Successfully');
+        this.toast.success(extractSuccessMessage(res) ?? 'Department deleted successfully');
 
         this.loadDepartments();
 

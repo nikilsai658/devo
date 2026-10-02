@@ -43,14 +43,7 @@
                             formControlName="fromYearId"
                             placeholder="Enter From Year Id"
                             class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
-
-                        <small
-                            class="text-rose-400"
-                            *ngIf="submitted && promoteForm.get('fromYearId')?.invalid">
-
-                            From Year is required
-
-                        </small>
+                        <app-field-error [control]="promoteForm.get('fromYearId')" label="From year" />
 
                     </div>
 
@@ -67,14 +60,8 @@
                             formControlName="toYearId"
                             placeholder="Enter To Year Id"
                             class="mt-2 w-full border rounded-lg p-3 focus:ring-2 focus:ring-(--accent) outline-none border-white/10 bg-black text-white placeholder:text-zinc-600">
-
-                        <small
-                            class="text-rose-400"
-                            *ngIf="submitted && promoteForm.get('toYearId')?.invalid">
-
-                            To Year is required
-
-                        </small>
+                        <app-field-error [control]="promoteForm.get('toYearId')" label="To year"
+                            [messages]="{ sameAsOld: 'To year must be different from the from year.' }" />
 
                     </div>
 

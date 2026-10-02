@@ -9,10 +9,11 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthServices } from '../../services/auth/auth-services';
+import { AppValidators, FieldError } from '../../../shared/validation';
 @Component({
   selector: 'app-forgot-password',
   standalone:true,
-  imports: [Logo,FloatLabelModule,FormsModule,InputTextModule,ButtonModule,PasswordModule,CommonModule,ReactiveFormsModule,RouterLink],
+  imports: [Logo,FloatLabelModule,FormsModule,InputTextModule,ButtonModule,PasswordModule,CommonModule,ReactiveFormsModule,RouterLink,FieldError],
   templateUrl: './forgot-password.html',
   styleUrls: ['./forgot-password.css', '../auth-responsive.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -25,7 +26,7 @@ export class ForgotPassword implements OnInit {
    messageType: 'success' | 'error' = 'error';
     constructor(private auth:AuthServices,private fb:FormBuilder,private router:Router,private cd: ChangeDetectorRef,@Inject(PLATFORM_ID) private platformId: Object){
       this.Form=this.fb.group({
-        email:['', Validators.required],
+        email:['', [AppValidators.required, AppValidators.email]],
         collegeCode:['', Validators.required]
       })
     }
@@ -63,7 +64,7 @@ export class ForgotPassword implements OnInit {
       this.Form.markAllAsTouched();
 
       this.messageType = 'error';
-      this.message = 'Please fill the form';
+      this.message = 'Please correct the highlighted fields and try again.';
       this.cd.markForCheck();
     }
    }

@@ -126,13 +126,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="name"
+                        formControlName="name" maxlength="100"
                         placeholder="e.g. Computer Science"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="departmentForm.get('name')?.invalid && departmentForm.get('name')?.touched">
-                        Department name is required
-                    </p>
+                    <app-field-error [control]="departmentForm.get('name')" label="Department name" />
                 </div>
 
                 <div class="dlg-field">
@@ -141,13 +138,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="code"
+                        formControlName="code" maxlength="20"
                         placeholder="e.g. CSE"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="departmentForm.get('code')?.invalid && departmentForm.get('code')?.touched">
-                        Department code is required
-                    </p>
+                    <app-field-error [control]="departmentForm.get('code')" label="Department code" />
                 </div>
 
             </form>

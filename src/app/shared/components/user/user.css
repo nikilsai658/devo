@@ -326,6 +326,125 @@
   }
 }
 
+/* ==========================
+   UPLOAD SUMMARY CARD
+========================== */
+
+.upload-summary {
+  --tone: var(--color-emerald-400, #34d399);
+  @apply mx-6 mb-6 flex flex-col gap-4 rounded-xl border p-4 sm:p-5;
+  border-color: color-mix(in oklab, var(--tone) 30%, transparent);
+  background: color-mix(in oklab, var(--tone) 7%, transparent);
+  animation: upload-summary-in 0.25s ease-out;
+}
+
+.upload-summary-partial {
+  --tone: var(--color-amber-400, #fbbf24);
+}
+
+.upload-summary-failed {
+  --tone: var(--color-rose-400, #fb7185);
+}
+
+@keyframes upload-summary-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.upload-summary-header {
+  @apply flex items-start gap-3;
+}
+
+.upload-summary-icon {
+  @apply flex h-10 w-10 shrink-0 items-center justify-center
+    rounded-full text-lg font-bold;
+  color: var(--tone);
+  background: color-mix(in oklab, var(--tone) 15%, transparent);
+}
+
+.upload-summary-heading {
+  @apply min-w-0 flex-1;
+}
+
+.upload-summary-title {
+  @apply text-base font-semibold sm:text-lg;
+  color: var(--tone);
+}
+
+.upload-summary-subtitle {
+  @apply mt-0.5 text-sm text-zinc-400;
+}
+
+.upload-summary-time {
+  @apply tabular-nums text-zinc-500;
+}
+
+.upload-summary-close {
+  @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+    text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200;
+}
+
+.upload-summary-stats {
+  @apply grid grid-cols-3 gap-2 sm:gap-3;
+}
+
+.upload-stat {
+  @apply flex flex-col gap-0.5 rounded-lg border border-white/10
+    bg-white/5 px-3 py-2.5 sm:px-4 sm:py-3;
+}
+
+.upload-stat-label {
+  @apply text-xs font-medium uppercase tracking-wide text-zinc-500;
+}
+
+.upload-stat-value {
+  @apply text-xl font-semibold tabular-nums text-zinc-100 sm:text-2xl;
+}
+
+.upload-stat-percent {
+  @apply text-xs tabular-nums text-zinc-500;
+}
+
+.upload-stat-success .upload-stat-value {
+  @apply text-emerald-400;
+}
+
+.upload-stat-failed .upload-stat-value {
+  @apply text-rose-400;
+}
+
+.upload-summary-bar {
+  @apply flex h-2.5 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.upload-summary-bar-success {
+  @apply h-full bg-emerald-500 transition-[width] duration-500;
+}
+
+.upload-summary-bar-failed {
+  @apply h-full bg-rose-500 transition-[width] duration-500;
+}
+
+@media (max-width: 400px) {
+  .upload-summary {
+    @apply mx-4;
+  }
+
+  .upload-summary-stats {
+    @apply grid-cols-1;
+  }
+
+  .upload-stat {
+    @apply flex-row items-baseline justify-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-summary {
+    animation: none;
+  }
+}
+
 .upload-progress .cancel-btn {
   @apply self-start;
 }

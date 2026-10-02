@@ -202,13 +202,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="title"
+                        formControlName="title" maxlength="150"
                         placeholder="e.g. Prepare monthly report"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="taskForm.get('title')?.invalid && taskForm.get('title')?.touched">
-                        Task title is required
-                    </p>
+                    <app-field-error [control]="taskForm.get('title')" label="Task title" />
                 </div>
 
                 <div class="dlg-field">
@@ -217,13 +214,10 @@
                     </label>
                     <textarea
                         rows="4"
-                        formControlName="question"
+                        formControlName="question" maxlength="2000"
                         placeholder="Task question..."
                         class="dlg-input"></textarea>
-                    <p class="dlg-error"
-                       *ngIf="taskForm.get('question')?.invalid && taskForm.get('question')?.touched">
-                        Question is required
-                    </p>
+                    <app-field-error [control]="taskForm.get('question')" label="Question" />
                 </div>
 
                 <div class="dlg-field">

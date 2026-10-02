@@ -44,7 +44,7 @@
               "entry": "src/server.ts"
             }
           },
-          "configurations": {
+        "configurations": {
             "production": {
               "budgets": [
                 {

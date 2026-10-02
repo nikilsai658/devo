@@ -1,7 +1,7 @@
 /* =============================================================
    ALL TICKETS — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Matches the Raise Ticket / Change Password pages.
-   Status colours stay semantic: green = open, amber = in process,
+   Status colours stay semantic: green = open, amber = in progress,
    slate = closed.
 ============================================================= */
 @import "tailwindcss";
@@ -148,7 +148,7 @@
 }
 
 .segment-open     { @apply bg-emerald-500; }
-.segment-resolved { @apply bg-amber-500; }
+.segment-inprogress { @apply bg-amber-500; }
 .segment-closed   { @apply bg-slate-500; }
 
 
@@ -167,7 +167,7 @@
 }
 
 .dot-open     { @apply bg-emerald-500; box-shadow: 0 0 6px rgb(16 185 129); }
-.dot-resolved { @apply bg-amber-500;   box-shadow: 0 0 6px rgb(245 158 11); }
+.dot-inprogress { @apply bg-amber-500;   box-shadow: 0 0 6px rgb(245 158 11); }
 .dot-closed   { @apply bg-slate-500; }
 
 
@@ -261,7 +261,7 @@
 }
 
 .accent-open     { @apply bg-emerald-500; box-shadow: 0 0 12px rgb(16 185 129 / 0.6); }
-.accent-resolved { @apply bg-amber-500;   box-shadow: 0 0 12px rgb(245 158 11 / 0.6); }
+.accent-inprogress { @apply bg-amber-500;   box-shadow: 0 0 12px rgb(245 158 11 / 0.6); }
 .accent-closed   { @apply bg-slate-500; }
 
 
@@ -282,7 +282,7 @@
 }
 
 .icon-open     { @apply border-emerald-500/30 bg-emerald-500/10 text-emerald-400; }
-.icon-resolved { @apply border-amber-500/30 bg-amber-500/10 text-amber-400; }
+.icon-inprogress { @apply border-amber-500/30 bg-amber-500/10 text-amber-400; }
 .icon-closed   { @apply border-slate-500/30 bg-slate-500/10 text-slate-400; }
 
 .column-label {
@@ -336,7 +336,7 @@
 }
 
 .card-accent-open     { @apply border-l-emerald-500; }
-.card-accent-resolved { @apply border-l-amber-500; }
+.card-accent-inprogress { @apply border-l-amber-500; }
 .card-accent-closed   { @apply border-l-slate-500; }
 
 /* Card while being dragged */

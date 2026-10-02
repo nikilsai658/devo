@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -26,12 +25,15 @@ import { CollegedepartService } from '../../../features/services/collegedepartme
 import { CollegeService } from '../../../features/services/college/college-service';
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-collegedepartment',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule
@@ -40,6 +42,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./collegedepartment.css']
 })
 export class CollegeDepartmentComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -88,9 +93,9 @@ export class CollegeDepartmentComponent implements OnInit {
 
     this.collegeDepartmentForm = this.fb.group({
 
-      collegeName: ['', Validators.required],
+      collegeName: ['', [AppValidators.required]],
 
-      departmentName: ['', Validators.required]
+      departmentName: ['', [AppValidators.required]]
 
     });
 
@@ -348,21 +353,21 @@ edit(item: any) {
   //==========================
   // DELETE
   //==========================
-delete(id: number) {
+async delete(id: number): Promise<void> {
 
   if (!this.auth.hasPermission('DELETE_COLLEGE_DEPARTMENT')) {
     return;
   }
 
-  if (!confirm('Delete this mapping?')) return;
+  if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
   this.collegeDepartmentService.deleteCollegedepartment(id)
     .subscribe({
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
         this.loadMappings();
-        this.feedback.ok('Mapping deleted successfully');
+        this.feedback.ok('Mapping deleted successfully', res);
       },
 
       error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }

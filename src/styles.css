@@ -200,6 +200,26 @@ html[data-theme="light"] iframe {
     @apply m-0 mt-1.5 text-xs font-medium text-rose-400;
   }
 
+  /* Validation message rendered by <app-field-error> */
+  .field-error {
+    @apply m-0 mt-1.5 flex items-start gap-1.5 text-xs font-medium leading-5 text-rose-400;
+    animation: field-error-in 0.15s ease-out;
+  }
+
+  .field-error svg {
+    @apply mt-0.5 h-3.5 w-3.5 shrink-0;
+  }
+
+  /* Red border on fields that failed validation */
+  :is(input, select, textarea).ng-invalid.ng-touched,
+  .dlg-input.ng-invalid.ng-touched {
+    border-color: rgb(244 63 94 / 0.7) !important;
+  }
+
+  :is(input, select, textarea).ng-invalid.ng-touched:focus {
+    box-shadow: 0 0 0 4px rgb(244 63 94 / 0.15) !important;
+  }
+
   .dlg-hint {
     @apply m-0 mt-1.5 text-xs text-zinc-500;
   }
@@ -261,4 +281,9 @@ html[data-theme="light"] iframe {
   .dlg {
     animation: none;
   }
+}
+
+@keyframes field-error-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
 }

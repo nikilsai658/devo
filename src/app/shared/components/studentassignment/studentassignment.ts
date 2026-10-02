@@ -1,25 +1,29 @@
-import { ChangeDetectorRef, Component, OnInit,ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit,ChangeDetectionStrategy , inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
 import { Studentassignment } from '../../../features/services/studentassignment/studentassignment';
 import { Auth } from '../../../core/auth/auth';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-student-assignment',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [FieldError, CommonModule, ReactiveFormsModule],
   templateUrl: './studentassignment.html',
   styleUrls: ['./studentassignment.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StudentAssignment implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -45,20 +49,20 @@ export class StudentAssignment implements OnInit {
     this.assignmentForm = this.fb.group({
       id: [0],
 
-      studentEmail: ['', Validators.required],
-      courseName: ['', Validators.required],
-      assignmentTitle: ['', Validators.required],
-      status: ['', Validators.required],
+      studentEmail: ['', [AppValidators.required, AppValidators.email, AppValidators.maxLength(100)]],
+      courseName: ['', [AppValidators.required]],
+      assignmentTitle: ['', [AppValidators.required]],
+      status: ['', [AppValidators.required]],
 
       startedOn: [null],
       completedOn: [null],
 
-      score: [0, Validators.required],
-      attempts: [1, Validators.required],
+      score: [0, [AppValidators.required, AppValidators.integer, AppValidators.min(0), AppValidators.max(1000)]],
+      attempts: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(1000)]],
 
       bestSubmissionId: [''],
       lastSubmissionId: [''],
-      timeTaken: [0, Validators.required],
+      timeTaken: [0, [AppValidators.required, AppValidators.integer, AppValidators.min(0), AppValidators.max(100000)]],
 
       isPassed: [false]
     });
@@ -141,17 +145,17 @@ update(): void {
     });
 }
   // Delete
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
 
-    if (!confirm('Are you sure you want to delete this assignment?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this assignment?'))) {
       return;
     }
 
     this.studentService
       .deletestudentassignmnet(id)
       .subscribe({
-        next: () => {
-          this.feedback.ok('Record deleted successfully');
+        next: (res: any) => {
+          this.feedback.ok('Record deleted successfully', res);
           this.getAssignments();
 
         },

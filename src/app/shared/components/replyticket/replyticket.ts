@@ -716,8 +716,8 @@ export class ReplyTicketComponent
       case 'closed':
         return 'status-closed';
 
-      case 'resolved':
-        return 'status-resolved';
+      case 'inprogress':
+        return 'status-inprogress';
 
       default:
         return 'status-open';

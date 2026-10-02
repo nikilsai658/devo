@@ -235,13 +235,10 @@
 
             <input
               type="text"
-              formControlName="title"
+              formControlName="title" maxlength="150"
               class="dlg-input">
 
-            <p class="dlg-error"
-               *ngIf="assignmentForm.get('title')?.invalid && assignmentForm.get('title')?.touched">
-              Title is required
-            </p>
+            <app-field-error [control]="assignmentForm.get('title')" label="Title" />
 
           </div>
 
@@ -255,8 +252,9 @@
 
             <textarea
               rows="3"
-              formControlName="description"
+              formControlName="description" maxlength="2000"
               class="dlg-input"></textarea>
+            <app-field-error [control]="assignmentForm.get('description')" label="Description" />
 
           </div>
 
@@ -270,13 +268,10 @@
 
             <input
               type="text"
-              formControlName="questionId"
+              formControlName="questionId" maxlength="50"
               class="dlg-input">
 
-            <p class="dlg-error"
-               *ngIf="assignmentForm.get('questionId')?.invalid && assignmentForm.get('questionId')?.touched">
-              Question Id is required
-            </p>
+            <app-field-error [control]="assignmentForm.get('questionId')" label="Question ID" />
 
           </div>
 
@@ -294,10 +289,7 @@
               placeholder="Technex, LeetCode, HackerRank..."
               class="dlg-input">
 
-            <p class="dlg-error"
-               *ngIf="assignmentForm.get('platform')?.invalid && assignmentForm.get('platform')?.touched">
-              Platform is required
-            </p>
+            <app-field-error [control]="assignmentForm.get('platform')" label="Platform" />
 
           </div>
 
@@ -311,8 +303,9 @@
 
             <input
               type="text"
-              formControlName="contestId"
+              formControlName="contestId" maxlength="50"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('contestId')" label="Contest ID" />
 
           </div>
 
@@ -328,6 +321,7 @@
               type="text"
               formControlName="challengeUrl"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('challengeUrl')" label="Challenge URL" />
 
           </div>
 
@@ -350,10 +344,7 @@
 
             </select>
 
-            <p class="dlg-error"
-               *ngIf="assignmentForm.get('difficulty')?.invalid && assignmentForm.get('difficulty')?.touched">
-              Difficulty is required
-            </p>
+            <app-field-error [control]="assignmentForm.get('difficulty')" label="Difficulty" />
 
           </div>
 
@@ -369,6 +360,7 @@
               type="number"
               formControlName="score"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('score')" label="Score" />
 
           </div>
 
@@ -382,9 +374,10 @@
 
             <input
               type="text"
-              formControlName="languageSupport"
+              formControlName="languageSupport" maxlength="200"
               placeholder="Java, C#, Python..."
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('languageSupport')" label="Language support" />
 
           </div>
 
@@ -400,6 +393,7 @@
               type="text"
               formControlName="iframeUrl"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('iframeUrl')" label="Iframe URL" />
 
           </div>
 
@@ -415,6 +409,7 @@
               type="number"
               formControlName="timeLimit"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('timeLimit')" label="Time limit" />
 
           </div>
 
@@ -430,6 +425,7 @@
               type="number"
               formControlName="memoryLimit"
               class="dlg-input">
+            <app-field-error [control]="assignmentForm.get('memoryLimit')" label="Memory limit" />
 
           </div>
 
@@ -502,6 +498,8 @@
                 formControlName="input"
                 class="dlg-input"></textarea>
 
+              <app-field-error [control]="tc.get('input')" label="Test case input" />
+
             </div>
 
             <div class="dlg-field">
@@ -514,6 +512,8 @@
                 rows="2"
                 formControlName="expectedOutput"
                 class="dlg-input"></textarea>
+
+              <app-field-error [control]="tc.get('expectedOutput')" label="Expected output" />
 
             </div>
 

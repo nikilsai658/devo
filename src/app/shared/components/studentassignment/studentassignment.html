@@ -60,8 +60,9 @@
 
           <input
             type="email"
-            formControlName="studentEmail"
+            formControlName="studentEmail" maxlength="100"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('studentEmail')" label="Student email" />
 
         </div>
 
@@ -77,6 +78,7 @@
             type="text"
             formControlName="courseName"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('courseName')" label="Course" />
 
         </div>
 
@@ -92,6 +94,7 @@
             type="text"
             formControlName="assignmentTitle"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('assignmentTitle')" label="Assignment" />
 
         </div>
 
@@ -113,6 +116,7 @@
             <option value="Completed">Completed</option>
 
           </select>
+          <app-field-error [control]="assignmentForm.get('status')" label="Status" />
 
         </div>
 
@@ -128,6 +132,7 @@
             type="number"
             formControlName="score"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('score')" label="Score" />
 
         </div>
 
@@ -143,6 +148,7 @@
             type="number"
             formControlName="attempts"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('attempts')" label="Attempts" />
 
         </div>
 
@@ -158,6 +164,7 @@
             type="number"
             formControlName="timeTaken"
             class="mt-2 w-full border rounded-lg p-3 border-white/10 bg-black text-white placeholder:text-zinc-600">
+          <app-field-error [control]="assignmentForm.get('timeTaken')" label="Time taken" />
 
         </div>
 

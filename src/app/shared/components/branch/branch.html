@@ -217,13 +217,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="name"
+                        formControlName="name" maxlength="100"
                         placeholder="e.g. Computer Science - AI"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="branchForm.get('name')?.invalid && branchForm.get('name')?.touched">
-                        Branch name is required
-                    </p>
+                    <app-field-error [control]="branchForm.get('name')" label="Branch name" />
                 </div>
 
                 <div class="dlg-field">
@@ -232,13 +229,10 @@
                     </label>
                     <input
                         type="text"
-                        formControlName="code"
+                        formControlName="code" maxlength="20"
                         placeholder="e.g. CSE-AI"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="branchForm.get('code')?.invalid && branchForm.get('code')?.touched">
-                        Branch code is required
-                    </p>
+                    <app-field-error [control]="branchForm.get('code')" label="Branch code" />
                 </div>
 
             </form>

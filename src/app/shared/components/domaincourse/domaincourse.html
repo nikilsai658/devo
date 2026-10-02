@@ -233,10 +233,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && domainCourseForm.get('domainName')?.invalid">
-                        Domain is required
-                    </p>
+                    <app-field-error [control]="domainCourseForm.get('domainName')" label="Domain" />
                 </div>
 
                 <div class="dlg-field">
@@ -258,10 +255,7 @@
                         </option>
 
                     </select>
-                    <p class="dlg-error"
-                       *ngIf="submitted && domainCourseForm.get('courseName')?.invalid">
-                        Course is required
-                    </p>
+                    <app-field-error [control]="domainCourseForm.get('courseName')" label="Course" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-2">
@@ -274,10 +268,7 @@
                             type="number"
                             formControlName="yearNumber"
                             class="dlg-input">
-                        <p class="dlg-error"
-                           *ngIf="submitted && domainCourseForm.get('yearNumber')?.invalid">
-                            Year is required
-                        </p>
+                        <app-field-error [control]="domainCourseForm.get('yearNumber')" label="Year number" />
                     </div>
 
                     <div>
@@ -288,10 +279,7 @@
                             type="number"
                             formControlName="semester"
                             class="dlg-input">
-                        <p class="dlg-error"
-                           *ngIf="submitted && domainCourseForm.get('semester')?.invalid">
-                            Semester is required
-                        </p>
+                        <app-field-error [control]="domainCourseForm.get('semester')" label="Semester" />
                     </div>
 
                 </div>

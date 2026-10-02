@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-branch',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./branch.css']
 })
 export class Branch implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   branches: any[] = [];
 
@@ -84,10 +89,8 @@ export class Branch implements OnInit {
 
     this.branchForm = this.fb.group({
 
-      name: ['', Validators.required],
-
-      code: ['', Validators.required],
-
+      name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(2), AppValidators.maxLength(100)]],
+      code: ['', [AppValidators.required, AppValidators.code, AppValidators.minLength(2), AppValidators.maxLength(20)]],
     });
 
     if (!isPlatformBrowser(this.platformId)) {
@@ -314,9 +317,9 @@ export class Branch implements OnInit {
   // Delete Branch
   //=====================================
 
-  deleteBranch(id: number): void {
+  async deleteBranch(id: number): Promise<void> {
 
-    if (!confirm('Are you sure you want to delete this branch?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this branch?'))) {
 
       return;
 
@@ -324,11 +327,11 @@ export class Branch implements OnInit {
 
     this.api.deleteBranch(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Branch deleted successfully');
+        this.feedback.ok('Branch deleted successfully', res);
 
         this.loadBranches();
 

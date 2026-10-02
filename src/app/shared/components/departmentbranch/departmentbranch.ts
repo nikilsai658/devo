@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule
@@ -15,7 +15,6 @@ import { RouterLink } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -27,12 +26,15 @@ import { DepartmentService } from '../../../features/services/department/departm
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { DeptbranchService} from '../../../features/services/departmentbranch/deptbranch-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-departmentbranch',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -42,6 +44,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./departmentbranch.css']
 })
 export class DepartmentBranchComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -86,9 +91,9 @@ export class DepartmentBranchComponent implements OnInit {
 
     this.departmentBranchForm = this.fb.group({
 
-      departmentName: ['', Validators.required],
+      departmentName: ['', [AppValidators.required]],
 
-      branchName: ['', Validators.required]
+      branchName: ['', [AppValidators.required]]
 
     });
 
@@ -304,21 +309,21 @@ export class DepartmentBranchComponent implements OnInit {
   // DELETE
   //==========================
 
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_DEPARTMENT_BRANCH')) return;
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.departmentBranchService.deleteDeptbranch(id)
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cd.markForCheck();
 
 
           this.loadMappings();
-          this.feedback.ok('Mapping deleted successfully');
+          this.feedback.ok('Mapping deleted successfully', res);
 
         },
 

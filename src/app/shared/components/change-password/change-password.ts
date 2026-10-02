@@ -1,21 +1,14 @@
 import { ChangeDetectorRef, Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthServices } from '../../../features/services/auth/auth-services';
-
-function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
-  const newPassword = control.get('newPassword')?.value;
-  const confirmPassword = control.get('confirmPassword')?.value;
-  return newPassword && confirmPassword && newPassword !== confirmPassword
-    ? { passwordMismatch: true }
-    : null;
-}
+import { AppValidators, FieldError } from '../../validation';
 
 @Component({
   selector: 'app-change-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FieldError],
   templateUrl: './change-password.html',
   styleUrl: './change-password.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,11 +31,16 @@ export class ChangePassword {
   ) {
     this.Form = this.fb.group(
       {
-        oldPassword: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(6)]],
-        confirmPassword: ['', Validators.required],
+        oldPassword: ['', AppValidators.required],
+        newPassword: ['', [AppValidators.required, AppValidators.strongPassword]],
+        confirmPassword: ['', AppValidators.required],
       },
-      { validators: passwordsMatchValidator }
+      {
+        validators: [
+          AppValidators.differentFrom('oldPassword', 'newPassword'),
+          AppValidators.matchFields('newPassword', 'confirmPassword'),
+        ],
+      }
     );
   }
 

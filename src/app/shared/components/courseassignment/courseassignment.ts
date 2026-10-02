@@ -4,7 +4,7 @@ import {
   Inject,
   PLATFORM_ID,
   ChangeDetectorRef, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -27,12 +26,15 @@ import { CourseAssignmnetService } from '../../../features/services/courseassign
 import { CourseService } from '../../../features/services/course/course-service';
 import { AssignmentService } from '../../../features/services/assignment/assignment-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-courseassignmentmap',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -42,6 +44,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./courseassignment.css']
 })
 export class CourseAssignmentMapComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -106,11 +111,11 @@ export class CourseAssignmentMapComponent implements OnInit {
 
     this.courseAssignmentForm = this.fb.group({
 
-      courseName: ['', Validators.required],
+      courseName: ['', [AppValidators.required]],
 
-      assignmentTitle: ['', Validators.required],
+      assignmentTitle: ['', [AppValidators.required]],
 
-      sequenceNo: [1, Validators.required],
+      sequenceNo: [1, [AppValidators.required, AppValidators.integer, AppValidators.min(1), AppValidators.max(1000)]],
 
       isMandatory: [true],
 
@@ -340,20 +345,20 @@ export class CourseAssignmentMapComponent implements OnInit {
   // DELETE
   //============================
 
-  delete(id: number) {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_COURSE_ASSIGNMENT_MAP')) return;
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.api.deletecourseassignment(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
         this.loadMappings();
-        this.feedback.ok('Mapping deleted successfully');
+        this.feedback.ok('Mapping deleted successfully', res);
 
       },
 

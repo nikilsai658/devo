@@ -1,1 +1,68 @@
-<p>confirm-dailog works!</p>
+@if (confirm.request(); as req) {
+  <div
+    class="dlg-overlay confirm-overlay"
+    (click)="confirm.close(false)"
+  >
+    <div
+      class="dlg confirm-dlg"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-message"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="confirm-body">
+
+        <span
+          class="confirm-icon"
+          [class.confirm-icon-danger]="req.danger"
+          aria-hidden="true"
+        >
+          @if (req.danger) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+          }
+        </span>
+
+        <h2 id="confirm-title" class="dlg-title confirm-title">{{ req.title }}</h2>
+
+        <p id="confirm-message" class="confirm-message">{{ req.message }}</p>
+
+      </div>
+
+      <div class="dlg-footer confirm-footer">
+
+        <button
+          #cancelBtn
+          type="button"
+          class="dlg-btn dlg-btn-secondary"
+          (click)="confirm.close(false)"
+        >
+          {{ req.cancelText }}
+        </button>
+
+        <button
+          type="button"
+          class="dlg-btn"
+          [class.confirm-btn-danger]="req.danger"
+          [class.dlg-btn-primary]="!req.danger"
+          (click)="confirm.close(true)"
+        >
+          {{ req.confirmText }}
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+}

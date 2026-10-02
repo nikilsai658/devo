@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -25,19 +24,26 @@ import { Auth } from '../../../core/auth/auth';
 import { CollegeService } from '../../../features/services/college/college-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-college',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FieldError,
+    DigitsOnly
   ],
   templateUrl: './college.html',
   styleUrls: ['./college.css']
 })
 export class College implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -77,13 +83,13 @@ export class College implements OnInit {
     // Create Form
     this.collegeForm = this.fb.group({
 
-      name: ['', Validators.required],
+      name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(3), AppValidators.maxLength(150)]],
 
-      code: ['', Validators.required],
+      code: ['', [AppValidators.required, AppValidators.code, AppValidators.minLength(2), AppValidators.maxLength(20)]],
 
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [AppValidators.required, AppValidators.email, AppValidators.maxLength(100)]],
 
-      phoneNumber: ['', Validators.required]
+      phoneNumber: ['', [AppValidators.required, AppValidators.phone]]
 
     });
 
@@ -549,7 +555,7 @@ export class College implements OnInit {
 
       email: college.email,
 
-      phoneNumber: college.phoneNumber
+      phoneNumber: normalizePhone(college.phoneNumber)
 
     });
 
@@ -613,7 +619,7 @@ export class College implements OnInit {
   // Delete College
   //=====================================
 
-  deleteCollege(id: number): void {
+  async deleteCollege(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_COLLEGE')) {
 
@@ -623,7 +629,7 @@ export class College implements OnInit {
 
     }
 
-    if (!confirm('Are you sure you want to delete this college?')) {
+    if (!(await this.confirmDialog.ask('Are you sure you want to delete this college?'))) {
 
       return;
 
@@ -631,11 +637,11 @@ export class College implements OnInit {
 
     this.api.deletecollege(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('College deleted successfully');
+        this.feedback.ok('College deleted successfully', res);
 
         this.loadColleges();
 
@@ -655,7 +661,7 @@ export class College implements OnInit {
   // College License (Lock / Unlock)
   //=====================================
 
-  lockCollege(college: any): void {
+  async lockCollege(college: any): Promise<void> {
 
     if (!this.auth.hasPermission('UPDATE_COLLEGE')) {
 
@@ -665,7 +671,7 @@ export class College implements OnInit {
 
     }
 
-    if (!confirm(`Lock "${college.name}"? Users of this college will lose access.`)) {
+    if (!(await this.confirmDialog.ask(`Users of "${college.name}" will lose access until it is unlocked.`, { title: 'Lock this college?', confirmText: 'Lock' }))) {
 
       return;
 
@@ -673,13 +679,13 @@ export class College implements OnInit {
 
     this.superadmin.collegelock(college.id, {}).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
         college.isLocked = true;
 
-        this.feedback.ok('College locked successfully');
+        this.feedback.ok('College locked successfully', res);
 
         this.cd.detectChanges();
 
@@ -695,7 +701,7 @@ export class College implements OnInit {
 
   }
 
-  unlockCollege(college: any): void {
+  async unlockCollege(college: any): Promise<void> {
 
     if (!this.auth.hasPermission('UPDATE_COLLEGE')) {
 
@@ -705,7 +711,7 @@ export class College implements OnInit {
 
     }
 
-    if (!confirm(`Unlock "${college.name}"?`)) {
+    if (!(await this.confirmDialog.ask(`Users of "${college.name}" will be able to sign in again.`, { title: 'Unlock this college?', confirmText: 'Unlock', danger: false }))) {
 
       return;
 
@@ -713,13 +719,13 @@ export class College implements OnInit {
 
     this.superadmin.collegeunlock(college.id, {}).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
         college.isLocked = false;
 
-        this.feedback.ok('College unlocked successfully');
+        this.feedback.ok('College unlocked successfully', res);
 
         this.cd.detectChanges();
 

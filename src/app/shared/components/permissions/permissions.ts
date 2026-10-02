@@ -4,7 +4,7 @@ import {
   Inject,
   PLATFORM_ID,
   ChangeDetectorRef, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -24,12 +23,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { Auth } from '../../../core/auth/auth';
 import { PermissionService } from '../../../features/services/permission/permission-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-permission',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule
   ],
@@ -37,6 +39,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./permissions.css']
 })
 export class Permission implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   permissions: any[] = [];
 
@@ -64,9 +69,8 @@ export class Permission implements OnInit {
 
     this.permissionForm = this.fb.group({
 
-      name: ['', Validators.required],
-
-      code: ['', Validators.required]
+      name: ['', [AppValidators.required, AppValidators.title, AppValidators.minLength(3), AppValidators.maxLength(100)]],
+      code: ['', [AppValidators.required, AppValidators.code, AppValidators.minLength(2), AppValidators.maxLength(50)]]
 
     });
 
@@ -264,23 +268,23 @@ export class Permission implements OnInit {
   // Delete
   //============================
 
-  deletePermission(id: number): void {
+  async deletePermission(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_PERMISSION')) {
       this.feedback.fail('You do not have permission to delete permissions.');
       return;
     }
 
-    if (!confirm('Delete Permission?'))
+    if (!(await this.confirmDialog.ask('Delete Permission?')))
       return;
 
     this.api.deletePermission(id).subscribe({
 
-      next: () => {
+      next: (res: any) => {
         this.cd.markForCheck();
 
 
-        this.feedback.ok('Permission deleted successfully');
+        this.feedback.ok('Permission deleted successfully', res);
 
         this.loadPermissions();
 

@@ -63,6 +63,24 @@ export function extractErrorMessage(err: any, fallback = DEFAULT_ERROR): string 
 
 }
 
+// The backend's success text from a response body, if it sent one:
+//   { message } / { Message } / { data: { message } } / 'plain string body'
+export function extractSuccessMessage(res: any): string | null {
+
+  if (typeof res === 'string') {
+    return res.trim() || null;
+  }
+
+  const message =
+    res?.message ??
+    res?.Message ??
+    res?.data?.message ??
+    res?.data?.Message;
+
+  return typeof message === 'string' && message.trim() ? message : null;
+
+}
+
 // CRUD result reporting for a page: green popup on success, red popup with
 // the backend's reason on failure. Create it in a component field
 // initializer (`feedback = new Feedback()`) so inject() has a context.
@@ -70,8 +88,10 @@ export class Feedback {
 
   private readonly toast = inject(ToastService);
 
-  ok(message: string): void {
-    this.toast.success(message);
+  // Pass the response as `res` to show the backend's own message, falling
+  // back to `message` when it didn't send one.
+  ok(message: string, res?: any): void {
+    this.toast.success(extractSuccessMessage(res) ?? message);
   }
 
   fail(err: any, fallback = DEFAULT_ERROR): void {

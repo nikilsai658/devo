@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule,
@@ -14,7 +14,6 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -27,12 +26,15 @@ import { CourseTaskService } from '../../../features/services/coursetask/course-
 import { CourseService } from '../../../features/services/course/course-service';
 import { TaskService } from '../../../features/services/task/task-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-course-task',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -42,6 +44,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./course-task.css']
 })
 export class CourseTask implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -89,9 +94,9 @@ export class CourseTask implements OnInit {
 
     this.courseTaskForm = this.fb.group({
 
-      courseName: ['', Validators.required],
+      courseName: ['', [AppValidators.required]],
 
-      taskTitle: ['', Validators.required]
+      taskTitle: ['', [AppValidators.required]]
 
     });
 
@@ -305,21 +310,21 @@ export class CourseTask implements OnInit {
   // DELETE
   //==========================
 
-  delete(id: number) {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_COURSE_TASK_MAP')) {
       return;
     }
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.courseTaskService.deleteCourseTask(id)
       .subscribe({
-        next: () => {
+        next: (res: any) => {
           this.cd.markForCheck();
 
           this.loadMappings();
-          this.feedback.ok('Mapping deleted successfully');
+          this.feedback.ok('Mapping deleted successfully', res);
         },
 
         error: (err: any) => { this.cd.markForCheck(); return this.feedback.fail(err); }

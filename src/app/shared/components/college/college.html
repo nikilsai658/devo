@@ -266,12 +266,10 @@
                     <input
                         type="text"
                         formControlName="name"
+                        maxlength="150"
                         placeholder="e.g. ABC Institute of Technology"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="collegeForm.get('name')?.invalid && collegeForm.get('name')?.touched">
-                        College name is required
-                    </p>
+                    <app-field-error [control]="collegeForm.get('name')" label="College name" />
                 </div>
 
                 <div class="dlg-field">
@@ -281,12 +279,10 @@
                     <input
                         type="text"
                         formControlName="code"
+                        maxlength="20"
                         placeholder="e.g. ABCIT"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="collegeForm.get('code')?.invalid && collegeForm.get('code')?.touched">
-                        College code is required
-                    </p>
+                    <app-field-error [control]="collegeForm.get('code')" label="College code" />
                 </div>
 
                 <div class="dlg-field">
@@ -298,10 +294,7 @@
                         formControlName="email"
                         placeholder="college@gmail.com"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="collegeForm.get('email')?.invalid && collegeForm.get('email')?.touched">
-                        A valid email is required
-                    </p>
+                    <app-field-error [control]="collegeForm.get('email')" label="Email address" />
                 </div>
 
                 <div class="dlg-field">
@@ -309,14 +302,13 @@
                         Phone Number
                     </label>
                     <input
-                        type="text"
+                        type="tel"
                         formControlName="phoneNumber"
-                        placeholder="+91 9876543210"
+                        appDigitsOnly
+                        maxlength="10"
+                        placeholder="10-digit phone number"
                         class="dlg-input">
-                    <p class="dlg-error"
-                       *ngIf="collegeForm.get('phoneNumber')?.invalid && collegeForm.get('phoneNumber')?.touched">
-                        Phone number is required
-                    </p>
+                    <app-field-error [control]="collegeForm.get('phoneNumber')" label="Phone number" />
                 </div>
 
             </form>

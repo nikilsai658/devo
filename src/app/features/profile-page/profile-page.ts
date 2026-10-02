@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { ButtonModule } from 'primeng/button';
@@ -8,9 +8,10 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
+import { AppValidators, DigitsOnly, FieldError } from '../../shared/validation';
 @Component({
   selector: 'app-profile-page',
-  imports: [CommonModule,ReactiveFormsModule,InputTextModule,FloatLabelModule,ButtonModule,Logo],
+  imports: [CommonModule,ReactiveFormsModule,InputTextModule,FloatLabelModule,ButtonModule,Logo,FieldError,DigitsOnly],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,14 +22,14 @@ export class ProfilePage {
   loading = false;
   constructor(private fb:FormBuilder,private router:Router, private cookie:CookieService,private auth:AuthServices,private cd:ChangeDetectorRef){
     this.Form=this.fb.group({
-      fullName: ['',Validators.required],
-      firstName: ['',Validators.required],
-      middleName: [''],
-      lastName: ['',Validators.required],
-      phoneNumber:['',Validators.required],
-      alternatePhoneNumber: [''],
-      alternateEmail:['',Validators.email]
-    })
+      fullName: ['',[AppValidators.required, AppValidators.personName, AppValidators.minLength(3), AppValidators.maxLength(100)]],
+      firstName: ['',[AppValidators.required, AppValidators.personName, AppValidators.maxLength(50)]],
+      middleName: ['',[AppValidators.personName, AppValidators.maxLength(50)]],
+      lastName: ['',[AppValidators.required, AppValidators.personName, AppValidators.maxLength(50)]],
+      phoneNumber:['',[AppValidators.required, AppValidators.phone]],
+      alternatePhoneNumber: ['',AppValidators.phone],
+      alternateEmail:['',[AppValidators.email, AppValidators.maxLength(100)]]
+    }, { validators: AppValidators.differentFrom('phoneNumber', 'alternatePhoneNumber') })
   }
 
   onSubmit(){
@@ -51,9 +52,9 @@ export class ProfilePage {
         }
       })
     }else{
-      this.errorMessage = this.Form.get('alternateEmail')?.invalid && this.Form.get('alternateEmail')?.value
-        ? 'Please enter a valid alternate email.'
-        : 'Please fill in all the required fields.';
+      this.Form.markAllAsTouched();
+      this.errorMessage = 'Please correct the highlighted fields and try again.';
+      this.cd.markForCheck();
     }
   }
 

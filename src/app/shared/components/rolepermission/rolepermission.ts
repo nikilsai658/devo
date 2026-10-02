@@ -4,7 +4,7 @@ import {
   ChangeDetectorRef,
   Inject,
   PLATFORM_ID, ChangeDetectionStrategy
-} from '@angular/core';
+, inject } from '@angular/core';
 
 import {
   CommonModule
@@ -15,7 +15,6 @@ import { RouterLink } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
   FormsModule
 } from '@angular/forms';
@@ -28,12 +27,15 @@ import { RoleService } from '../../../features/services/role/role-service';
 import { PermissionService } from '../../../features/services/permission/permission-service';
 import { RolepermissionService } from '../../../features/services/rolepermission/rolepermission-service';
 import { Feedback } from '../../feedback/feedback';
-
+import { AppValidators, FieldError } from '../../validation';
+
+import { ConfirmService } from '../confirm-dailog/confirm';
 @Component({
   selector: 'app-rolepermission',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    FieldError,
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
@@ -43,6 +45,9 @@ import { Feedback } from '../../feedback/feedback';
   styleUrls: ['./rolepermission.css']
 })
 export class RolePermissionComponent implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
+
 
   feedback = new Feedback();
 
@@ -94,9 +99,9 @@ export class RolePermissionComponent implements OnInit {
 
     this.rolePermissionForm = this.fb.group({
 
-      roleName: ['', Validators.required],
+      roleName: ['', [AppValidators.required]],
 
-      permissionCode: ['', Validators.required],
+      permissionCode: ['', [AppValidators.required]],
 
       canDelegate: [true]
 
@@ -302,22 +307,22 @@ export class RolePermissionComponent implements OnInit {
   // DELETE
   //=====================================
 
-  delete(id: number): void {
+  async delete(id: number): Promise<void> {
 
     if (!this.auth.hasPermission('DELETE_ROLE_PERMISSION')) return;
 
-    if (!confirm('Delete this mapping?')) return;
+    if (!(await this.confirmDialog.ask('Delete this mapping?'))) return;
 
     this.rolePermissionService
       .deleteRolepermission(id)
       .subscribe({
 
-        next: () => {
+        next: (res: any) => {
           this.cd.markForCheck();
 
 
           this.loadMappings();
-          this.feedback.ok('Mapping deleted successfully');
+          this.feedback.ok('Mapping deleted successfully', res);
 
         },
 

@@ -84,6 +84,8 @@
 
               </p-floatlabel>
 
+              <app-field-error [control]="Form.get('fullName')" label="Full name" />
+
             </div>
 
           <div class="form-row">
@@ -110,6 +112,8 @@
 
               </p-floatlabel>
 
+              <app-field-error [control]="Form.get('firstName')" label="First name" />
+
             </div>
 
             <div class="input-wrapper">
@@ -134,6 +138,8 @@
                 </label>
 
               </p-floatlabel>
+
+              <app-field-error [control]="Form.get('lastName')" label="Last name" />
 
             </div>
 
@@ -162,6 +168,8 @@
 
               </p-floatlabel>
 
+              <app-field-error [control]="Form.get('middleName')" label="Middle name" />
+
             </div>
 
           <div class="form-row">
@@ -176,6 +184,8 @@
                 <input
                   pInputText
                   formControlName="phoneNumber"
+                  appDigitsOnly
+                  maxlength="10"
                   id="phoneNumber"
                   type="tel"
                   autocomplete="tel"
@@ -187,6 +197,8 @@
                 </label>
 
               </p-floatlabel>
+
+              <app-field-error [control]="Form.get('phoneNumber')" label="Phone number" />
 
             </div>
 
@@ -201,6 +213,8 @@
                 <input
                   pInputText
                   formControlName="alternatePhoneNumber"
+                  appDigitsOnly
+                  maxlength="10"
                   id="alternatePhoneNumber"
                   type="tel"
                   autocomplete="tel"
@@ -212,6 +226,8 @@
                 </label>
 
               </p-floatlabel>
+
+              <app-field-error [control]="Form.get('alternatePhoneNumber')" label="Alternate phone number" [messages]="{ sameAsOld: 'Alternate phone number must be different from your phone number.' }" />
 
             </div>
 
@@ -239,6 +255,8 @@
                 </label>
 
               </p-floatlabel>
+
+              <app-field-error [control]="Form.get('alternateEmail')" label="Alternate email" />
 
             </div>
 

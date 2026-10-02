@@ -56,7 +56,7 @@ export class MyTicketComponent implements OnInit {
   errorMessage = '';
 
   statusOptions: string[] =
-    ['Open', 'Resolved', 'Closed'];
+    ['Open', 'InProgress', 'Closed'];
 
   columns: KanbanColumn[] = [];
 
@@ -152,7 +152,7 @@ export class MyTicketComponent implements OnInit {
 
       status,
 
-      label: status === 'Resolved' ? 'In process' : status,
+      label: status === 'InProgress' ? 'In Progress' : status,
 
       tickets: this.tickets.filter(ticket =>
         (ticket.status || 'Open').toLowerCase() === status.toLowerCase()

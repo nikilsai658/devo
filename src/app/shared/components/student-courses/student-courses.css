@@ -17,7 +17,7 @@
 }
 
 .courses-container {
-  @apply mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8;
+  @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14;
 }
 
 /* ---------------- HEADER ---------------- */

@@ -30,11 +30,12 @@
 }
 
 /* Routed content: fixed frame below the header, only this area scrolls.
-   top must match .top-header's height (h-[68px] in header.css, same at
-   every breakpoint) or a white strip shows between header and page. */
+   top must match the header's height (header.css: 60px top row + 46px
+   nav row on desktop, top row only below 1180px) or a white strip shows
+   between header and page. */
 .content{
     position: fixed;
-    top: 68px;
+    top: 106px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -43,4 +44,10 @@
     /* Dark behind every page, so short pages and overscroll never show white */
     background-color: #000;
     overscroll-behavior-y: contain;
+}
+
+@media (max-width: 1179px) {
+    .content{
+        top: 60px;
+    }
 }

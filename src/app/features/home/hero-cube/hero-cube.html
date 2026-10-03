@@ -1,0 +1,195 @@
+<div class="hc">
+
+  <div
+    class="hc-stage"
+    tabindex="0"
+    role="group"
+    aria-roledescription="3D cube"
+    aria-label="Portal features cube. Drag to rotate, or use the arrow keys."
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp()"
+    (pointercancel)="onPointerUp()"
+    (pointerenter)="setHover(true)"
+    (pointerleave)="setHover(false)"
+    (keydown)="onKeydown($event)">
+
+    <div class="hc-shadow" aria-hidden="true"></div>
+
+    <div class="hc-cube" #cube>
+
+      <!-- ===================== FRONT — HELP & SUPPORT TICKET ===================== -->
+      <section class="face f-front" aria-label="Help and support tickets">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>
+          </span>
+          <div><small>Help &amp; Support</small><strong>Raise a Ticket</strong></div>
+        </header>
+
+        <div class="ticket">
+          <div class="ticket-main">
+            <div class="row-between">
+              <span class="mono muted">#TKT-1042</span>
+              <span class="chip chip-amber">In progress</span>
+            </div>
+            <p class="t-subject">Unable to submit Week 3 assignment</p>
+            <div class="t-meta"><span class="tag">Assignment</span><span class="muted">2h ago</span></div>
+          </div>
+          <div class="ticket-stub">
+            <small>Priority</small>
+            <strong>High</strong>
+          </div>
+        </div>
+
+        <div class="chat">
+          <div class="bubble me">Upload keeps failing at 90%.</div>
+          <div class="bubble them"><b>Support team</b>Fixed on our side — please retry now.</div>
+        </div>
+      </section>
+
+      <!-- ===================== RIGHT — SOLVING ASSIGNMENTS ===================== -->
+      <section class="face f-right" aria-label="Solving assignments">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>
+          </span>
+          <div><small>Code Editor</small><strong>Solve Assignments</strong></div>
+        </header>
+
+        <div class="win">
+          <div class="win-bar">
+            <i></i><i></i><i></i>
+            <span>two_sum.py</span>
+          </div>
+<pre class="code"><span class="ln">1</span><span class="kw">def</span> <span class="fn">two_sum</span>(nums, target):
+<span class="ln">2</span>    seen = {{ '{' }}{{ '}' }}
+<span class="ln">3</span>    <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):
+<span class="ln">4</span>        <span class="kw">if</span> target - n <span class="kw">in</span> seen:
+<span class="ln">5</span>            <span class="kw">return</span> [seen[target - n], i]
+<span class="ln">6</span>        seen[n] = i<span class="caret"></span></pre>
+        </div>
+
+        <div class="tests">
+          <span class="ok">
+            <svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg>
+            5 / 5 tests passed
+          </span>
+          <span class="chip chip-accent">+20 pts</span>
+        </div>
+      </section>
+
+      <!-- ===================== BACK — LEADERBOARD ===================== -->
+      <section class="face f-back" aria-label="Leaderboard">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"/></svg>
+          </span>
+          <div><small>Rankings</small><strong>Leaderboard</strong></div>
+        </header>
+
+        <div class="podium">
+          <div class="pod p2"><span class="av">AK</span><div class="bar"><b>2</b></div></div>
+          <div class="pod p1"><span class="av">PS</span><div class="bar"><b>1</b></div></div>
+          <div class="pod p3"><span class="av">RV</span><div class="bar"><b>3</b></div></div>
+        </div>
+
+        <ul class="ranks">
+          <li><span class="r">4</span><span class="n">Meera J</span><span class="s"><i style="width: 78%"></i></span><b>742</b></li>
+          <li class="me"><span class="r">5</span><span class="n">You</span><span class="s"><i style="width: 71%"></i></span><b>690</b></li>
+          <li><span class="r">6</span><span class="n">Arjun T</span><span class="s"><i style="width: 64%"></i></span><b>655</b></li>
+        </ul>
+      </section>
+
+      <!-- ===================== LEFT — LOGIN ISSUES ===================== -->
+      <section class="face f-left" aria-label="Login help">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </span>
+          <div><small>Account</small><strong>Login Issues</strong></div>
+        </header>
+
+        <div class="form">
+          <div class="field">
+            <small>College</small>
+            <div class="input">Jain University <span class="caret-down"></span></div>
+          </div>
+          <div class="field">
+            <small>Email</small>
+            <div class="input">student&#64;college.edu</div>
+          </div>
+          <div class="field">
+            <small>Password</small>
+            <div class="input input-error">••••••••</div>
+          </div>
+          <div class="row-between">
+            <span class="err">Incorrect password</span>
+            <span class="link">Forgot password?</span>
+          </div>
+        </div>
+
+        <div class="notice">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+          Reset link sent to your email
+        </div>
+      </section>
+
+      <!-- ===================== TOP — COURSES ===================== -->
+      <section class="face f-top" aria-label="Courses">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </span>
+          <div><small>Learning Domains</small><strong>My Courses</strong></div>
+        </header>
+
+        <ul class="courses">
+          <li><div class="row-between"><span>Full Stack Development</span><b>82%</b></div><span class="prog"><i style="width: 82%"></i></span></li>
+          <li><div class="row-between"><span>AI &amp; Machine Learning</span><b>56%</b></div><span class="prog"><i style="width: 56%"></i></span></li>
+          <li><div class="row-between"><span>Data Science</span><b>34%</b></div><span class="prog"><i style="width: 34%"></i></span></li>
+        </ul>
+
+        <div class="t-meta"><span class="tag">12 tasks</span><span class="tag">8 assignments</span></div>
+      </section>
+
+      <!-- ===================== BOTTOM — PLACEMENTS ===================== -->
+      <section class="face f-bottom" aria-label="Placements">
+        <header class="fh">
+          <span class="fh-icon">
+            <svg viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect x="2" y="6" width="20" height="14" rx="2"/></svg>
+          </span>
+          <div><small>Career</small><strong>Placements</strong></div>
+        </header>
+
+        <ol class="steps">
+          <li class="done"><span></span>Skill assessment</li>
+          <li class="done"><span></span>Mock interviews</li>
+          <li class="done"><span></span>Placement drive</li>
+          <li class="now"><span></span>Offer received</li>
+        </ol>
+
+        <div class="offer">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+          <div><strong>Software Engineer</strong><small>Offer letter issued</small></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Face picker -->
+  <div class="hc-picker" role="tablist" aria-label="Show cube face">
+    @for (f of faces; track f.key) {
+      <button
+        type="button"
+        role="tab"
+        [class.active]="active() === f.key"
+        [attr.aria-selected]="active() === f.key"
+        (click)="show(f)">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+</div>

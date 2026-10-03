@@ -2,6 +2,9 @@
 
 /* =====================================================
    HOST
+   Header heights (keep in sync with admin.css .content top):
+   - desktop (>= 1180px): 60px top row + 46px nav row = 106px
+   - mobile  (<  1180px): 60px top row only, nav drops down
 ===================================================== */
 
 :host {
@@ -10,341 +13,49 @@
 
 
 /* =====================================================
-   OVERLAY
+   HEADER SHELL
 ===================================================== */
 
-.sidebar-overlay {
-  @apply fixed inset-0 z-[998] bg-black/65 backdrop-blur-[3px];
-  animation: fadeIn 0.2s ease;
-}
-
-
-/* =====================================================
-   OFFCANVAS SIDEBAR
-===================================================== */
-
-.app-sidebar {
-  @apply fixed top-0 left-0 z-[999]
-         flex h-screen w-[270px] flex-col
-         border-r border-[#29292f]
-         bg-[#111114]
-         -translate-x-full
-         transition-all duration-300;
-
-  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-}
-
-.app-sidebar.sidebar-open {
-  @apply translate-x-0 shadow-[15px_0_45px_rgba(0,0,0,0.45)];
-}
-
-
-/* =====================================================
-   SIDEBAR HEADER
-===================================================== */
-
-.sidebar-header {
-  @apply flex h-[72px] shrink-0
-         items-center justify-between
-         border-b border-[#29292f]
-         px-[18px];
-}
-
-
-/* =====================================================
-   BRAND
-===================================================== */
-
-.brand-wrapper {
-  @apply flex items-center gap-[11px];
-}
-
-.brand-mark {
-  @apply flex h-[34px] w-[34px]
-         items-center justify-center
-         overflow-hidden
-         rounded-lg;
-}
-
-.brand-logo {
-  @apply h-[34px] w-[34px] object-contain;
-}
-
-.brand-text {
-  @apply flex flex-col leading-[1.1];
-}
-
-.brand-name {
-  @apply text-[13px] font-bold
-         tracking-[0.08em]
-         text-white;
-}
-
-.brand-subtitle {
-  @apply mt-1 text-[8px]
-         font-semibold
-         tracking-[0.12em]
-         text-[#71717a];
-}
-
-
-/* =====================================================
-   CLOSE BUTTON
-===================================================== */
-
-.sidebar-close {
-  @apply flex h-[34px] w-[34px]
-         cursor-pointer
-         items-center justify-center
-         rounded-[7px]
-         border-0
-         bg-transparent
-         text-[#71717a]
-         transition-all duration-200;
-}
-
-.sidebar-close:hover {
-  @apply bg-[#202025] text-white;
-}
-
-.sidebar-close svg {
-  @apply h-[18px] w-[18px] fill-none;
-}
-
-
-/* =====================================================
-   SIDEBAR CONTENT
-===================================================== */
-
-.sidebar-content {
-  @apply flex-1 overflow-y-auto px-3 py-[18px];
-}
-
-.sidebar-content::-webkit-scrollbar {
-  @apply w-1;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-[#303036];
-}
-
-
-/* =====================================================
-   SECTION TITLE
-===================================================== */
-
-.nav-section-title {
-  @apply px-3 pb-[9px]
-         text-[9px]
-         font-bold
-         tracking-[0.12em]
-         text-[#606069];
-}
-
-
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-.sidebar-nav {
-  @apply flex flex-col gap-[3px];
-}
-
-.nav-item {
-  @apply relative
-         flex min-h-[42px] w-full
-         cursor-pointer
-         items-center
-         gap-3
-         rounded-[7px]
-         border-0
-         bg-transparent
-         px-3
-         text-[12px]
-         font-medium
-         text-[#a1a1aa]
-         no-underline
-         transition-all duration-200;
-}
-
-.nav-item:hover {
-  @apply bg-[#1c1c21] text-white;
-}
-
-.nav-item svg {
-  @apply h-[17px] w-[17px]
-         shrink-0
-         fill-none
-         stroke-current
-         stroke-[1.7]
-         [stroke-linecap:round]
-         [stroke-linejoin:round];
-}
-
-.nav-item span {
-  @apply overflow-hidden
-         text-ellipsis
-         whitespace-nowrap;
-}
-
-
-/* =====================================================
-   ACTIVE NAVIGATION
-===================================================== */
-
-.nav-item.active-link {
-  @apply bg-gradient-to-r
-         from-(--accent)
-         to-(--accent)/65
-         text-(--on-accent)
-         shadow-[0_4px_16px_rgba(var(--violet-rgb),0.18)];
-}
-
-.nav-item.active-link::before {
-  content: "";
-
-  @apply absolute
-         top-2 bottom-2 left-0
-         w-[3px]
-         rounded-r
-         bg-(--accent-text);
-}
-
-
-/* =====================================================
-   NAV GROUP
-===================================================== */
-
-.nav-group {
-  @apply mt-[3px];
-}
-
-.nav-group-button {
-  @apply justify-between text-left;
-}
-
-.nav-item-left {
-  @apply flex items-center gap-3;
-}
-
-.chevron {
-  @apply h-[15px] w-[15px]
-         transition-transform duration-200;
-}
-
-.chevron.rotate {
-  @apply rotate-180;
-}
-
-
-/* =====================================================
-   SUBMENU
-===================================================== */
-
-.submenu {
-  @apply relative
-         ml-5 mb-[6px]
-         flex flex-col gap-0.5
-         border-l border-[#303038]
-         pl-[14px];
-}
-
-.submenu a {
-  @apply flex min-h-[35px]
-         items-center
-         rounded-md
-         px-2.5
-         text-[11px]
-         text-[#85858e]
-         no-underline
-         transition-all duration-200;
-}
-
-.submenu a:hover {
-  @apply bg-[#1d1d22] text-white;
-}
-
-.submenu a.active-sublink {
-  @apply bg-(--accent)/10
-         font-semibold
-         text-(--accent-text);
-}
-
-
-/* =====================================================
-   SIDEBAR FOOTER
-===================================================== */
-
-.sidebar-footer {
-  @apply shrink-0 border-t border-[#29292f] p-[14px];
-}
-
-.system-status {
-  @apply flex items-center gap-2.5
-         rounded-lg
-         border border-[#29292f]
-         bg-[#18181c]
-         p-[11px];
-}
-
-.status-dot {
-  @apply h-[7px] w-[7px]
-         rounded-full
-         bg-green-500
-         shadow-[0_0_8px_rgba(34,197,94,0.7)];
-}
-
-.system-status div {
-  @apply flex flex-col;
-}
-
-.system-status strong {
-  @apply text-[10px] text-[#d4d4d8];
-}
-
-.system-status small {
-  @apply mt-0.5 text-[9px] text-[#62626b];
-}
-
-
-/* =====================================================
-   TOP HEADER
-===================================================== */
-
-.top-header {
+.app-header {
   @apply fixed
          top-0 right-0 left-0
          z-[900]
-         flex h-[68px]
-         items-center
          border-b border-[#29292f]
          bg-[#111114]/95
-         px-[22px]
          text-white
          backdrop-blur-xl;
 }
 
 
 /* =====================================================
-   HEADER LEFT
+   ROW 1 — TOP BAR
 ===================================================== */
 
+.header-top {
+  @apply relative z-[2]
+         flex h-[60px]
+         items-center
+         gap-4
+         border-b border-[#1f1f24]
+         px-6;
+}
+
 .header-left {
-  @apply flex min-w-[300px]
-         items-center gap-[13px];
+  @apply flex min-w-0 items-center gap-[13px];
+}
+
+.header-right {
+  @apply ml-auto flex shrink-0 items-center gap-2;
 }
 
 
 /* =====================================================
-   MENU BUTTON
+   MENU BUTTON (mobile only)
 ===================================================== */
 
 .menu-button {
-  @apply flex h-9 w-9
+  @apply hidden h-9 w-9
+         shrink-0
          cursor-pointer
          items-center justify-center
          rounded-[7px]
@@ -354,7 +65,8 @@
          transition-all duration-200;
 }
 
-.menu-button:hover {
+.menu-button:hover,
+.menu-button.is-open {
   @apply border-[#3a3a42]
          bg-[#202025]
          text-white;
@@ -370,11 +82,12 @@
 
 
 /* =====================================================
-   COLLEGE BRAND
+   BRANDS
 ===================================================== */
 
 .college-brand {
   @apply flex h-9 w-9
+         shrink-0
          items-center justify-center
          overflow-hidden;
 }
@@ -385,26 +98,16 @@
          object-contain;
 }
 
-
-/* =====================================================
-   HEADER DIVIDER
-===================================================== */
-
 .header-divider {
-  @apply h-7 w-px bg-[#303036];
+  @apply h-7 w-px shrink-0 bg-[#303036];
 }
-
-
-/* =====================================================
-   TECHNEX BRAND
-===================================================== */
 
 .technex-brand {
   @apply flex items-center gap-2 no-underline;
 }
 
 .technex-brand img {
-  @apply h-7 w-7 object-contain;
+  @apply h-7 w-7 rounded-md object-contain;
 }
 
 .technex-title {
@@ -418,22 +121,20 @@
 }
 
 .technex-title span {
-  @apply mt-0.5 text-[8px] text-[#686871];
+  @apply mt-0.5
+         text-[8px]
+         tracking-[0.1em]
+         text-[#686871];
 }
 
 
 /* =====================================================
-   HEADER RIGHT
+   HEADER ACTIONS
 ===================================================== */
 
-.header-right {
-  @apply ml-auto flex items-center gap-2;
+.header-separator {
+  @apply mx-1 h-6 w-px bg-[#2b2b31];
 }
-
-
-/* =====================================================
-   HEADER ICONS
-===================================================== */
 
 .header-action {
   @apply relative
@@ -447,7 +148,8 @@
          transition-all duration-200;
 }
 
-.header-action:hover {
+.header-action:hover,
+.header-action.is-active {
   @apply border-[#2b2b31]
          bg-[#1c1c21]
          text-white;
@@ -518,17 +220,20 @@
 .user-profile {
   @apply flex items-center gap-[9px]
          rounded-lg
-         px-1 py-1 pr-2
+         border border-transparent
+         px-1 py-1 pr-2.5
          no-underline
          transition-all duration-200;
 }
 
-.user-profile:hover {
-  @apply bg-[#1c1c21];
+.user-profile:hover,
+.user-profile.is-active {
+  @apply border-[#2b2b31] bg-[#1c1c21];
 }
 
 .profile-avatar {
   @apply flex h-[30px] w-[30px]
+         shrink-0
          items-center justify-center
          overflow-hidden
          rounded-[7px]
@@ -540,23 +245,19 @@
 }
 
 .profile-details {
-  @apply flex min-w-20 flex-col;
+  @apply flex max-w-[140px] flex-col;
 }
 
 .profile-details strong {
   @apply overflow-hidden
          text-ellipsis
          whitespace-nowrap
-         text-[10px]
+         text-[11px]
          text-[#e4e4e7];
 }
 
 .profile-details span {
-  @apply mt-0.5 text-[8px] text-[#64646d];
-}
-
-.profile-chevron {
-  @apply h-[13px] w-[13px] text-[#686871];
+  @apply mt-0.5 text-[9px] text-[#64646d];
 }
 
 
@@ -571,8 +272,8 @@
          rounded-[7px]
          border border-(--accent)
          bg-(--accent)
-         px-[11px]
-         text-[10px]
+         px-[12px]
+         text-[11px]
          font-semibold
          text-(--on-accent)
          transition-all duration-200;
@@ -596,6 +297,230 @@
 
 
 /* =====================================================
+   ROW 2 — PRIMARY NAVIGATION (desktop bar)
+===================================================== */
+
+.header-nav {
+  @apply relative z-[1]
+         flex h-[46px]
+         items-center
+         px-6;
+}
+
+.nav-list {
+  @apply m-0 flex h-full
+         list-none
+         items-center
+         gap-1
+         p-0;
+}
+
+.nav-list > li {
+  @apply relative flex h-full items-center;
+}
+
+
+/* =====================================================
+   NAV LINK
+===================================================== */
+
+.nav-link {
+  @apply relative
+         flex h-[34px]
+         cursor-pointer
+         items-center
+         gap-2
+         whitespace-nowrap
+         rounded-[7px]
+         border-0
+         bg-transparent
+         px-3
+         text-[12px]
+         font-medium
+         text-[#a1a1aa]
+         no-underline
+         transition-colors duration-200;
+}
+
+.nav-link:hover,
+.nav-link.is-open {
+  @apply bg-[#1c1c21] text-white;
+}
+
+.nav-link svg {
+  @apply h-[16px] w-[16px]
+         shrink-0
+         fill-none
+         stroke-current
+         stroke-[1.7]
+         [stroke-linecap:round]
+         [stroke-linejoin:round];
+}
+
+.nav-link.is-active {
+  @apply bg-(--accent)/12 text-(--accent-text);
+}
+
+/* Underline indicator sitting on the header's bottom border */
+.nav-link.is-active::after {
+  content: "";
+
+  @apply absolute
+         right-3 left-3
+         bottom-[-6px]
+         h-[2px]
+         rounded-full
+         bg-(--accent);
+}
+
+
+/* =====================================================
+   DROPDOWN TOGGLE
+===================================================== */
+
+.dropdown-toggle .chevron {
+  @apply -mr-1
+         h-[14px] w-[14px]
+         opacity-70
+         transition-transform duration-200;
+}
+
+.dropdown-toggle.is-open .chevron {
+  @apply rotate-180 opacity-100;
+}
+
+
+/* =====================================================
+   DROPDOWN PANEL
+===================================================== */
+
+.dropdown-menu {
+  @apply invisible
+         absolute
+         top-[calc(100%+2px)] left-0
+         z-[10]
+         w-[280px]
+         translate-y-1.5
+         rounded-xl
+         border border-[#29292f]
+         bg-[#141418]
+         p-2
+         opacity-0
+         shadow-[0_18px_50px_-12px_rgba(0,0,0,0.75)]
+         transition-all duration-200;
+}
+
+.dropdown-menu.is-open {
+  @apply visible translate-y-0 opacity-100;
+}
+
+.dropdown-wide {
+  @apply w-[460px];
+}
+
+.dropdown-heading {
+  @apply mb-1.5
+         flex flex-col
+         border-b border-[#232329]
+         px-2.5 pt-1.5 pb-2.5;
+}
+
+.dropdown-heading strong {
+  @apply text-[10px]
+         font-bold
+         uppercase
+         tracking-[0.12em]
+         text-[#d4d4d8];
+}
+
+.dropdown-heading span {
+  @apply mt-0.5 text-[10px] text-[#63636c];
+}
+
+.dropdown-grid {
+  @apply grid grid-cols-2 gap-0.5;
+}
+
+.dropdown-list {
+  @apply flex flex-col gap-0.5;
+}
+
+
+/* =====================================================
+   DROPDOWN ITEM
+===================================================== */
+
+.dropdown-item {
+  @apply flex min-h-[38px]
+         items-center
+         gap-2.5
+         rounded-lg
+         px-2.5 py-1.5
+         text-[12px]
+         text-[#a1a1aa]
+         no-underline
+         transition-colors duration-150;
+}
+
+.dropdown-item:hover {
+  @apply bg-[#1d1d22] text-white;
+}
+
+.item-icon {
+  @apply flex h-7 w-7
+         shrink-0
+         items-center justify-center
+         rounded-md
+         border border-[#29292f]
+         bg-[#1a1a1f]
+         text-[#8b8b94]
+         transition-colors duration-150;
+}
+
+.item-icon svg {
+  @apply h-[14px] w-[14px]
+         fill-none
+         stroke-current
+         stroke-[1.7]
+         [stroke-linecap:round]
+         [stroke-linejoin:round];
+}
+
+.dropdown-item:hover .item-icon {
+  @apply border-[#3a3a42] text-white;
+}
+
+.item-label {
+  @apply overflow-hidden text-ellipsis whitespace-nowrap;
+}
+
+.item-label i {
+  @apply px-0.5 not-italic text-[#55555e];
+}
+
+.dropdown-item.is-active {
+  @apply bg-(--accent)/10 font-semibold text-(--accent-text);
+}
+
+.dropdown-item.is-active .item-icon {
+  @apply border-(--accent)/40 bg-(--accent)/15 text-(--accent-text);
+}
+
+.dropdown-item.is-active .item-label i {
+  @apply text-(--accent-text)/60;
+}
+
+
+/* =====================================================
+   MOBILE BACKDROP
+===================================================== */
+
+.nav-backdrop {
+  @apply hidden;
+}
+
+
+/* =====================================================
    ANIMATION
 ===================================================== */
 
@@ -611,35 +536,135 @@
 
 
 /* =====================================================
-   RESPONSIVE
+   COMPACT DESKTOP
 ===================================================== */
 
-@media (max-width: 850px) {
+@media (min-width: 1180px) and (max-width: 1360px) {
 
-  .header-left {
-    @apply min-w-0;
-  }
-
-  .technex-title {
-    @apply hidden;
-  }
-
-  .profile-details {
-    @apply hidden;
+  .nav-link {
+    @apply px-2.5;
   }
 
 }
 
 
-@media (max-width: 650px) {
+/* =====================================================
+   TABLET / MOBILE — nav row becomes a drop-down panel
+===================================================== */
 
-  .top-header {
-    @apply px-3;
+@media (max-width: 1179px) {
+
+  .menu-button {
+    @apply flex;
+  }
+
+  .nav-backdrop {
+    @apply fixed inset-0 top-[60px]
+           z-[899]
+           block
+           bg-black/55
+           backdrop-blur-[2px];
+    animation: fadeIn 0.2s ease;
+  }
+
+  .header-nav {
+    @apply invisible
+           absolute
+           top-full right-0 left-0
+           block h-auto
+           max-h-[calc(100vh-60px)]
+           -translate-y-2
+           overflow-y-auto
+           border-b border-[#29292f]
+           bg-[#111114]
+           px-3 py-3
+           opacity-0
+           shadow-[0_24px_40px_-12px_rgba(0,0,0,0.7)]
+           transition-all duration-200;
+  }
+
+  .header-nav.is-open {
+    @apply visible translate-y-0 opacity-100;
+  }
+
+  .nav-list {
+    @apply h-auto flex-col items-stretch gap-0.5;
+  }
+
+  .nav-list > li {
+    @apply h-auto flex-col items-stretch;
+  }
+
+  .nav-link {
+    @apply h-[42px] w-full text-[13px];
+  }
+
+  .nav-link.is-active::after {
+    @apply top-2.5 bottom-2.5 left-0 right-auto
+           h-auto w-[3px];
+  }
+
+  .dropdown-toggle .chevron {
+    @apply ml-auto;
+  }
+
+  /* Dropdowns become inline accordions */
+  .dropdown-menu,
+  .dropdown-wide {
+    @apply visible static
+           hidden w-auto
+           translate-y-0
+           rounded-none
+           border-0
+           border-l border-[#2b2b31]
+           bg-transparent
+           ml-5 my-1 py-0 pl-3 pr-0
+           opacity-100
+           shadow-none;
+  }
+
+  .dropdown-menu.is-open {
+    @apply block;
+  }
+
+  .dropdown-heading {
+    @apply hidden;
+  }
+
+  .dropdown-grid {
+    @apply grid-cols-1;
+  }
+
+}
+
+
+@media (max-width: 850px) {
+
+  .technex-title,
+  .profile-details,
+  .header-separator {
+    @apply hidden;
+  }
+
+  .user-profile {
+    @apply p-1;
+  }
+
+}
+
+
+@media (max-width: 560px) {
+
+  .header-top {
+    @apply gap-2 px-3;
+  }
+
+  .header-right {
+    @apply gap-1.5;
   }
 
   .header-divider,
-  .college-brand,
-  .technex-brand {
+  .college-brand {
     @apply hidden;
   }
 
@@ -649,19 +674,6 @@
 
   .logout-button {
     @apply w-9 justify-center px-0;
-  }
-
-}
-
-
-/* =====================================================
-   LARGE SCREEN
-===================================================== */
-
-@media (min-width: 1200px) {
-
-  .app-sidebar.sidebar-open ~ .top-header {
-    @apply pl-[290px];
   }
 
 }

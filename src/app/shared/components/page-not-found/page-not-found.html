@@ -1,91 +1,118 @@
-<div class="not-found-page">
+<div class="nf-page">
 
-  <div class="not-found-container">
-
-    <!-- BRAND -->
-    <div class="not-found-brand">
-
-      <img
-        src="../../../../assets/images/tripledot-logo.jpeg"
-        alt="Tripledot Ai Technologies"
-        class="not-found-logo" />
-
+  <!-- ================= TOP BAR ================= -->
+  <header class="nf-topbar">
+    <a routerLink="/main" class="nf-brand">
+      <img src="../../../../assets/images/tripledot-logo.jpeg" alt="" class="nf-logo" />
       <span>Tripledot Ai Technologies</span>
+    </a>
+    <span class="nf-code-pill">Error 404</span>
+  </header>
 
-    </div>
+  <main class="nf-main">
 
+    <!-- ================= MESSAGE ================= -->
+    <section class="nf-content">
 
-    <!-- ICON -->
-    <div class="not-found-icon">
+      <span class="nf-eyebrow">Page not found</span>
 
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.8"
-          d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-13l6 3m0 0l4.553-2.276A1 1 0 0121 5.618v10.764a1 1 0 01-.553.894L15 20m0-13v13" />
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="1.8"
-          d="M4 4l16 16" />
-      </svg>
+      <h1>We couldn't find that page.</h1>
 
-    </div>
+      <p class="nf-lead">
+        The link may be broken, the page may have moved, or you may not have
+        access to it. Check the address, or use one of the options below.
+      </p>
 
+      @if (requestedUrl) {
+        <div class="nf-url" [title]="requestedUrl">
+          <span class="nf-url-label">Requested</span>
+          <code>{{ requestedUrl }}</code>
+        </div>
+      }
 
-    <!-- 404 -->
-    <h1>404</h1>
+      <div class="nf-actions">
+        <a routerLink="/main" class="nf-btn nf-btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5M10 20v-5h4v5" />
+          </svg>
+          Go to Dashboard
+        </a>
 
-    <!-- HEADING -->
-    <h2>Page Not Found</h2>
+        <button type="button" class="nf-btn nf-btn-ghost" (click)="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 12H5m6-6-6 6 6 6" />
+          </svg>
+          Go Back
+        </button>
+      </div>
 
-    <!-- DESCRIPTION -->
-    <p>
-      The page you're looking for doesn't exist, may have been moved,
-      or you don't have permission to view it. Let's get you back to
-      the portal.
-    </p>
+      <!-- Quick links -->
+      <div class="nf-links">
+        <span class="nf-links-title">Popular destinations</span>
 
+        <ul>
+          @for (q of quickLinks; track q.link) {
+            <li>
+              <a [routerLink]="q.link" class="nf-link">
+                <span class="nf-link-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" [attr.d]="q.icon" />
+                  </svg>
+                </span>
+                <span class="nf-link-text">
+                  <strong>{{ q.label }}</strong>
+                  <small>{{ q.hint }}</small>
+                </span>
+                <svg class="nf-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
 
-    <!-- ACTIONS -->
-    <div class="not-found-actions">
+      <p class="nf-help">
+        Think this is a mistake?
+        <a routerLink="/main/ticket">Raise a support ticket</a>
+        and we'll look into it.
+      </p>
 
-      <a routerLink="/main/student-domain" class="home-button">
+    </section>
 
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4a1 1 0 001-1v-4a1 1 0 011-1h0a1 1 0 011 1v4a1 1 0 001 1h4a1 1 0 001-1V10" />
-        </svg>
+    <!-- ================= VISUAL ================= -->
+    <section class="nf-visual" aria-hidden="true">
 
-        Back to Dashboard
+      <div class="nf-grid"></div>
 
-      </a>
+      <div class="nf-digits">
+        <span>4</span>
+        <span class="nf-zero">
+          <svg viewBox="0 0 120 160" fill="none">
+            <rect x="6" y="6" width="108" height="148" rx="54" stroke="currentColor" stroke-width="12" />
+            <circle cx="60" cy="80" r="14" fill="currentColor" />
+          </svg>
+        </span>
+        <span>4</span>
+      </div>
 
-      <button type="button" (click)="goBack()" class="back-button">
+      <!-- Request log card -->
+      <div class="nf-log">
+        <div class="nf-log-head">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <small>request.log</small>
+        </div>
+        <div class="nf-log-body">
+          <p><span class="k">GET</span> <span class="path">{{ requestedUrl || '/unknown' }}</span></p>
+          <p><span class="muted">→ route lookup</span> <span class="miss">no match</span></p>
+          <p><span class="muted">→ status</span> <span class="miss">404 Not Found</span></p>
+          <p class="cursor"><span class="muted">$</span></p>
+        </div>
+      </div>
 
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7" />
-        </svg>
+    </section>
 
-        Go Back
-
-      </button>
-
-    </div>
-
-
-    <span class="error-reference">
-      Error Code: 404 &middot; Resource Not Found
-    </span>
-
-  </div>
+  </main>
 
 </div>

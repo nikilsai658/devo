@@ -14,11 +14,11 @@
 /* ---------------- PAGE ---------------- */
 
 .task-page {
-  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8;
+  @apply min-h-full w-full bg-black px-4 py-8 text-white antialiased sm:px-6 sm:py-10 lg:px-8 lg:py-14;
 }
 
 .task-container {
-  @apply mx-auto max-w-3xl;
+  @apply mx-auto w-full max-w-7xl;
 }
 
 .page-breadcrumb {

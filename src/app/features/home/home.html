@@ -38,22 +38,31 @@
     <div class="grid-bg"></div>
 
     <div class="wrap hero-inner">
-      <h1>
-        One portal from <span class="grad">classroom</span><br />
-        to <span class="grad">career</span>.
-      </h1>
-      <p class="lead">
-        The Tripledot AI learning portal connects students, faculty and colleges — structured domain courses,
-        hands-on coding assignments, and a direct path to placements and internship opportunities.
-      </p>
-      <div class="hero-cta">
-        <a routerLink="/auth/college" class="btn btn-primary btn-lg">
-          Get started
-          <ng-container *ngTemplateOutlet="ico; context: { $implicit: icons.send }" />
-        </a>
-        <button type="button" class="btn btn-ghost btn-lg" (click)="scrollTo('process')">See how it works</button>
+      <div class="hero-copy">
+        <h1>
+          One portal from <span class="grad">classroom</span><br />
+          to <span class="grad">career</span>.
+        </h1>
+        <p class="lead">
+          The Tripledot AI learning portal connects students, faculty and colleges — structured domain courses,
+          hands-on coding assignments, and a direct path to placements and internship opportunities.
+        </p>
+        <div class="hero-cta">
+          <a routerLink="/auth/college" class="btn btn-primary btn-lg">
+            Get started
+            <ng-container *ngTemplateOutlet="ico; context: { $implicit: icons.send }" />
+          </a>
+          <button type="button" class="btn btn-ghost btn-lg" (click)="scrollTo('process')">See how it works</button>
+        </div>
       </div>
 
+      <app-hero-cube class="hero-cube" />
+    </div>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="stats-band" #statsBand aria-label="Portal at a glance">
+    <div class="wrap">
       <div class="stats">
         @for (s of stats; track s.label) {
           <div class="stat">

@@ -1,6 +1,10 @@
+/* =============================================================
+   PAGE NOT FOUND — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Split layout: message + actions on the left, 404 visual on the right.
+   Light mode inverts the whole app globally (see styles.css).
+============================================================= */
 @import "tailwindcss";
 
-/* Dark theme page shell */
 :host {
   display: block;
   min-height: 100vh;
@@ -8,164 +12,276 @@
   color-scheme: dark;
 }
 
-/* Main page */
-
-.not-found-page {
-  @apply min-h-screen flex items-center justify-center px-6;
-  background: #000;
+.nf-page {
+  @apply flex min-h-screen w-full flex-col bg-black text-white antialiased;
 }
 
-.not-found-container {
-  @apply w-full max-w-lg text-center;
+/* ---------------- TOP BAR ---------------- */
+
+.nf-topbar {
+  @apply mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8;
 }
 
-/* Brand */
-
-.not-found-brand {
-  @apply flex items-center justify-center gap-2 mb-10;
-  font-size: 14px;
-  font-weight: 600;
-  color: #d4d4d8;
+.nf-brand {
+  @apply flex min-w-0 items-center gap-2.5 text-sm font-semibold text-zinc-200 no-underline
+         transition hover:text-white;
 }
 
-.not-found-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  object-fit: cover;
+.nf-brand span {
+  @apply truncate;
 }
 
-/* Error icon */
-
-.not-found-icon {
-  @apply mx-auto mb-6 flex items-center justify-center;
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
+.nf-logo {
+  @apply h-8 w-8 shrink-0 rounded-lg object-cover;
 }
 
-.not-found-icon svg {
-  width: 42px;
-  height: 42px;
+.nf-code-pill {
+  @apply shrink-0 rounded-full border border-white/10 px-3 py-1 font-mono text-xs text-zinc-400;
 }
 
-/* 404 */
+/* ---------------- LAYOUT ---------------- */
 
-.not-found-container h1 {
-  @apply m-0 font-extrabold;
-  font-size: 96px;
-  line-height: 1;
-  letter-spacing: -4px;
-  color: #fff;
+.nf-main {
+  @apply mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-4 pb-12 pt-4
+         sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16 lg:px-8 lg:pb-16;
 }
 
-/* Heading */
+/* ---------------- CONTENT ---------------- */
 
-.not-found-container h2 {
-  @apply mt-5 mb-3 font-bold;
-  font-size: 28px;
-  color: #fff;
+.nf-content {
+  @apply min-w-0 max-w-xl;
 }
 
-/* Description */
-
-.not-found-container p {
-  @apply mx-auto mb-8;
-  max-width: 450px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #a1a1aa;
+.nf-eyebrow {
+  @apply mb-4 inline-flex items-center gap-2 rounded-full border border-(--accent)/40 bg-(--accent)/10
+         px-3 py-1 text-xs font-semibold uppercase tracking-wide text-(--accent-text);
 }
 
-/* Buttons */
-
-.not-found-actions {
-  @apply flex items-center justify-center gap-3;
+.nf-eyebrow::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
 }
 
-.home-button,
-.back-button {
-  @apply inline-flex items-center justify-center gap-2;
-  min-height: 44px;
-  padding: 0 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.nf-content h1 {
+  @apply text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl;
 }
 
-.home-button {
-  background: var(--accent);
-  color: var(--on-accent);
-  border: 1px solid var(--accent);
+.nf-lead {
+  @apply mt-4 text-base leading-relaxed text-zinc-400;
 }
 
-.home-button:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-  transform: translateY(-1px);
+/* Requested URL */
+
+.nf-url {
+  @apply mt-6 flex min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-zinc-950 px-4 py-3;
 }
 
-.home-button svg {
-  width: 18px;
-  height: 18px;
+.nf-url-label {
+  @apply shrink-0 text-[11px] font-medium uppercase tracking-wider text-zinc-500;
 }
 
-.back-button {
-  background: transparent;
-  color: #fff;
-  border: 1.5px solid var(--accent);
+.nf-url code {
+  @apply truncate font-mono text-sm text-rose-300;
 }
 
-.back-button:hover {
-  background: var(--accent);
-  color: var(--on-accent);
-  transform: translateY(-1px);
+/* Actions */
+
+.nf-actions {
+  @apply mt-8 flex flex-col gap-3 sm:flex-row;
 }
 
-.back-button svg {
-  width: 18px;
-  height: 18px;
-  transition: transform 0.2s ease;
+.nf-btn {
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-5
+         text-sm font-semibold no-underline transition duration-200 active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-soft)
+         focus-visible:ring-offset-2 focus-visible:ring-offset-black;
 }
 
-.back-button:hover svg {
-  transform: translateX(-3px);
+.nf-btn svg {
+  @apply h-5 w-5;
 }
 
-/* Error reference */
-
-.error-reference {
-  @apply block mt-8;
-  font-size: 12px;
-  color: #71717a;
+.nf-btn-primary {
+  @apply bg-(--accent) text-(--on-accent) hover:bg-(--accent-hover);
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
 }
 
-/* Mobile */
+.nf-btn-ghost {
+  @apply border border-white/10 bg-white/5 text-zinc-200 hover:border-white/20 hover:bg-white/10 hover:text-white;
+}
+
+/* Quick links */
+
+.nf-links {
+  @apply mt-10 border-t border-white/10 pt-6;
+}
+
+.nf-links-title {
+  @apply mb-3 block text-xs font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.nf-links ul {
+  @apply grid gap-2 sm:grid-cols-3;
+}
+
+.nf-link {
+  @apply flex h-full items-center gap-3 rounded-xl border border-white/10 bg-zinc-950 p-3
+         no-underline transition duration-200 hover:border-white/20 hover:bg-zinc-900
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent);
+}
+
+.nf-link-icon {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-(--accent)/40
+         bg-(--accent)/15 text-(--accent-text);
+}
+
+.nf-link-icon svg {
+  @apply h-4.5 w-4.5;
+}
+
+.nf-link-text {
+  @apply min-w-0 flex-1;
+}
+
+.nf-link-text strong {
+  @apply block truncate text-sm font-medium text-white;
+}
+
+.nf-link-text small {
+  @apply block truncate text-xs text-zinc-500;
+}
+
+.nf-link-arrow {
+  @apply h-4 w-4 shrink-0 text-zinc-600 transition duration-200;
+}
+
+.nf-link:hover .nf-link-arrow {
+  @apply translate-x-0.5 text-white;
+}
+
+/* Help */
+
+.nf-help {
+  @apply mt-6 text-sm text-zinc-500;
+}
+
+.nf-help a {
+  @apply font-medium text-(--accent-text) underline-offset-4 hover:underline;
+}
+
+/* ---------------- VISUAL ---------------- */
+
+.nf-visual {
+  @apply relative hidden aspect-square w-full items-center justify-center overflow-hidden rounded-3xl
+         border border-white/10 bg-zinc-950 lg:flex;
+}
+
+/* Faint grid that fades out toward the edges */
+.nf-grid {
+  @apply absolute inset-0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, #000 30%, transparent 75%);
+}
+
+.nf-visual::after {
+  content: "";
+  @apply pointer-events-none absolute inset-0;
+  background: radial-gradient(60% 50% at 50% 40%, rgba(var(--accent-rgb), 0.22), transparent 70%);
+}
+
+.nf-digits {
+  @apply relative z-10 -mt-16 flex items-center gap-3 font-bold leading-none tracking-tighter;
+  font-size: clamp(7rem, 12vw, 11rem);
+}
+
+.nf-digits > span:not(.nf-zero) {
+  color: transparent;
+  -webkit-text-stroke: 3px rgba(255, 255, 255, 0.85);
+}
+
+.nf-zero {
+  @apply flex items-center text-(--accent);
+  height: 0.78em;
+}
+
+.nf-zero svg {
+  @apply h-full w-auto;
+  filter: drop-shadow(0 0 24px rgba(var(--accent-rgb), 0.6));
+}
+
+/* Request log card */
+
+.nf-log {
+  @apply absolute bottom-8 left-8 right-8 z-10 overflow-hidden rounded-xl border border-white/10
+         bg-black/80 backdrop-blur;
+}
+
+.nf-log-head {
+  @apply flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5;
+}
+
+.nf-log-head .dot {
+  @apply h-2.5 w-2.5 rounded-full bg-white/15;
+}
+
+.nf-log-head small {
+  @apply ml-2 font-mono text-[11px] text-zinc-500;
+}
+
+.nf-log-body {
+  @apply space-y-1 px-4 py-3 font-mono text-xs leading-5;
+}
+
+.nf-log-body p {
+  @apply truncate text-zinc-300;
+}
+
+.nf-log-body .k {
+  @apply font-semibold text-(--accent-text);
+}
+
+.nf-log-body .muted {
+  @apply text-zinc-500;
+}
+
+.nf-log-body .miss {
+  @apply text-rose-400;
+}
+
+.nf-log-body .cursor::after {
+  content: "";
+  @apply ml-1.5 inline-block h-3.5 w-1.5 translate-y-0.5 bg-zinc-400;
+  animation: nf-blink 1.1s steps(1) infinite;
+}
+
+@keyframes nf-blink {
+  50% { opacity: 0; }
+}
+
+/* ---------------- RESPONSIVE ---------------- */
 
 @media (max-width: 640px) {
-  .not-found-container h1 {
-    font-size: 72px;
+  .nf-content h1 {
+    @apply text-3xl;
   }
 
-  .not-found-container h2 {
-    font-size: 23px;
+  .nf-actions .nf-btn {
+    @apply w-full;
   }
+}
 
-  .not-found-container p {
-    font-size: 14px;
-  }
+/* ---------------- ACCESSIBILITY ---------------- */
 
-  .not-found-actions {
-    @apply flex-col;
-  }
-
-  .home-button,
-  .back-button {
-    width: 100%;
+@media (prefers-reduced-motion: reduce) {
+  .nf-btn,
+  .nf-link,
+  .nf-link-arrow,
+  .nf-log-body .cursor::after {
+    animation: none;
+    transition: none;
   }
 }

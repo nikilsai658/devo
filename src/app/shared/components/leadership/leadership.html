@@ -1,497 +1,297 @@
-<div class="leaderboard-page">
+<div class="lb-page">
 
-  <!-- =====================================================
-       HEADER
-  ====================================================== -->
-
-  <div class="leaderboard-header">
-
-    <div class="header-content">
-
-      <div class="title-section">
-
-        <span class="page-label">
-          LEARNING PORTAL
-        </span>
-
-        <h1 class="page-title">
-          Student Leaderboard
-        </h1>
-
-        <p class="page-subtitle">
-          Comprehensive evaluation metrics, rubric weights, and cohort distribution
-        </p>
-
-      </div>
-
+  <!-- ================= HEADER ================= -->
+  <header class="lb-header">
+    <div>
+      <span class="lb-eyebrow">Domain Leaderboard</span>
+      <h1>Leaderboard</h1>
+      <p>See how you rank against your cohort based on assignment scores.</p>
     </div>
 
+    <button type="button" class="btn-ghost" (click)="getLeaderboard()" [disabled]="loading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" [class.spin]="loading" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
+      </svg>
+      Refresh
+    </button>
+  </header>
 
-    <!-- ================= MY STATISTICS ================= -->
+  <!-- ================= LOADING ================= -->
+  @if (loading) {
+    <div class="lb-skeleton">
+      <div class="sk sk-hero"></div>
+      <div class="sk-row">
+        <div class="sk sk-tile"></div><div class="sk sk-tile"></div>
+        <div class="sk sk-tile"></div><div class="sk sk-tile"></div>
+      </div>
+      <div class="sk sk-list"></div>
+    </div>
+  }
 
-    <div class="statistics-container">
+  <!-- ================= ERROR ================= -->
+  @else if (errorMessage) {
+    <div class="lb-state">
+      <span class="state-icon error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke-width="1.8"></circle>
+          <path stroke-linecap="round" stroke-width="1.8" d="M12 8v4M12 16h.01"></path>
+        </svg>
+      </span>
+      <h3>Something went wrong</h3>
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="btn-primary" (click)="getLeaderboard()">Try again</button>
+    </div>
+  }
 
-      <!-- My Standing -->
+  <!-- ================= EMPTY ================= -->
+  @else if (!leaderboard.length) {
+    <div class="lb-state">
+      <span class="state-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4ZM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path>
+        </svg>
+      </span>
+      <h3>No rankings yet</h3>
+      <p>Rankings will appear here once students start submitting assignments.</p>
+    </div>
+  }
 
-      <div class="stat-block">
+  @else {
 
-        <div class="stat-rank-box">
-          {{ myRank }}
+    <!-- ================= MY STANDING ================= -->
+    @if (myRank) {
+      <section class="standing-card" aria-label="Your standing">
+
+        <div class="standing-rank">
+          <span class="standing-label">Your rank</span>
+          <div class="rank-big">
+            <span class="hash">#</span>{{ myRank }}
+          </div>
+          <span class="standing-sub">of {{ leaderboard.length }} students</span>
         </div>
 
-        <div class="stat-content">
+        <div class="standing-divider"></div>
 
-          <p class="stat-label">
-            MY RANK
-          </p>
-
-          <h3 class="stat-value">
-            {{ myRank }}
-          </h3>
-
+        <div class="standing-metrics">
+          <div>
+            <span class="standing-label">Your score</span>
+            <p class="metric-big">{{ myScore }} <small>pts</small></p>
+          </div>
+          <div>
+            <span class="standing-label">Percentile</span>
+            <p class="metric-big">Top {{ percentile }}<small>%</small></p>
+          </div>
         </div>
 
-      </div>
-
-
-      <div class="stat-divider"></div>
-
-
-      <!-- Earned Score -->
-
-      <div class="stat-block score-stat">
-
-        <div class="stat-points-box">
-          PTS
-        </div>
-
-        <div class="stat-content">
-
-          <p class="stat-label">
-            EARNED SCORE
-          </p>
-
-          <h3 class="stat-value">
-            {{ myScore }}
-          </h3>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- =====================================================
-       TOP THREE
-  ====================================================== -->
-
-  <div
-    class="top-students"
-    *ngIf="leaderboard && leaderboard.length > 0">
-
-
-    <!-- =================================================
-         SECOND PLACE
-    ================================================== -->
-
-    <div
-      class="top-student-card second-place"
-      *ngIf="leaderboard.length > 1">
-
-      <div class="place-label silver-label">
-        <span class="place-dot"></span>
-        RANK 2 
-      </div>
-
-
-      <div class="top-avatar silver-avatar">
-
-        <span>
-          {{ leaderboard[1].studentName?.charAt(0)?.toUpperCase() }}
-        </span>
-
-      </div>
-
-
-      <h2 class="top-student-name">
-        {{ leaderboard[1].studentName }}
-      </h2>
-
-
-      <!-- Position BELOW circle -->
-
-      <p class="student-position">
-        2nd Position
-      </p>
-
-
-      <!-- Score -->
-
-      <div class="top-score">
-
-        <span class="score-number">
-          {{ leaderboard[1].totalScore }}
-        </span>
-
-        <span class="score-points">
-          PTS
-        </span>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =================================================
-         FIRST PLACE
-    ================================================== -->
-
-    <div
-      class="top-student-card first-place"
-      *ngIf="leaderboard.length > 0">
-
-      <div class="winner-label">
-        <span class="place-dot"></span>
-        FIRST PLACE
-        <span class="place-dot"></span>
-      </div>
-
-
-      <div class="top-avatar gold-avatar">
-
-        <span>
-          {{ leaderboard[0].studentName?.charAt(0)?.toUpperCase() }}
-        </span>
-
-        <span class="winner-rank">
-          #1
-        </span>
-
-      </div>
-
-
-      <h2 class="top-student-name">
-        {{ leaderboard[0].studentName }}
-      </h2>
-
-
-      <!-- Position BELOW circle -->
-
-      <p class="student-position">
-        Top Performer
-      </p>
-
-
-      <!-- Score -->
-
-      <div class="top-score">
-
-        <span class="score-number">
-          {{ leaderboard[0].totalScore }}
-        </span>
-
-        <span class="score-points">
-          PTS
-        </span>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =================================================
-         THIRD PLACE
-    ================================================== -->
-
-    <div
-      class="top-student-card third-place"
-      *ngIf="leaderboard.length > 2">
-
-      <div class="place-label bronze-label">
-        <span class="place-dot"></span>
-        RANK 3 
-      </div>
-
-
-      <div class="top-avatar bronze-avatar">
-
-        <span>
-          {{ leaderboard[2].studentName?.charAt(0)?.toUpperCase() }}
-        </span>
-
-      </div>
-
-
-      <h2 class="top-student-name">
-        {{ leaderboard[2].studentName }}
-      </h2>
-
-
-      <!-- Position BELOW circle -->
-
-      <p class="student-position">
-        3rd Position
-      </p>
-
-
-      <!-- Score -->
-
-      <div class="top-score">
-
-        <span class="score-number">
-          {{ leaderboard[2].totalScore }}
-        </span>
-
-        <span class="score-points">
-          PTS
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- =====================================================
-       FULL CLASS STANDINGS
-  ====================================================== -->
-
-  <div class="leaderboard-card">
-
-    <!-- Header -->
-
-    <div class="table-heading">
-
-      <div class="table-heading-content">
-
-        <h2 class="table-title">
-          Full Class Standings
-        </h2>
-
-        <p class="table-subtitle">
-          Complete cohort roster ordered by aggregate grade scores and rubric completion
-        </p>
-
-      </div>
-
-
-      <div class="table-actions">
-
-        <input
-          type="text"
-          class="student-search"
-          placeholder="Search student or roll #..." />
-
-        <span class="student-count">
-          {{ leaderboard?.length || 0 }} Enrolled
-        </span>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =================================================
-         TABLE
-    ================================================== -->
-
-    <div
-      class="table-container"
-      *ngIf="leaderboard && leaderboard.length > 0">
-
-      <table class="leaderboard-table">
-
-        <thead>
-
-          <tr>
-
-            <th class="rank-column">
-              RANK
-            </th>
-
-            <th>
-              STUDENT & IDENTIFICATION
-            </th>
-
-            <th class="center-column">
-              SCORE
-            </th>
-
-            <th class="center-column">
-              ASSIGNMENTS
-            </th>
-
-            <th class="center-column">
-              ATTEMPTS
-            </th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody>
-
-          <tr
-            *ngFor="let student of leaderboard"
-            class="leaderboard-row"
-            [class.current-student]="student.rank === myRank">
-
-
-            <!-- ================= RANK ================= -->
-
-            <td class="rank-column">
-
-              <span
-                class="rank-number"
-                [ngClass]="{
-                  'rank-first': student.rank === 1,
-                  'rank-second': student.rank === 2,
-                  'rank-third': student.rank === 3,
-                  'rank-default': student.rank > 3
-                }">
-
-                {{ student.rank }}
-
+        <div class="standing-divider"></div>
+
+        <div class="standing-progress">
+          @if (nextAbove) {
+            <div class="progress-head">
+              <span class="standing-label">Next milestone</span>
+              <span class="progress-target">#{{ nextAbove.rank }} · {{ nextAbove.totalScore }} pts</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width.%]="progressToNext"></div>
+            </div>
+            <p class="progress-note">
+              <strong>{{ pointsToNext }} pts</strong> to overtake {{ nextAbove.studentName }}
+            </p>
+          } @else {
+            <div class="progress-head">
+              <span class="standing-label">Status</span>
+              <span class="leader-tag">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="m12 2 3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21l1.4-7L2 9.3l7-.8L12 2Z"></path>
+                </svg>
+                Leading
               </span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <p class="progress-note">
+              @if (leadMargin) {
+                You're ahead of #2 by <strong>{{ leadMargin }} pts</strong>. Keep it up!
+              } @else {
+                You're in first place. Keep it up!
+              }
+            </p>
+          }
+        </div>
 
-            </td>
+      </section>
+    }
 
+    <!-- ================= SUMMARY STATS ================= -->
+    <section class="stat-grid" aria-label="Summary">
+      <div class="stat-tile">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm13 9v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8"></path>
+          </svg>
+        </span>
+        <span class="stat-label">Participants</span>
+        <span class="stat-value">{{ leaderboard.length }}</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m3 17 6-6 4 4 8-8M15 7h6v6"></path>
+          </svg>
+        </span>
+        <span class="stat-label">Top score</span>
+        <span class="stat-value">{{ topScore }}</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path>
+          </svg>
+        </span>
+        <span class="stat-label">Average score</span>
+        <span class="stat-value">{{ averageScore }}</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"></path>
+          </svg>
+        </span>
+        <span class="stat-label">Assignments done</span>
+        <span class="stat-value">{{ totalAssignments }}</span>
+      </div>
+    </section>
 
+    <div class="lb-layout">
 
-            <!-- ================= STUDENT ================= -->
+      <!-- ================= TOP PERFORMERS ================= -->
+      <aside class="top-panel">
+        <h2 class="panel-title">Top performers</h2>
 
-            <td>
+        @for (s of topThree; track trackByRank($index, s); let first = $first) {
+          <div class="top-card" [ngClass]="medalClass(s.rank)" [class.champion]="first" [class.is-me]="s.rank === myRank">
+            <div class="top-medal">
+              <span>{{ s.rank }}</span>
+            </div>
 
-              <div class="student-info">
+            <div class="top-avatar">{{ initials(s.studentName) }}</div>
 
-                <div
-                  class="student-table-avatar"
-                  [ngClass]="{
-                    'table-avatar-first': student.rank === 1,
-                    'table-avatar-second': student.rank === 2,
-                    'table-avatar-third': student.rank === 3
-                  }">
+            <div class="top-info">
+              <p class="top-name">
+                {{ s.studentName }}
+                @if (s.rank === myRank) { <span class="you-tag">You</span> }
+              </p>
+              <p class="top-meta">{{ s.totalAssignments }} assignments · {{ s.totalAttempts }} attempts</p>
+            </div>
 
-                  {{ student.studentName?.charAt(0)?.toUpperCase() }}
+            <div class="top-score">
+              <strong>{{ s.totalScore }}</strong>
+              <small>pts</small>
+            </div>
+          </div>
+        }
+      </aside>
 
+      <!-- ================= STANDINGS ================= -->
+      <section class="standings">
+
+        <div class="standings-head">
+          <div>
+            <h2 class="panel-title">Full standings</h2>
+            <p class="panel-sub">{{ filteredCount }} of {{ leaderboard.length }} students</p>
+          </div>
+
+          <div class="toolbar">
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke-width="1.8"></circle>
+                <path stroke-linecap="round" stroke-width="1.8" d="m20 20-3.5-3.5"></path>
+              </svg>
+              <input
+                type="search"
+                [value]="search"
+                (input)="onSearch($any($event.target).value)"
+                placeholder="Search name, email or roll no."
+                aria-label="Search students" />
+              @if (search) {
+                <button type="button" class="search-clear" (click)="clearSearch()" aria-label="Clear search">×</button>
+              }
+            </div>
+
+            <div class="segmented" role="group" aria-label="Sort by">
+              @for (o of sortOptions; track o.key) {
+                <button
+                  type="button"
+                  [class.active]="sortBy === o.key"
+                  [attr.aria-pressed]="sortBy === o.key"
+                  (click)="setSort(o.key)">
+                  {{ o.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="list-head" aria-hidden="true">
+          <span>Rank</span>
+          <span>Student</span>
+          <span>Score</span>
+          <span class="num">Assignments</span>
+          <span class="num">Attempts</span>
+        </div>
+
+        <ul class="rows">
+          @for (s of visible; track trackByRank($index, s)) {
+            <li class="row" [class.is-me]="s.rank === myRank">
+
+              <span class="row-rank" [ngClass]="medalClass(s.rank)">{{ s.rank }}</span>
+
+              <div class="row-student">
+                <span class="row-avatar">{{ initials(s.studentName) }}</span>
+                <div class="min-w-0">
+                  <p class="row-name">
+                    {{ s.studentName }}
+                    @if (s.rank === myRank) { <span class="you-tag">You</span> }
+                  </p>
+                  <p class="row-sub">
+                    {{ s.email || 'Student' }}
+                    @if (s.rollNumber) { · {{ s.rollNumber }} }
+                  </p>
                 </div>
-
-
-                <div class="student-details">
-
-                  <p class="student-name">
-                    {{ student.studentName }}
-                  </p>
-
-                  <p class="student-label">
-                    {{ student.email || 'Student' }}
-                    <span *ngIf="student.rollNumber">
-                      • {{ student.rollNumber }}
-                    </span>
-                  </p>
-
-                  <p
-                    class="current-profile"
-                    *ngIf="student.rank === myRank">
-
-                    Current Profile
-
-                  </p>
-
-                </div>
-
               </div>
 
-            </td>
+              <div class="row-score">
+                <span class="score-num">{{ s.totalScore }}</span>
+                <div class="score-bar"><span [style.width.%]="scorePercent(s.totalScore)"></span></div>
+              </div>
 
+              <span class="row-num row-assign"><em>Assignments</em>{{ s.totalAssignments }}</span>
+              <span class="row-num row-attempts"><em>Attempts</em>{{ s.totalAttempts }}</span>
+            </li>
+          } @empty {
+            <li class="no-results">
+              No students match "<strong>{{ search }}</strong>".
+              <button type="button" (click)="clearSearch()">Clear search</button>
+            </li>
+          }
+        </ul>
 
+        @if (hasMore) {
+          <div class="more">
+            <button type="button" class="btn-ghost" (click)="showMore()">
+              Show more
+              <span class="more-count">{{ filteredCount - visible.length }} left</span>
+            </button>
+          </div>
+        }
 
-            <!-- ================= SCORE ================= -->
-
-            <td class="center-column">
-
-              <span
-                class="score-badge"
-                [ngClass]="{
-                  'score-first': student.rank === 1,
-                  'score-second': student.rank === 2,
-                  'score-third': student.rank === 3
-                }">
-
-                <strong>
-                  {{ student.totalScore }}
-                </strong>
-
-                <small>
-                  pts
-                </small>
-
-              </span>
-
-            </td>
-
-
-
-            <!-- ================= ASSIGNMENTS ================= -->
-
-            <td class="center-column">
-
-              <span class="metric-value">
-                {{ student.totalAssignments }}
-              </span>
-
-            </td>
-
-
-
-            <!-- ================= ATTEMPTS ================= -->
-
-            <td class="center-column">
-
-              <span class="metric-value">
-                {{ student.totalAttempts }}
-              </span>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
+      </section>
     </div>
-
-
-
-    <!-- =================================================
-         EMPTY STATE
-    ================================================== -->
-
-    <div
-      class="empty-state"
-      *ngIf="!leaderboard || leaderboard.length === 0">
-
-      <h3>
-        No leaderboard data
-      </h3>
-
-      <p>
-        Student rankings will appear here once performance data is available.
-      </p>
-
-    </div>
-
-  </div>
+  }
 
 </div>

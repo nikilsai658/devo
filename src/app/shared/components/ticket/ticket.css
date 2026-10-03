@@ -1,6 +1,7 @@
 /* =============================================================
    RAISE TICKET — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Matches the Change Password / My Courses pages.
+   Light mode inverts the whole app globally (see styles.css).
 ============================================================= */
 @import "tailwindcss";
 
@@ -12,7 +13,7 @@
 
 .ticket-page {
   @apply relative min-h-screen w-full overflow-hidden bg-black px-4 py-8 text-white antialiased
-         sm:px-6 sm:py-10 lg:px-8;
+         sm:px-6 sm:py-10 lg:px-8 lg:py-14;
 }
 
 /* ---------------- SUCCESS TOAST ---------------- */
@@ -51,7 +52,7 @@
 /* ---------------- HEADER ---------------- */
 
 .ticket-header {
-  @apply relative mx-auto mb-8 flex max-w-6xl flex-col gap-5 border-b border-white/10 pb-6
+  @apply relative mx-auto mb-8 flex max-w-7xl flex-col gap-5 border-b border-white/10 pb-6
          sm:flex-row sm:items-end sm:justify-between;
 }
 
@@ -81,7 +82,7 @@
 /* ---------------- LAYOUT ---------------- */
 
 .ticket-layout {
-  @apply relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_320px];
+  @apply relative mx-auto grid max-w-7xl items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px];
 }
 
 /* ---------------- MAIN CARD ---------------- */
@@ -91,8 +92,7 @@
 }
 
 .ticket-card-header {
-  @apply flex flex-col gap-4 border-b border-white/10 px-5 py-5
-         sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6;
+  @apply flex items-center border-b border-white/10 px-5 py-5 sm:px-7 sm:py-6;
 }
 
 .card-title {
@@ -116,68 +116,142 @@
   @apply mt-0.5 text-sm text-zinc-400;
 }
 
-.required-note {
-  @apply flex items-center gap-1.5 text-xs font-medium text-zinc-500;
+.req {
+  @apply text-rose-400;
 }
 
-.required-note span {
-  @apply text-zinc-400;
+/* ---------------- ERROR BANNER ---------------- */
+
+.ticket-alert {
+  @apply mx-5 mt-5 flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10
+         px-4 py-3 text-sm text-rose-200 sm:mx-7;
+}
+
+.ticket-alert > svg {
+  @apply mt-0.5 h-4 w-4 shrink-0 text-rose-400;
+}
+
+.ticket-alert > span {
+  @apply flex-1;
+}
+
+.alert-close {
+  @apply -m-1 flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md
+         text-rose-300 transition hover:bg-rose-500/20;
+}
+
+.alert-close svg {
+  @apply h-3.5 w-3.5;
 }
 
 /* ---------------- FORM BODY ---------------- */
 
 .ticket-form-body {
-  @apply space-y-6 px-5 py-6 sm:px-7 sm:py-7;
+  @apply space-y-7 px-5 py-6 sm:px-7 sm:py-7;
 }
 
-.form-group {
-  @apply w-full;
+.form-section {
+  @apply m-0 w-full min-w-0 border-0 p-0;
 }
 
-.form-group label {
-  @apply mb-2 block text-sm font-medium text-zinc-300;
+.section-label {
+  @apply mb-3 flex items-center gap-2.5 p-0 text-sm font-medium text-zinc-200;
 }
 
-.form-group label span {
-  @apply text-zinc-400;
+.section-num {
+  @apply flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-white/15
+         text-[11px] font-semibold text-zinc-400;
+}
+
+.optional {
+  @apply ml-1 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-normal text-zinc-500;
 }
 
 .label-row {
-  @apply flex items-baseline justify-between;
+  @apply flex items-baseline justify-between gap-3;
 }
 
 .char-count {
-  @apply mb-2 text-xs tabular-nums text-zinc-500;
+  @apply mb-3 text-xs tabular-nums text-zinc-500 transition-colors;
+}
+
+.char-count.near-limit {
+  @apply text-amber-400;
+}
+
+.field-hint {
+  @apply mt-2 text-xs text-zinc-500;
+}
+
+/* ---------------- CATEGORY CHIPS ---------------- */
+
+.category-grid {
+  @apply grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3;
+}
+
+.category-chip {
+  @apply flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-black
+         px-3.5 py-3 text-left transition duration-200
+         hover:border-white/20 hover:bg-white/3
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent);
+}
+
+.chip-icon {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/5 text-zinc-400
+         transition-colors duration-200;
+}
+
+.chip-icon svg {
+  @apply h-4.5 w-4.5;
+}
+
+.chip-text {
+  @apply min-w-0;
+}
+
+.chip-text strong {
+  @apply block text-sm font-medium text-zinc-200;
+}
+
+.chip-text small {
+  @apply block truncate text-xs text-zinc-500;
+}
+
+.category-chip.active {
+  @apply border-(--accent) bg-(--accent)/10;
+}
+
+.category-chip.active .chip-icon {
+  @apply bg-(--accent) text-(--on-accent);
+}
+
+.category-chip.active strong {
+  @apply text-white;
 }
 
 /* ---------------- INPUT & TEXTAREA ---------------- */
 
 .input-wrapper {
-  @apply relative;
+  @apply flex items-center rounded-xl border border-white/10 bg-black transition-all duration-200
+         hover:border-white/20 focus-within:border-(--accent) focus-within:hover:border-(--accent);
 }
 
-.input-icon {
-  @apply pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2
-         text-zinc-500 transition-colors duration-200;
-}
-
-.input-wrapper:focus-within .input-icon {
-  @apply text-zinc-400;
-}
-
-.input-wrapper input,
-.textarea-wrapper textarea {
-  @apply w-full rounded-xl border border-white/10 bg-black text-sm text-white
-         outline-none transition-all duration-200;
+.subject-prefix {
+  @apply ml-3 shrink-0 rounded-md bg-(--accent)/15 px-2 py-1 text-xs font-semibold text-(--accent-text);
 }
 
 .input-wrapper input {
-  @apply py-3.5 pl-12 pr-4;
+  @apply w-full min-w-0 border-0 bg-transparent px-4 py-3.5 text-sm text-white outline-none;
+}
+
+.textarea-wrapper {
+  @apply relative;
 }
 
 .textarea-wrapper textarea {
-  @apply block resize-y px-4 py-3.5 leading-6;
-  min-height: 180px;
+  @apply block w-full resize-y rounded-xl border border-white/10 bg-black px-4 py-3.5
+         text-sm leading-6 text-white outline-none transition-all duration-200;
+  min-height: 200px;
 }
 
 .input-wrapper input::placeholder,
@@ -185,25 +259,27 @@
   @apply text-zinc-600;
 }
 
-.input-wrapper input:hover,
 .textarea-wrapper textarea:hover {
   @apply border-white/20;
 }
 
-.input-wrapper input:focus,
 .textarea-wrapper textarea:focus {
   @apply border-(--accent);
 }
 
-.has-error input,
+.input-wrapper.has-error,
 .has-error textarea {
   @apply border-rose-500/60;
 }
 
-/* ---------------- ERROR ---------------- */
+.template-btn {
+  @apply absolute bottom-3 right-3 inline-flex cursor-pointer items-center gap-1.5 rounded-lg
+         border border-white/10 bg-zinc-900 px-3 py-1.5 text-xs font-medium text-zinc-300
+         transition hover:border-(--accent) hover:text-white;
+}
 
-.form-error {
-  @apply mt-2 text-xs font-medium text-rose-400;
+.template-btn svg {
+  @apply h-3.5 w-3.5;
 }
 
 /* ---------------- CARD FOOTER ---------------- */
@@ -214,21 +290,25 @@
 }
 
 .footer-info {
-  @apply flex items-start gap-2 text-xs leading-5 text-zinc-400;
+  @apply hidden items-center gap-1.5 text-xs text-zinc-500 sm:flex;
 }
 
-.footer-info svg {
-  @apply mt-0.5 h-4 w-4 shrink-0 text-zinc-400;
+.footer-info kbd {
+  @apply rounded-md border border-white/15 bg-white/5 px-1.5 py-0.5 font-sans text-[11px] text-zinc-300;
+}
+
+.footer-info-text {
+  @apply ml-1;
 }
 
 .ticket-actions {
-  @apply flex flex-col gap-3 sm:flex-row sm:justify-end;
+  @apply flex flex-col gap-3 sm:ml-auto sm:flex-row sm:justify-end;
 }
 
 /* ---------------- SIDE PANEL ---------------- */
 
 .ticket-aside {
-  @apply flex flex-col gap-6;
+  @apply flex flex-col gap-6 lg:sticky lg:top-6;
 }
 
 .aside-card {
@@ -238,6 +318,71 @@
 .aside-card h3 {
   @apply mb-4 text-sm font-semibold text-white;
 }
+
+/* Live preview */
+
+.preview-card {
+  @apply relative overflow-hidden;
+}
+
+.preview-card::before {
+  content: "";
+  @apply absolute inset-x-0 top-0 h-0.75 bg-(--accent);
+}
+
+.preview-head {
+  @apply mb-3 flex items-center justify-between;
+}
+
+.preview-head h3 {
+  @apply mb-0;
+}
+
+.status-pill {
+  @apply rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5
+         text-[11px] font-semibold text-emerald-400;
+}
+
+.preview-subject {
+  @apply wrap-break-word text-sm font-semibold text-white;
+}
+
+.preview-desc {
+  @apply mt-1.5 line-clamp-3 whitespace-pre-line wrap-break-word text-xs leading-5 text-zinc-400;
+}
+
+.preview-subject.empty,
+.preview-desc.empty {
+  @apply font-normal italic text-zinc-600;
+}
+
+.checklist {
+  @apply mt-4 space-y-2 border-t border-white/10 pt-4;
+}
+
+.checklist li {
+  @apply flex items-center gap-2.5 text-xs text-zinc-500 transition-colors;
+}
+
+.check {
+  @apply relative flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-white/15
+         transition-colors;
+}
+
+.checklist li.done {
+  @apply text-zinc-200;
+}
+
+.checklist li.done .check {
+  @apply border-emerald-500 bg-emerald-500;
+}
+
+.checklist li.done .check::after {
+  content: "";
+  @apply mb-px h-2 w-1 rotate-45 border-b-2 border-r-2 border-black;
+}
+
+/* Next steps */
 
 .steps {
   @apply relative space-y-5;
@@ -303,6 +448,10 @@
          hover:border-white/20 hover:bg-white/10 hover:text-white;
 }
 
+.btn-reset:disabled {
+  @apply cursor-not-allowed opacity-50;
+}
+
 .btn-primary {
   @apply border-0 bg-(--accent) text-(--on-accent) hover:bg-(--accent-hover) active:scale-[0.98];
 }
@@ -331,7 +480,7 @@
 
 @media (max-width: 640px) {
   .ticket-page {
-    @apply px-4 py-6;
+    @apply px-4 py-8;
   }
 
   .ticket-header h1 {
@@ -357,9 +506,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .btn,
-  .input-wrapper input,
+  .input-wrapper,
   .textarea-wrapper textarea,
-  .input-icon,
+  .category-chip,
   .ticket-toast,
   .spinner {
     @apply transition-none;

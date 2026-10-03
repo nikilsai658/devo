@@ -1,6 +1,8 @@
-import { Component, OnInit, effect, ChangeDetectionStrategy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy, inject, ChangeDetectorRef, DestroyRef, ElementRef, HostListener } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CookieService } from 'ngx-cookie-service';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Auth } from '../../../core/auth/auth';
 import { UserStore } from '../../../core/store/user';
@@ -16,6 +18,8 @@ import { ThemeStore } from '../../../core/store/theme';
 })
 export class Header implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   username:string|undefined='';
   collegeLogo = '';
@@ -77,17 +81,97 @@ colleges = [
     
   }
 
-  ngOnInit(): void {}
-  sidebarOpen = false;
-
-  toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
+  ngOnInit(): void {
+    // Close every menu once a navigation completes
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.closeMenus();
+        this.cdr.markForCheck();
+      });
   }
 
-  managementOpen = false;
+  /* Mobile nav panel (below 1100px the nav row collapses behind the menu button) */
+  mobileNavOpen = false;
+
+  toggleMobileNav() {
+    this.mobileNavOpen = !this.mobileNavOpen;
+    if (!this.mobileNavOpen) {
+      this.openDropdown = null;
+    }
+  }
+
+  /* Desktop dropdowns / mobile accordions */
+  openDropdown: 'management' | 'mapping' | null = null;
+
+  get managementOpen(): boolean {
+    return this.openDropdown === 'management';
+  }
+
+  get mappingOpen(): boolean {
+    return this.openDropdown === 'mapping';
+  }
 
   toggleManagement() {
-    this.managementOpen = !this.managementOpen;
+    this.openDropdown = this.managementOpen ? null : 'management';
+  }
+
+  closeMenus() {
+    this.mobileNavOpen = false;
+    this.openDropdown = null;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.openDropdown && !this.host.nativeElement.contains(event.target as Node)) {
+      this.openDropdown = null;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.closeMenus();
+  }
+
+  private readonly managementRoutes = [
+    '/main/college-management',
+    '/main/department-management',
+    '/main/branch-management',
+    '/main/domain',
+    '/main/task',
+    '/main/course',
+    '/main/user',
+    '/main/role',
+    '/main/permission',
+    '/main/year',
+    '/main/year-updation',
+    '/main/assignment',
+  ];
+
+  private readonly mappingRoutes = [
+    '/main/college-department-mapping',
+    '/main/department-branch-mapping',
+    '/main/domain-course-mapping',
+    '/main/course-task-mapping',
+    '/main/course-assignment-mapping',
+    '/main/student-domain-course-mapping',
+    '/main/role-permission-mapping',
+  ];
+
+  private isUnder(routes: string[]): boolean {
+    const url = this.router.url.split(/[?#]/)[0];
+    return routes.some(route => url === route || url.startsWith(route + '/'));
+  }
+
+  isManagementActive(): boolean {
+    return this.isUnder(this.managementRoutes);
+  }
+
+  isMappingActive(): boolean {
+    return this.isUnder(this.mappingRoutes);
   }
 
   hasAnyManagementPermission(): boolean {
@@ -106,10 +190,8 @@ colleges = [
     ].some(permission => this.auth.hasPermission(permission));
   }
 
-  mappingOpen = false;
-
   toggleMapping() {
-    this.mappingOpen = !this.mappingOpen;
+    this.openDropdown = this.mappingOpen ? null : 'mapping';
   }
 
   hasAnyMappingPermission(): boolean {

@@ -1,685 +1,542 @@
 /* =========================================================
    LEADERBOARD — Dark theme  |  Accent: var(--accent)  |  Background: #000
-   Matches the student-domain page.
+   Light mode inverts the whole app globally (see styles.css).
 ========================================================= */
 @import "tailwindcss";
 
 :host {
   @apply block min-h-screen bg-black;
-  background-color: #000;
+  --gold: #f5c451;
+  --silver: #c3cad5;
+  --bronze: #d58a52;
 }
 
-.leaderboard-page {
-  @apply min-h-screen w-full bg-black px-4 py-8 font-sans text-white antialiased
-         sm:px-6 sm:py-10 lg:px-8 lg:py-14;
-  background-color: #000;
+.lb-page {
+  @apply mx-auto min-h-screen w-full max-w-7xl bg-black px-4 py-8 text-white antialiased
+         sm:px-6 sm:py-10 lg:px-8;
 }
-
 
 /* =========================================================
    HEADER
 ========================================================= */
 
-.leaderboard-header {
-  @apply mx-auto flex w-full max-w-7xl flex-col gap-6 border-b border-white/10 pb-8
-         md:flex-row md:items-end md:justify-between;
+.lb-header {
+  @apply mb-8 flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between;
 }
 
-.header-content {
-  @apply flex-1;
+.lb-eyebrow {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-zinc-300;
 }
 
-.title-section {
-  @apply flex max-w-2xl flex-col items-start;
-}
-
-.page-label {
-  @apply mb-3 inline-flex items-center gap-2 rounded-full border
-         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
-         text-xs font-semibold tracking-wide text-(--accent-text);
-}
-
-.page-label::before {
+.lb-eyebrow::before {
   content: "";
   @apply h-1.5 w-1.5 rounded-full bg-(--accent);
-  box-shadow: 0 0 8px var(--accent);
 }
 
-.page-title {
-  @apply m-0 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl;
+.lb-header h1 {
+  @apply text-3xl font-bold tracking-tight sm:text-4xl;
 }
 
-.page-subtitle {
-  @apply mt-3 text-sm leading-relaxed text-zinc-400 sm:text-base;
+.lb-header p {
+  @apply mt-2 text-sm text-zinc-400;
 }
-
 
 /* =========================================================
-   STATISTICS
+   BUTTONS
 ========================================================= */
 
-.statistics-container {
-  @apply flex w-full items-center rounded-2xl border border-white/10 bg-zinc-950
-         px-5 py-4 sm:w-auto sm:min-w-[310px];
+.btn-ghost {
+  @apply inline-flex min-h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg
+         border border-white/10 bg-white/5 px-4 text-sm font-medium text-zinc-200 transition
+         hover:border-white/20 hover:bg-white/10 hover:text-white
+         disabled:cursor-not-allowed disabled:opacity-50
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent);
 }
 
-.stat-block {
-  @apply flex min-w-0 items-center gap-3;
+.btn-ghost svg {
+  @apply h-4 w-4;
 }
 
-.stat-content {
-  @apply flex min-w-0 flex-col;
+.btn-primary {
+  @apply inline-flex min-h-10 cursor-pointer items-center justify-center rounded-lg bg-(--accent)
+         px-5 text-sm font-semibold text-(--on-accent) transition hover:bg-(--accent-hover);
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   MY STANDING
+========================================================= */
+
+.standing-card {
+  @apply relative mb-6 grid gap-6 overflow-hidden rounded-2xl border border-(--accent)/40
+         bg-zinc-950 p-6 sm:p-7 lg:grid-cols-[auto_1px_auto_1px_1fr] lg:items-center lg:gap-8;
+  background-image: radial-gradient(120% 140% at 0% 0%, rgba(var(--accent-rgb), 0.18), transparent 55%);
+}
+
+.standing-divider {
+  @apply hidden h-full w-px bg-white/10 lg:block;
+}
+
+.standing-label {
+  @apply block text-xs font-medium uppercase tracking-wider text-zinc-500;
+}
+
+.rank-big {
+  @apply mt-1 text-5xl font-bold leading-none tracking-tight tabular-nums text-white sm:text-6xl;
+}
+
+.rank-big .hash {
+  @apply mr-0.5 text-3xl font-semibold text-(--accent-text) sm:text-4xl;
+}
+
+.standing-sub {
+  @apply mt-2 block text-sm text-zinc-400;
+}
+
+.standing-metrics {
+  @apply grid grid-cols-2 gap-6 lg:gap-10;
+}
+
+.metric-big {
+  @apply mt-1.5 text-2xl font-semibold tabular-nums text-white sm:text-3xl;
+}
+
+.metric-big small {
+  @apply text-sm font-medium text-zinc-400;
+}
+
+.standing-progress {
+  @apply min-w-0;
+}
+
+.progress-head {
+  @apply flex items-center justify-between gap-3;
+}
+
+.progress-target {
+  @apply text-xs font-medium tabular-nums text-zinc-300;
+}
+
+.progress-track {
+  @apply mt-3 h-2 overflow-hidden rounded-full bg-white/10;
+}
+
+.progress-fill {
+  @apply h-full rounded-full bg-(--accent) transition-[width] duration-700 ease-out;
+}
+
+.progress-note {
+  @apply mt-3 text-sm text-zinc-400;
+}
+
+.progress-note strong {
+  @apply font-semibold text-white;
+}
+
+.leader-tag {
+  @apply inline-flex items-center gap-1 rounded-full bg-(--gold)/15 px-2.5 py-0.5
+         text-xs font-semibold text-(--gold);
+}
+
+.leader-tag svg {
+  @apply h-3 w-3;
+}
+
+/* =========================================================
+   SUMMARY STATS
+========================================================= */
+
+.stat-grid {
+  @apply mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4;
+}
+
+.stat-tile {
+  @apply grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-0.5 rounded-xl border border-white/10
+         bg-zinc-950 p-4;
+}
+
+.stat-icon {
+  @apply row-span-2 flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-(--accent-text);
+}
+
+.stat-icon svg {
+  @apply h-5 w-5;
 }
 
 .stat-label {
-  @apply m-0 whitespace-nowrap text-xs font-medium text-zinc-500;
+  @apply truncate text-xs text-zinc-500;
 }
 
 .stat-value {
-  @apply m-0 mt-0.5 text-2xl font-bold leading-7 text-white;
+  @apply text-xl font-semibold tabular-nums text-white;
 }
-
-.stat-rank-box {
-  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl
-         bg-(--accent) text-sm font-bold text-(--on-accent);
-  box-shadow: 0 8px 24px -6px rgba(var(--accent-rgb), 0.7);
-}
-
-.stat-points-box {
-  @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border
-         border-(--accent)/40 bg-(--accent)/15 text-[11px] font-bold tracking-wide text-(--accent-text);
-}
-
-.stat-divider {
-  @apply mx-5 h-10 w-px bg-white/10;
-}
-
 
 /* =========================================================
-   TOP STUDENTS
+   LAYOUT
 ========================================================= */
 
-.top-students {
-  @apply mx-auto mt-10 flex w-full max-w-7xl items-end justify-center gap-6;
+.lb-layout {
+  @apply grid items-start gap-6 lg:grid-cols-[340px_minmax(0,1fr)];
 }
 
+.panel-title {
+  @apply text-base font-semibold text-white;
+}
+
+.panel-sub {
+  @apply mt-0.5 text-xs text-zinc-500;
+}
 
 /* =========================================================
-   TOP STUDENT CARD
+   TOP PERFORMERS
 ========================================================= */
 
-.top-student-card {
-  @apply relative flex w-full max-w-[360px] flex-1 flex-col items-center overflow-hidden
-         border bg-zinc-950 text-center transition duration-300 hover:-translate-y-1;
+.top-panel {
+  @apply flex flex-col gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-5 lg:sticky lg:top-6;
 }
 
-.second-place,
-.third-place {
-  @apply h-[290px] rounded-xl px-6 pb-7 pt-10;
+.top-panel .panel-title {
+  @apply mb-1;
 }
 
-.second-place {
-  @apply border-white/10;
-  background: linear-gradient(180deg, rgba(203, 213, 225, 0.08) 0%, #09090b 60%);
+.top-card {
+  --medal: var(--accent);
+  @apply relative grid grid-cols-[auto_auto_1fr_auto] items-center gap-3 rounded-xl border border-white/10
+         bg-black p-3 transition-colors;
 }
 
-.second-place:hover {
-  @apply border-slate-300/40;
+.top-card.gold   { --medal: var(--gold); }
+.top-card.silver { --medal: var(--silver); }
+.top-card.bronze { --medal: var(--bronze); }
+
+.top-card.champion {
+  @apply grid-cols-[auto_1fr_auto] gap-y-4 p-5;
+  border-color: color-mix(in srgb, var(--medal) 45%, transparent);
+  background-image: linear-gradient(160deg, color-mix(in srgb, var(--medal) 14%, transparent), transparent 60%);
 }
 
-.third-place {
-  @apply border-white/10;
-  background: linear-gradient(180deg, rgba(217, 119, 6, 0.12) 0%, #09090b 60%);
+.top-medal {
+  @apply flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-black;
+  background: var(--medal);
 }
 
-.third-place:hover {
-  @apply border-amber-600/50;
+.top-card.champion .top-medal {
+  @apply absolute right-4 top-4 h-8 w-8 text-sm;
 }
-
-.first-place {
-  @apply z-10 h-[350px] max-w-[380px] rounded-xl border-(--accent)/60 px-7 pb-7 pt-14;
-  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.28) 0%, #09090b 65%);
-  box-shadow: 0 20px 50px -20px rgba(var(--accent-rgb), 0.7);
-}
-
-
-/* =========================================================
-   PLACE LABELS
-========================================================= */
-
-.place-label,
-.winner-label {
-  @apply absolute left-1/2 flex -translate-x-1/2 items-center justify-center whitespace-nowrap
-         rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em];
-}
-
-.place-label {
-  @apply top-3;
-}
-
-.silver-label {
-  @apply border-slate-300/30 bg-slate-300/10 text-slate-300;
-}
-
-.bronze-label {
-  @apply border-amber-600/40 bg-amber-600/10 text-amber-500;
-}
-
-.winner-label {
-  @apply left-0 right-0 top-0 h-[35px] w-full translate-x-0 rounded-none border-0 border-b
-         border-(--accent)/40 bg-(--accent)/20 text-[#D4B8FA];
-}
-
-.place-dot {
-  @apply mr-2 h-1.5 w-1.5 shrink-0 rounded-full bg-current;
-}
-
-.winner-label .place-dot:last-child {
-  @apply ml-2 mr-0;
-}
-
-
-/* =========================================================
-   AVATARS
-========================================================= */
 
 .top-avatar {
-  @apply relative flex h-[80px] w-[80px] shrink-0 items-center justify-center rounded-full
-         text-[26px] font-bold;
+  @apply flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-sm font-semibold;
+  color: var(--medal);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--medal) 60%, transparent);
 }
 
-.first-place .top-avatar {
-  @apply h-[88px] w-[88px] border-[3px] text-[28px];
+.top-card.champion .top-avatar {
+  @apply col-span-3 h-16 w-16 text-xl;
 }
 
-.silver-avatar {
-  @apply border-2 border-slate-300/50 bg-slate-300/10 text-slate-200;
-}
-
-.gold-avatar {
-  @apply border-(--accent-soft) bg-(--accent)/25 text-white;
-  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15), 0 10px 30px -8px rgba(var(--accent-rgb), 0.8);
-}
-
-.bronze-avatar {
-  @apply border-2 border-amber-600/60 bg-amber-600/10 text-amber-400;
-}
-
-
-/* =========================================================
-   WINNER RANK
-========================================================= */
-
-.winner-rank {
-  @apply absolute -bottom-2 right-[-4px] flex h-6 min-w-7 items-center justify-center rounded-full
-         bg-(--accent) px-1.5 text-[10px] font-bold text-(--on-accent);
-  box-shadow: 0 4px 12px -2px rgba(var(--accent-rgb), 0.8);
-}
-
-
-/* =========================================================
-   TOP STUDENT TEXT
-========================================================= */
-
-.top-student-name {
-  @apply m-0 mt-6 text-[20px] font-bold leading-6 tracking-[-0.02em] text-white;
-}
-
-.first-place .top-student-name {
-  @apply mt-7;
-}
-
-.student-position {
-  @apply m-0 mt-2 text-xs font-medium text-zinc-400;
-}
-
-.first-place .student-position {
-  @apply text-(--accent-text);
-}
-
-
-/* =========================================================
-   TOP SCORE
-========================================================= */
-
-.top-score {
-  @apply mt-auto flex w-full items-baseline justify-center gap-2 border-t border-white/10 pt-5;
-}
-
-.first-place .top-score {
-  @apply border-(--accent)/30;
-}
-
-.score-number {
-  @apply whitespace-nowrap text-[30px] font-bold leading-none tracking-[-0.03em] text-white;
-}
-
-.first-place .score-number {
-  @apply text-[34px];
-}
-
-.score-points {
-  @apply whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.05em] text-(--accent-soft);
-}
-
-
-/* =========================================================
-   MAIN LEADERBOARD
-========================================================= */
-
-.leaderboard-card {
-  @apply mx-auto mt-10 w-full max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-950;
-}
-
-
-/* =========================================================
-   TABLE HEADER
-========================================================= */
-
-.table-heading {
-  @apply flex items-center justify-between gap-6 border-b border-white/10 px-7 py-5;
-}
-
-.table-heading-content {
+.top-info {
   @apply min-w-0;
 }
 
-.table-title {
-  @apply m-0 text-lg font-semibold tracking-tight text-white;
+.top-card.champion .top-info {
+  @apply col-span-2;
 }
 
-.table-subtitle {
-  @apply m-0 mt-1 text-xs leading-5 text-zinc-400;
+.top-name {
+  @apply flex items-center gap-2 truncate text-sm font-semibold text-white;
 }
 
-.table-actions {
-  @apply flex shrink-0 items-center gap-3;
+.top-card.champion .top-name {
+  @apply text-lg;
 }
 
-.student-search {
-  @apply h-9 w-[220px] rounded-lg border border-white/10 bg-black px-3 text-xs text-white
-         outline-none transition placeholder:text-zinc-500
-         focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/30;
+.top-meta {
+  @apply mt-0.5 truncate text-xs text-zinc-500;
 }
 
-.student-count {
-  @apply whitespace-nowrap rounded-lg border border-(--accent)/40 bg-(--accent)/10 px-3 py-2
-         text-[11px] font-medium text-(--accent-text);
+.top-score {
+  @apply text-right;
 }
 
+.top-score strong {
+  @apply block text-base font-bold tabular-nums text-white;
+}
+
+.top-card.champion .top-score strong {
+  @apply text-2xl;
+  color: var(--medal);
+}
+
+.top-score small {
+  @apply text-[11px] text-zinc-500;
+}
+
+.top-card.is-me {
+  @apply outline-2 outline-offset-2 outline-(--accent);
+}
+
+.you-tag {
+  @apply shrink-0 rounded-full bg-(--accent) px-2 py-px text-[10px] font-semibold uppercase
+         tracking-wide text-(--on-accent);
+}
 
 /* =========================================================
-   TABLE
+   STANDINGS
 ========================================================= */
 
-.table-container {
-  @apply w-full overflow-x-auto;
+.standings {
+  @apply overflow-hidden rounded-2xl border border-white/10 bg-zinc-950;
 }
 
-.leaderboard-table {
-  @apply w-full min-w-[720px] border-collapse;
+.standings-head {
+  @apply flex flex-col gap-4 border-b border-white/10 p-5 xl:flex-row xl:items-center xl:justify-between;
 }
 
-.leaderboard-table thead {
-  @apply bg-black/60;
+.toolbar {
+  @apply flex flex-col gap-3 sm:flex-row sm:items-center;
 }
 
-.leaderboard-table th {
-  @apply h-11 border-b border-white/10 px-5 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500;
+.search {
+  @apply relative flex min-w-0 items-center sm:w-72;
 }
 
-.leaderboard-table td {
-  @apply border-b border-white/5 px-5 py-4 align-middle;
+.search svg {
+  @apply pointer-events-none absolute left-3 h-4 w-4 text-zinc-500;
 }
 
-.leaderboard-table tbody tr:last-child td {
-  @apply border-b-0;
+.search input {
+  @apply h-10 w-full rounded-lg border border-white/10 bg-black pl-9 pr-8 text-sm text-white outline-none
+         transition placeholder:text-zinc-600 hover:border-white/20 focus:border-(--accent);
 }
 
-.leaderboard-row {
-  @apply bg-transparent transition-colors duration-150;
+.search input::-webkit-search-cancel-button {
+  display: none;
 }
 
-.leaderboard-row:hover {
-  @apply bg-white/[0.03];
+.search-clear {
+  @apply absolute right-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-base
+         leading-none text-zinc-400 hover:bg-white/10 hover:text-white;
 }
 
-.current-student,
-.current-student:hover {
-  @apply bg-(--accent)/10;
-  box-shadow: inset 3px 0 0 var(--accent);
+.segmented {
+  @apply inline-flex shrink-0 rounded-lg border border-white/10 bg-black p-1;
 }
 
-
-/* =========================================================
-   COLUMN ALIGNMENT
-========================================================= */
-
-.rank-column {
-  @apply w-[100px] text-center;
+.segmented button {
+  @apply flex-1 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium text-zinc-400 transition
+         hover:text-white;
 }
 
-.center-column {
-  @apply text-center;
+.segmented button.active {
+  @apply bg-white/10 text-white;
 }
 
-
-/* =========================================================
-   RANK NUMBER
-========================================================= */
-
-.rank-number {
-  @apply mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold;
+/* Shared column grid for header + rows */
+.list-head,
+.row {
+  @apply grid items-center gap-4 px-5;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(140px, 200px) 96px 80px;
 }
 
-.rank-first {
+.list-head {
+  @apply hidden border-b border-white/10 bg-black/40 py-2.5 text-[11px] font-medium uppercase
+         tracking-wider text-zinc-500 md:grid;
+}
+
+.list-head .num {
+  @apply text-right;
+}
+
+.rows {
+  @apply divide-y divide-white/5;
+}
+
+.row {
+  @apply relative py-3.5 transition-colors hover:bg-white/3;
+}
+
+.row.is-me {
+  @apply bg-(--accent)/10 hover:bg-(--accent)/15;
+}
+
+.row.is-me::before {
+  content: "";
+  @apply absolute inset-y-0 left-0 w-0.75 bg-(--accent);
+}
+
+.row-rank {
+  @apply flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm font-semibold
+         tabular-nums text-zinc-300;
+}
+
+.row-rank.gold   { @apply text-black; background: var(--gold); }
+.row-rank.silver { @apply text-black; background: var(--silver); }
+.row-rank.bronze { @apply text-black; background: var(--bronze); }
+
+.row-student {
+  @apply flex min-w-0 items-center gap-3;
+}
+
+.row-avatar {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-xs font-semibold
+         text-zinc-300;
+}
+
+.row.is-me .row-avatar {
   @apply bg-(--accent) text-(--on-accent);
-  box-shadow: 0 4px 12px -2px rgba(var(--accent-rgb), 0.8);
 }
 
-.rank-second {
-  @apply border border-slate-300/40 bg-slate-300/10 text-slate-200;
+.row-name {
+  @apply flex items-center gap-2 truncate text-sm font-medium text-white;
 }
 
-.rank-third {
-  @apply border border-amber-600/50 bg-amber-600/10 text-amber-400;
+.row-sub {
+  @apply mt-0.5 truncate text-xs text-zinc-500;
 }
 
-.rank-default {
-  @apply border border-white/10 bg-black text-zinc-400;
-}
-
-
-/* =========================================================
-   STUDENT INFORMATION
-========================================================= */
-
-.student-info {
+.row-score {
   @apply flex items-center gap-3;
 }
 
-.student-table-avatar {
-  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10
-         bg-zinc-900 text-xs font-bold text-zinc-300;
+.score-num {
+  @apply w-12 shrink-0 text-sm font-semibold tabular-nums text-white;
 }
 
-.table-avatar-first {
-  @apply border-(--accent-soft) bg-(--accent)/25 text-white;
+.score-bar {
+  @apply h-1.5 flex-1 overflow-hidden rounded-full bg-white/10;
 }
 
-.table-avatar-second {
-  @apply border-slate-300/40 bg-slate-300/10 text-slate-200;
+.score-bar span {
+  @apply block h-full rounded-full bg-(--accent);
 }
 
-.table-avatar-third {
-  @apply border-amber-600/50 bg-amber-600/10 text-amber-400;
+.row-num {
+  @apply text-right text-sm tabular-nums text-zinc-300;
 }
 
-.student-details {
-  @apply min-w-0;
+.row-num em {
+  @apply hidden;
 }
 
-.student-name {
-  @apply m-0 truncate text-sm font-semibold text-white;
+.no-results {
+  @apply px-5 py-12 text-center text-sm text-zinc-400;
 }
 
-.student-label {
-  @apply m-0 mt-0.5 truncate text-[11px] text-zinc-500;
+.no-results strong {
+  @apply text-white;
 }
 
-.current-profile {
-  @apply m-0 mt-1 inline-flex items-center gap-1.5 text-[10px] font-medium text-(--accent-text);
+.no-results button {
+  @apply ml-2 cursor-pointer font-medium text-(--accent-text) underline-offset-4 hover:underline;
 }
 
-.current-profile::before {
-  content: "";
-  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+.more {
+  @apply flex justify-center border-t border-white/10 p-4;
 }
 
+.more-count {
+  @apply rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-zinc-400;
+}
 
 /* =========================================================
-   SCORE BADGE
+   STATES (loading / error / empty)
 ========================================================= */
 
-.score-badge {
-  @apply inline-flex min-w-[50px] flex-col items-center justify-center rounded-md border
-         border-white/10 bg-zinc-900 px-2 py-1 text-zinc-200;
+.lb-state {
+  @apply flex flex-col items-center rounded-2xl border border-white/10 bg-zinc-950 px-6 py-16 text-center;
 }
 
-.score-badge strong {
-  @apply text-xs font-bold leading-4;
+.state-icon {
+  @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-(--accent-text);
 }
 
-.score-badge small {
-  @apply text-[9px] font-semibold leading-3 text-zinc-500;
+.state-icon.error {
+  @apply bg-rose-500/10 text-rose-400;
 }
 
-.score-first {
-  @apply border-(--accent) bg-(--accent) text-(--on-accent);
+.state-icon svg {
+  @apply h-7 w-7;
 }
 
-.score-first small {
-  @apply text-white/70;
+.lb-state h3 {
+  @apply text-lg font-semibold text-white;
 }
 
-.score-second {
-  @apply border-slate-300/40 bg-slate-300/10 text-slate-200;
+.lb-state p {
+  @apply mb-6 mt-1.5 max-w-sm text-sm text-zinc-400;
 }
 
-.score-third {
-  @apply border-amber-600/50 bg-amber-600/10 text-amber-400;
+.lb-skeleton {
+  @apply space-y-6;
 }
 
+.sk {
+  @apply rounded-2xl bg-white/5;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.sk-hero { @apply h-40; }
+.sk-row  { @apply grid grid-cols-2 gap-4 lg:grid-cols-4; }
+.sk-tile { @apply h-20 rounded-xl; }
+.sk-list { @apply h-96; }
+
+@keyframes pulse {
+  50% { opacity: 0.45; }
+}
 
 /* =========================================================
-   METRICS
+   RESPONSIVE
 ========================================================= */
 
-.metric-value {
-  @apply text-[13px] font-semibold text-zinc-300;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
-.empty-state {
-  @apply m-6 flex min-h-[260px] flex-col items-center justify-center rounded-2xl border
-         border-dashed border-white/15 bg-black px-6 py-12 text-center;
-}
-
-.empty-state h3 {
-  @apply m-0 text-lg font-semibold text-white;
-}
-
-.empty-state p {
-  @apply mt-2 max-w-sm text-sm text-zinc-400;
-}
-
-
-/* =========================================================
-   RESPONSIVE — TABLET
-========================================================= */
-
-@media (max-width: 900px) {
-
-  .top-students {
-    @apply gap-4;
+@media (max-width: 767px) {
+  .row {
+    grid-template-columns: 36px minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "rank student student student"
+      ".    score   assign  attempts";
+    @apply gap-x-3 gap-y-2.5 px-4;
   }
 
-  .second-place,
-  .third-place {
-    @apply h-[280px];
+  .row-rank    { grid-area: rank; }
+  .row-student { grid-area: student; }
+  .row-score   { grid-area: score; }
+  .row-assign   { grid-area: assign; }
+  .row-attempts { grid-area: attempts; }
+
+  .row-num {
+    @apply flex flex-col items-end text-xs;
   }
 
-  .first-place {
-    @apply h-[330px];
+  .row-num em {
+    @apply block text-[10px] not-italic uppercase tracking-wide text-zinc-500;
   }
 
-  .top-student-name {
-    @apply text-[17px];
+  .standings-head {
+    @apply p-4;
   }
 
-  .score-number {
-    @apply text-[26px];
-  }
-
-  .first-place .score-number {
-    @apply text-[30px];
-  }
-
-  .table-heading {
-    @apply flex-col items-start;
-  }
-
-  .table-actions {
+  .search {
     @apply w-full;
   }
 
-  .student-search {
-    @apply flex-1;
-  }
-
-}
-
-
-/* =========================================================
-   RESPONSIVE — MOBILE
-========================================================= */
-
-@media (max-width: 640px) {
-
-  .statistics-container {
-    @apply px-4;
-  }
-
-  .stat-divider {
-    @apply mx-3;
-  }
-
-  .stat-value {
-    @apply text-xl;
-  }
-
-  /* TOP THREE */
-
-  .top-students {
-    @apply grid grid-cols-1 items-stretch gap-4;
-  }
-
-  .top-student-card {
-    @apply max-w-none;
-  }
-
-  .first-place {
-    @apply order-1 h-[330px];
-  }
-
-  .second-place {
-    @apply order-2 h-[285px];
-  }
-
-  .third-place {
-    @apply order-3 h-[285px];
-  }
-
-  /* TABLE */
-
-  .leaderboard-card {
-    @apply mt-6 rounded-xl;
-  }
-
-  .table-heading {
-    @apply px-4 py-4;
-  }
-
-  .table-actions {
-    @apply flex-col items-stretch gap-2;
-  }
-
-  .student-search {
+  .lb-header .btn-ghost {
     @apply w-full;
   }
-
-  .student-count {
-    @apply w-fit;
-  }
-
-  .leaderboard-table th,
-  .leaderboard-table td {
-    @apply px-3;
-  }
-
-  .student-info {
-    @apply gap-2;
-  }
-
-  .student-table-avatar {
-    @apply h-8 w-8 text-[10px];
-  }
-
-  .student-name {
-    @apply text-xs;
-  }
-
-  .student-label {
-    @apply text-[10px];
-  }
-
 }
-
-
-/* =========================================================
-   VERY SMALL SCREENS
-========================================================= */
-
-@media (max-width: 400px) {
-
-  .statistics-container {
-    @apply px-3;
-  }
-
-  .stat-rank-box,
-  .stat-points-box {
-    @apply h-10 w-10;
-  }
-
-  .stat-divider {
-    @apply mx-2;
-  }
-
-  .top-avatar {
-    @apply h-[72px] w-[72px];
-  }
-
-  .first-place .top-avatar {
-    @apply h-[82px] w-[82px];
-  }
-
-  .top-student-name {
-    @apply text-[16px];
-  }
-
-  .score-number {
-    @apply text-[25px];
-  }
-
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .top-student-card,
-  .leaderboard-row,
-  .student-search {
-    @apply transition-none;
-  }
-
-  .top-student-card:hover {
-    @apply translate-y-0;
+  .sk,
+  .spin,
+  .progress-fill {
+    animation: none;
+    transition: none;
   }
 }

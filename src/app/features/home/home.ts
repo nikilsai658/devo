@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, afterNextRender, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, ElementRef, afterNextRender, inject, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { HeroCube } from './hero-cube/hero-cube';
 
 interface Item {
   title: string;
@@ -35,7 +36,7 @@ const COUNT_DURATION_MS = 2000;
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, NgTemplateOutlet],
+  imports: [RouterLink, NgTemplateOutlet, HeroCube],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -186,23 +187,42 @@ export class Home {
     address: 'Coimbatore, Tamil Nadu, India',
   };
 
+  private readonly statsBand = viewChild.required<ElementRef<HTMLElement>>('statsBand');
+
   constructor() {
     const destroyRef = inject(DestroyRef);
-    // Browser-only (skipped during SSR), so requestAnimationFrame is safe here.
+    // Browser-only (skipped during SSR), so the observer and
+    // requestAnimationFrame are safe here.
     afterNextRender(() => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        this.countProgress.set(1);
-        return;
-      }
       let frame = 0;
-      const start = performance.now();
-      const tick = (now: number) => {
-        const t = Math.min((now - start) / COUNT_DURATION_MS, 1);
-        this.countProgress.set(1 - Math.pow(1 - t, 3)); // ease-out
-        if (t < 1) frame = requestAnimationFrame(tick);
+
+      const startCounting = () => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          this.countProgress.set(1);
+          return;
+        }
+        const start = performance.now();
+        const tick = (now: number) => {
+          const t = Math.min((now - start) / COUNT_DURATION_MS, 1);
+          this.countProgress.set(1 - Math.pow(1 - t, 3)); // ease-out
+          if (t < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
       };
-      frame = requestAnimationFrame(tick);
-      destroyRef.onDestroy(() => cancelAnimationFrame(frame));
+
+      // Count up only once the stats strip scrolls into view.
+      const observer = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting)) {
+          observer.disconnect();
+          startCounting();
+        }
+      }, { threshold: 0.4 });
+      observer.observe(this.statsBand().nativeElement);
+
+      destroyRef.onDestroy(() => {
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+      });
     });
   }
 

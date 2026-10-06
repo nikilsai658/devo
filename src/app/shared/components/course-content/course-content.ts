@@ -77,6 +77,9 @@ export class CourseContent implements OnInit {
   file: File | null = null;
   fileError = '';
 
+  // Set when a file was uploaded but could not be added to the lesson: the next try only adds it.
+  uploadedMaterialId: number | null = null;
+
   feedback = new Feedback();
 
   constructor(
@@ -445,6 +448,7 @@ export class CourseContent implements OnInit {
     this.targetLesson = lesson;
     this.file = null;
     this.fileError = '';
+    this.uploadedMaterialId = null;
     this.uploadForm.reset({ title: '', description: '', materialType: '', downloadAllowed: true, previewAllowed: true });
     this.showUploadModal = true;
   }
@@ -452,6 +456,7 @@ export class CourseContent implements OnInit {
   closeUploadModal(): void {
     this.showUploadModal = false;
     this.file = null;
+    this.uploadedMaterialId = null;
   }
 
   onFileChosen(event: Event): void {
@@ -474,13 +479,14 @@ export class CourseContent implements OnInit {
     this.cd.markForCheck();
   }
 
-  // Uploads the file, then attaches the new material to the lesson in the same step.
+  // Uploads the file, then attaches the new material to the lesson in the same step. If the second
+  // step fails the file is already stored, so pressing Upload again only repeats the attach.
   saveUpload(): void {
     if (this.uploadForm.invalid) {
       this.uploadForm.markAllAsTouched();
       return;
     }
-    if (!this.file) {
+    if (!this.file && this.uploadedMaterialId === null) {
       this.fileError = 'Choose a file to upload.';
       return;
     }
@@ -488,13 +494,25 @@ export class CourseContent implements OnInit {
     const value = this.uploadForm.value;
     this.saving = true;
 
+    const attach = (id: number) => {
+      this.uploadedMaterialId = id;
+      this.lessonMaterialApi.link(this.targetLesson.id, id).subscribe({
+        next: (res: any) => {
+          this.uploadedMaterialId = null;
+          this.afterSave(res, 'Material uploaded and added to the lesson', () => this.closeUploadModal());
+        },
+        error: (err) => this.afterFail(err,
+          'The file was uploaded but could not be added to the lesson. Press Upload to try adding it again.')
+      });
+    };
+
+    if (this.uploadedMaterialId !== null) {
+      attach(this.uploadedMaterialId);
+      return;
+    }
+
     this.materialApi.createMaterial({ ...value, file: this.file }).subscribe({
       next: (created: any) => {
-        const attach = (id: number) => this.lessonMaterialApi.link(this.targetLesson.id, id).subscribe({
-          next: (res: any) => this.afterSave(res, 'Material uploaded and added to the lesson', () => this.closeUploadModal()),
-          error: (err) => this.afterFail(err, 'The file was uploaded but could not be added to the lesson')
-        });
-
         const id = created?.data?.id;
         if (id) {
           attach(id);
@@ -507,13 +525,20 @@ export class CourseContent implements OnInit {
             if (found) {
               attach(found.id);
             } else {
-              this.afterFail(null, 'The file was uploaded. Add it to the lesson from "Add existing".');
+              this.afterFail(null, 'The file was uploaded. Add it to the lesson from "Add existing file".');
             }
           },
-          error: (err) => this.afterFail(err, 'The file was uploaded. Add it to the lesson from "Add existing".')
+          error: (err) => this.afterFail(err, 'The file was uploaded. Add it to the lesson from "Add existing file".')
         });
       },
-      error: (err) => this.afterFail(err, 'Failed to upload the file')
+      error: (err) => {
+        const text = JSON.stringify(err?.error ?? '').toLowerCase();
+        this.afterFail(
+          text.includes('already exists') ? null : err,
+          text.includes('already exists')
+            ? 'A file with this title already exists. Change the title, or close this and use "Add existing file".'
+            : 'Failed to upload the file');
+      }
     });
   }
 

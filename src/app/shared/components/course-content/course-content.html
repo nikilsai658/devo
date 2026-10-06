@@ -1,0 +1,380 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold" style="color:#fff">Course Content</h2>
+            <p class="text-sm text-zinc-400 mt-1">
+                Build what students study: sections, the lessons in them, and the files in each lesson
+            </p>
+        </div>
+
+        <a *ngIf="can('VIEW_MATERIAL')" routerLink="/main/materials" class="dlg-btn dlg-btn-secondary">Learning Materials library</a>
+
+    </div>
+
+    <ng-container *ngIf="can('VIEW_COURSE_LEARNING_SECTION_MAP'); else noAccess">
+
+        <!-- Course picker -->
+
+        <div class="bg-zinc-950 rounded-xl border border-white/10 p-4 mb-4 flex flex-wrap items-end gap-4">
+
+            <div class="dlg-field" style="min-width: 18rem">
+                <label class="dlg-label" for="cc-course">Course</label>
+                <select id="cc-course" class="dlg-input" [ngModel]="courseName" (ngModelChange)="selectCourse($event)">
+                    <option value="">Select a course</option>
+                    <option *ngFor="let c of courses" [value]="c.name">{{ c.name }}</option>
+                </select>
+            </div>
+
+            <p *ngIf="courseName" class="text-sm text-zinc-400 pb-2">
+                {{ tree.length }} sections &middot; {{ lessonCount }} lessons &middot; {{ materialCount }} files
+            </p>
+
+            <div class="ml-auto flex gap-2 pb-0.5" *ngIf="courseName">
+                <button *ngIf="can('CREATE_COURSE_LEARNING_SECTION_MAP')" type="button" class="dlg-btn dlg-btn-secondary" (click)="openPicker('section')">
+                    Add existing section
+                </button>
+                <button *ngIf="can('CREATE_LEARNING_SECTION') && can('CREATE_COURSE_LEARNING_SECTION_MAP')" type="button"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-opacity bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer"
+                    (click)="openSectionModal()">
+                    <span class="text-lg leading-none">+</span>
+                    New Section
+                </button>
+            </div>
+
+        </div>
+
+        <p *ngIf="loading" class="text-zinc-500 p-4">Loading...</p>
+
+        <p *ngIf="!loading && !courseName" class="text-zinc-500 p-6 text-center">Select a course to see and edit its content.</p>
+
+        <p *ngIf="!loading && courseName && tree.length === 0" class="text-zinc-500 p-6 text-center">
+            This course has no content yet. Add a section to begin.
+        </p>
+
+        <!-- Sections -->
+
+        <div class="space-y-3">
+
+            <div *ngFor="let s of tree; index as i" class="bg-zinc-950 rounded-xl border border-white/10 overflow-hidden">
+
+                <!-- Section header -->
+
+                <div class="flex flex-wrap items-center gap-3 p-4" style="background-color:#18181b">
+
+                    <button type="button" class="flex items-center gap-3 text-left flex-1 min-w-0 cursor-pointer"
+                            (click)="toggle('s' + s.section.id)" [attr.aria-expanded]="expanded.has('s' + s.section.id)">
+                        <svg class="w-4 h-4 text-zinc-400 shrink-0 transition-transform" [class.rotate-90]="expanded.has('s' + s.section.id)"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg>
+                        <span class="min-w-0">
+                            <span class="block text-white font-semibold truncate">{{ s.section.orderNo }}. {{ s.section.name }}</span>
+                            <span class="block text-xs text-zinc-500">
+                                {{ s.lessons.length }} lessons<span *ngIf="s.section.durationHours"> &middot; {{ s.section.durationHours }} h</span>
+                                <span *ngIf="!s.section.isActive" class="text-amber-400"> &middot; hidden</span>
+                            </span>
+                        </span>
+                    </button>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button *ngIf="can('CREATE_LESSON') && can('CREATE_LEARNING_SECTION_LESSON_MAP')" type="button"
+                            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer"
+                            (click)="openLessonModal(s.section)">+ Lesson</button>
+                        <button *ngIf="can('CREATE_LEARNING_SECTION_LESSON_MAP')" type="button"
+                            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                            (click)="openPicker('lesson', s.section)">Add existing lesson</button>
+                        <button *ngIf="can('UPDATE_LEARNING_SECTION')" type="button"
+                            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                            (click)="openSectionModal(s.section)">Edit</button>
+                        <button *ngIf="can('DELETE_COURSE_LEARNING_SECTION_MAP')" type="button"
+                            class="px-3 py-1.5 rounded-lg text-sm font-medium bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
+                            (click)="removeSection(s)">Remove</button>
+                    </div>
+
+                </div>
+
+                <!-- Lessons -->
+
+                <div *ngIf="expanded.has('s' + s.section.id)" class="p-4 space-y-3">
+
+                    <p *ngIf="s.lessons.length === 0" class="text-sm text-zinc-500">No lessons in this section yet.</p>
+
+                    <div *ngFor="let l of s.lessons" class="rounded-lg border border-white/10 bg-black/40">
+
+                        <div class="flex flex-wrap items-center gap-3 p-3">
+
+                            <button type="button" class="flex items-center gap-3 text-left flex-1 min-w-0 cursor-pointer"
+                                    (click)="toggle('l' + s.section.id + '-' + l.lesson.id)"
+                                    [attr.aria-expanded]="expanded.has('l' + s.section.id + '-' + l.lesson.id)">
+                                <svg class="w-4 h-4 text-zinc-500 shrink-0 transition-transform"
+                                     [class.rotate-90]="expanded.has('l' + s.section.id + '-' + l.lesson.id)"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg>
+                                <span class="min-w-0">
+                                    <span class="block text-zinc-100 font-medium truncate">{{ l.lesson.orderNo }}. {{ l.lesson.name }}</span>
+                                    <span class="block text-xs text-zinc-500">
+                                        {{ l.materials.length }} files<span *ngIf="l.lesson.durationMinutes"> &middot; {{ l.lesson.durationMinutes }} min</span>
+                                        <span *ngIf="!l.lesson.isActive" class="text-amber-400"> &middot; hidden</span>
+                                    </span>
+                                </span>
+                            </button>
+
+                            <div class="flex flex-wrap gap-2">
+                                <button *ngIf="can('CREATE_MATERIAL') && can('CREATE_LESSON_MATERIAL_MAP')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer"
+                                    (click)="openUploadModal(l.lesson)">+ Upload file</button>
+                                <button *ngIf="can('CREATE_LESSON_MATERIAL_MAP')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                                    (click)="openPicker('material', s.section, l.lesson)">Add existing file</button>
+                                <button *ngIf="can('UPDATE_LESSON')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                                    (click)="openLessonModal(s.section, l.lesson)">Edit</button>
+                                <button *ngIf="can('DELETE_LEARNING_SECTION_LESSON_MAP')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
+                                    (click)="removeLesson(l)">Remove</button>
+                            </div>
+
+                        </div>
+
+                        <!-- Materials -->
+
+                        <ul *ngIf="expanded.has('l' + s.section.id + '-' + l.lesson.id)" class="border-t border-white/10 divide-y divide-white/5">
+
+                            <li *ngIf="l.materials.length === 0" class="p-3 text-sm text-zinc-500">No files in this lesson yet.</li>
+
+                            <li *ngFor="let m of l.materials" class="flex flex-wrap items-center gap-3 p-3">
+                                <span class="px-2 py-0.5 rounded-full text-xs bg-(--accent)/15 text-(--accent-text-strong) border border-(--accent)/40">{{ m.material.materialType }}</span>
+                                <span class="flex-1 min-w-0">
+                                    <span class="block text-sm text-zinc-100 truncate">{{ m.material.title }}</span>
+                                    <span class="block text-xs text-zinc-500 truncate">{{ m.material.fileName }} &middot; {{ formatSize(m.material.fileSize) }}</span>
+                                </span>
+                                <button *ngIf="can('VIEW_MATERIAL')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                                    (click)="download(m.material)">Download</button>
+                                <button *ngIf="can('DELETE_LESSON_MATERIAL_MAP')" type="button"
+                                    class="px-3 py-1 rounded-lg text-xs font-medium bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
+                                    (click)="removeMaterial(m)">Remove</button>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </ng-container>
+
+    <ng-template #noAccess>
+        <p class="text-zinc-500">You do not have permission to view course content.</p>
+    </ng-template>
+
+    <!-- Picker: add something that already exists -->
+
+    <div *ngIf="showPicker" class="dlg-overlay">
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">
+                            Add existing {{ pickerKind === 'section' ? 'section' : (pickerKind === 'lesson' ? 'lesson' : 'file') }}
+                        </h3>
+                        <p class="dlg-subtitle">
+                            {{ pickerKind === 'section' ? 'to ' + courseName : (pickerKind === 'lesson' ? 'to ' + targetSection?.name : 'to ' + targetLesson?.name) }}
+                        </p>
+                    </div>
+                </div>
+                <button type="button" (click)="closePicker()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <div class="dlg-body">
+                <input type="text" class="dlg-input mb-3" maxlength="100" placeholder="Search" [(ngModel)]="pickerSearch">
+                <ul class="space-y-1 overflow-y-auto" style="max-height: 320px">
+                    <li *ngFor="let item of pickerItems">
+                        <button type="button" (click)="pick(item)"
+                            class="w-full text-left px-3 py-2 rounded-lg border border-transparent hover:bg-white/[0.05] hover:border-white/10 cursor-pointer">
+                            <span class="block text-zinc-100 text-sm">{{ item.name || item.title }}</span>
+                            <span *ngIf="item.materialType" class="block text-xs text-zinc-500">{{ item.materialType }} &middot; {{ item.fileName }}</span>
+                        </button>
+                    </li>
+                    <li *ngIf="pickerItems.length === 0" class="text-sm text-zinc-500 p-3">Nothing left to add.</li>
+                </ul>
+            </div>
+
+            <div class="dlg-footer">
+                <button type="button" (click)="closePicker()" class="dlg-btn dlg-btn-secondary">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Section dialog -->
+
+    <div *ngIf="showSectionModal" class="dlg-overlay">
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Section' : 'New Section' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Changes apply to every course that uses this section.' : 'It is added to ' + courseName + ' right away.' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="closeSectionModal()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <form [formGroup]="sectionForm" class="dlg-body" (ngSubmit)="saveSection()">
+                <div class="dlg-field">
+                    <label class="dlg-label">Name</label>
+                    <input type="text" formControlName="name" maxlength="200" placeholder="e.g. Introduction" class="dlg-input">
+                    <app-field-error [control]="sectionForm.get('name')" label="Name" />
+                </div>
+                <div class="dlg-field">
+                    <label class="dlg-label">Description (optional)</label>
+                    <textarea formControlName="description" rows="2" maxlength="1000" class="dlg-input"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="dlg-field">
+                        <label class="dlg-label">Duration (hours)</label>
+                        <input type="number" formControlName="durationHours" class="dlg-input">
+                        <app-field-error [control]="sectionForm.get('durationHours')" label="Duration" />
+                    </div>
+                    <div class="dlg-field">
+                        <label class="dlg-label">Order</label>
+                        <input type="number" formControlName="orderNo" class="dlg-input">
+                        <app-field-error [control]="sectionForm.get('orderNo')" label="Order" />
+                    </div>
+                </div>
+            </form>
+
+            <div class="dlg-footer">
+                <button *ngIf="isEditMode && can('DELETE_LEARNING_SECTION')" type="button" (click)="deleteSectionEverywhere()"
+                    class="dlg-btn mr-auto bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white">Delete everywhere</button>
+                <button type="button" (click)="closeSectionModal()" class="dlg-btn dlg-btn-secondary">Cancel</button>
+                <button type="button" (click)="saveSection()" [disabled]="saving" class="dlg-btn dlg-btn-primary">{{ saving ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Lesson dialog -->
+
+    <div *ngIf="showLessonModal" class="dlg-overlay">
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Lesson' : 'New Lesson' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Changes apply to every section that uses this lesson.' : 'It is added to ' + targetSection?.name + ' right away.' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="closeLessonModal()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <form [formGroup]="lessonForm" class="dlg-body" (ngSubmit)="saveLesson()">
+                <div class="dlg-field">
+                    <label class="dlg-label">Name</label>
+                    <input type="text" formControlName="name" maxlength="200" placeholder="e.g. Setting up the tools" class="dlg-input">
+                    <app-field-error [control]="lessonForm.get('name')" label="Name" />
+                </div>
+                <div class="dlg-field">
+                    <label class="dlg-label">Description (optional)</label>
+                    <textarea formControlName="description" rows="2" maxlength="1000" class="dlg-input"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="dlg-field">
+                        <label class="dlg-label">Duration (minutes)</label>
+                        <input type="number" formControlName="durationMinutes" class="dlg-input">
+                        <app-field-error [control]="lessonForm.get('durationMinutes')" label="Duration" />
+                    </div>
+                    <div class="dlg-field">
+                        <label class="dlg-label">Order</label>
+                        <input type="number" formControlName="orderNo" class="dlg-input">
+                        <app-field-error [control]="lessonForm.get('orderNo')" label="Order" />
+                    </div>
+                </div>
+            </form>
+
+            <div class="dlg-footer">
+                <button *ngIf="isEditMode && can('DELETE_LESSON')" type="button" (click)="deleteLessonEverywhere()"
+                    class="dlg-btn mr-auto bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white">Delete everywhere</button>
+                <button type="button" (click)="closeLessonModal()" class="dlg-btn dlg-btn-secondary">Cancel</button>
+                <button type="button" (click)="saveLesson()" [disabled]="saving" class="dlg-btn dlg-btn-primary">{{ saving ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Upload dialog -->
+
+    <div *ngIf="showUploadModal" class="dlg-overlay">
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">Upload File</h3>
+                        <p class="dlg-subtitle">Added to {{ targetLesson?.name }}. Up to {{ maxMb }} MB.</p>
+                    </div>
+                </div>
+                <button type="button" (click)="closeUploadModal()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <form [formGroup]="uploadForm" class="dlg-body" (ngSubmit)="saveUpload()">
+                <div class="dlg-field">
+                    <label class="dlg-label">File</label>
+                    <input type="file" class="dlg-input" [accept]="accept" (change)="onFileChosen($event)">
+                    <p *ngIf="fileError" class="text-rose-400 text-xs mt-1">{{ fileError }}</p>
+                </div>
+                <div class="dlg-field">
+                    <label class="dlg-label">Title</label>
+                    <input type="text" formControlName="title" maxlength="200" class="dlg-input">
+                    <app-field-error [control]="uploadForm.get('title')" label="Title" />
+                </div>
+                <div class="dlg-field">
+                    <label class="dlg-label">Description (optional)</label>
+                    <textarea formControlName="description" rows="2" maxlength="1000" class="dlg-input"></textarea>
+                </div>
+                <div class="dlg-field">
+                    <label class="dlg-label">Type</label>
+                    <select formControlName="materialType" class="dlg-input">
+                        <option value="">Select a type</option>
+                        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                    </select>
+                    <app-field-error [control]="uploadForm.get('materialType')" label="Type" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="dlg-check-label">
+                        <input type="checkbox" formControlName="previewAllowed" class="dlg-check">
+                        Students can view
+                    </label>
+                    <label class="dlg-check-label">
+                        <input type="checkbox" formControlName="downloadAllowed" class="dlg-check">
+                        Students can download
+                    </label>
+                </div>
+            </form>
+
+            <div class="dlg-footer">
+                <button type="button" (click)="closeUploadModal()" class="dlg-btn dlg-btn-secondary">Cancel</button>
+                <button type="button" (click)="saveUpload()" [disabled]="saving" class="dlg-btn dlg-btn-primary">{{ saving ? 'Uploading...' : 'Upload' }}</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>

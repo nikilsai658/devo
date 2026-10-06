@@ -1,0 +1,202 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold" style="color:#fff" *ngIf="auth.hasPermission('VIEW_MATERIAL')">
+                Learning Materials
+            </h2>
+            <p class="text-sm text-zinc-400 mt-1" *ngIf="auth.hasPermission('VIEW_MATERIAL')">
+                Files that lessons share with students
+            </p>
+        </div>
+
+        <button
+            *ngIf="auth.hasPermission('CREATE_MATERIAL')"
+            type="button"
+            (click)="openAddModal()"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-opacity bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
+            <span class="text-lg leading-none">+</span>
+            Upload Material
+        </button>
+
+    </div>
+
+    <ng-container *ngIf="auth.hasPermission('VIEW_MATERIAL')">
+
+        <!-- Filters -->
+
+        <div class="mb-4 flex flex-col md:flex-row gap-3">
+            <input type="text" class="dlg-input md:w-96" maxlength="100" placeholder="Search by title"
+                   [(ngModel)]="search" (keyup.enter)="load()">
+            <select class="dlg-input md:w-56" [(ngModel)]="typeFilter" (ngModelChange)="load()">
+                <option value="">All types</option>
+                <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+            </select>
+            <button type="button" class="dlg-btn dlg-btn-secondary" (click)="load()">Search</button>
+        </div>
+
+        <!-- Table -->
+
+        <div class="bg-zinc-950 rounded-xl shadow border border-white/10 overflow-x-auto">
+
+            <table class="w-full text-left">
+
+                <thead style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white">
+                    <tr>
+                        <th class="p-3 text-sm font-semibold">Title</th>
+                        <th class="p-3 text-sm font-semibold">Type</th>
+                        <th class="p-3 text-sm font-semibold">File</th>
+                        <th class="p-3 text-sm font-semibold">Students can</th>
+                        <th class="p-3 text-sm font-semibold">Status</th>
+                        <th class="p-3 text-sm font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr *ngFor="let m of materials" class="border-t border-white/10 hover:bg-white/[0.04] transition-colors">
+
+                        <td class="p-3 text-zinc-100 font-medium">
+                            {{ m.title }}
+                            <span *ngIf="m.description" class="block text-xs text-zinc-500 font-normal">{{ m.description }}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs bg-(--accent)/15 text-(--accent-text-strong) border border-(--accent)/40">{{ m.materialType }}</span>
+                        </td>
+                        <td class="p-3 text-zinc-300">
+                            {{ m.fileName }}
+                            <span class="block text-xs text-zinc-500">{{ formatSize(m.fileSize) }}</span>
+                        </td>
+                        <td class="p-3 text-zinc-300 text-sm">
+                            <span [class.text-zinc-600]="!m.previewAllowed">View</span> /
+                            <span [class.text-zinc-600]="!m.downloadAllowed">Download</span>
+                        </td>
+                        <td class="p-3">
+                            <span *ngIf="m.isActive" class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Active</span>
+                            <span *ngIf="!m.isActive" class="px-2 py-0.5 rounded-full text-xs bg-zinc-500/15 text-zinc-400 border border-zinc-500/30">Hidden</span>
+                        </td>
+
+                        <td class="p-3">
+                            <div class="flex justify-center gap-2">
+
+                                <button
+                                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-white/[0.04] border border-white/15 text-zinc-200 hover:bg-white/[0.1] cursor-pointer"
+                                    (click)="download(m)">
+                                    Download
+                                </button>
+
+                                <button
+                                    *ngIf="auth.hasPermission('UPDATE_MATERIAL')"
+                                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer"
+                                    (click)="editMaterial(m)">
+                                    Edit
+                                </button>
+
+                                <button
+                                    *ngIf="auth.hasPermission('DELETE_MATERIAL')"
+                                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
+                                    (click)="deleteMaterial(m)">
+                                    Delete
+                                </button>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    <tr *ngIf="!loading && materials.length === 0">
+                        <td colspan="6" class="p-6 text-center text-zinc-500">No materials found.</td>
+                    </tr>
+
+                    <tr *ngIf="loading">
+                        <td colspan="6" class="p-6 text-center text-zinc-500">Loading...</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </ng-container>
+
+    <!-- Upload / Edit Dialog -->
+
+    <div *ngIf="showModal" class="dlg-overlay">
+
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit Material' : 'Upload Material' }}</h3>
+                        <p class="dlg-subtitle">Up to {{ maxMb }} MB. Documents, slides, images, audio, video, archives and source files.</p>
+                    </div>
+                </div>
+                <button type="button" (click)="closeModal()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <form [formGroup]="materialForm" class="dlg-body" (ngSubmit)="save()">
+
+                <div class="dlg-field">
+                    <label class="dlg-label">{{ isEditMode ? 'Replace file (optional)' : 'File' }}</label>
+                    <input type="file" class="dlg-input" [accept]="accept" (change)="onFileChosen($event)">
+                    <p *ngIf="isEditMode" class="text-xs text-zinc-500 mt-1">Leave empty to keep the current file.</p>
+                    <p *ngIf="fileError" class="text-rose-400 text-xs mt-1">{{ fileError }}</p>
+                </div>
+
+                <div class="dlg-field">
+                    <label class="dlg-label">Title</label>
+                    <input type="text" formControlName="title" maxlength="200" placeholder="e.g. Week 1 slides" class="dlg-input">
+                    <app-field-error [control]="materialForm.get('title')" label="Title" />
+                </div>
+
+                <div class="dlg-field">
+                    <label class="dlg-label">Description (optional)</label>
+                    <textarea formControlName="description" rows="2" maxlength="1000" class="dlg-input"></textarea>
+                </div>
+
+                <div class="dlg-field">
+                    <label class="dlg-label">Type</label>
+                    <select formControlName="materialType" class="dlg-input">
+                        <option value="">Select a type</option>
+                        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                    </select>
+                    <app-field-error [control]="materialForm.get('materialType')" label="Type" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="dlg-check-label">
+                        <input type="checkbox" formControlName="previewAllowed" class="dlg-check">
+                        Students can view
+                    </label>
+                    <label class="dlg-check-label">
+                        <input type="checkbox" formControlName="downloadAllowed" class="dlg-check">
+                        Students can download
+                    </label>
+                    <label class="dlg-check-label" *ngIf="isEditMode">
+                        <input type="checkbox" formControlName="isActive" class="dlg-check">
+                        Visible (uncheck to hide)
+                    </label>
+                </div>
+
+            </form>
+
+            <div class="dlg-footer">
+                <button type="button" (click)="closeModal()" class="dlg-btn dlg-btn-secondary">Cancel</button>
+                <button type="button" (click)="save()" [disabled]="saving" class="dlg-btn dlg-btn-primary">
+                    {{ saving ? 'Saving...' : (isEditMode ? 'Update' : 'Upload') }}
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -48,6 +48,8 @@ import { Monitoring } from './shared/components/monitoring/monitoring';
 import { Restore } from './shared/components/restore/restore';
 import { FacultyCourses } from './shared/components/faculty-courses/faculty-courses';
 import { MyCourses } from './shared/components/my-courses/my-courses';
+import { CourseContent } from './shared/components/course-content/course-content';
+import { Materials } from './shared/components/materials/materials';
 import { authGuard } from './core/auth/auth-guard';
 import { assignmentGuard } from './core/guards/assignment-guard';
 import { defaultChildRedirect, permissionGuard } from './core/guards/permission-guard';
@@ -197,6 +199,12 @@ const mainChildren: Routes = [
       },
       {
         path:'my-courses',component:MyCourses
+      },
+      {
+        path:'course-content',component:CourseContent, data: { permission: 'VIEW_COURSE_LEARNING_SECTION_MAP' }
+      },
+      {
+        path:'materials',component:Materials, data: { permission: 'VIEW_MATERIAL' }
       },
       {
         path:'change_password',component:ChangePassword

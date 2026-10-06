@@ -176,6 +176,8 @@ colleges = [
     '/main/assignment',
     '/main/restore',
     '/main/faculty-courses',
+    '/main/course-content',
+    '/main/materials',
   ];
 
   private readonly mappingRoutes = [
@@ -236,6 +238,8 @@ colleges = [
       'VIEW_ASSIGNMENT',
       'RESTORE_ENTITIES',
       'VIEW_FACULTY_COURSES',
+      'VIEW_COURSE_LEARNING_SECTION_MAP',
+      'VIEW_MATERIAL',
     ].some(permission => this.auth.hasPermission(permission));
   }
 

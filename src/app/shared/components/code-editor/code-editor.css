@@ -6,6 +6,7 @@
 :host {
   display: block;
   height: 100%;
+  min-height: 480px;
   color-scheme: dark;
 }
 
@@ -24,6 +25,12 @@
   --accent-text-strong: #D4BBFA;
   --accent-rgb: 107, 33, 208;
   --on-accent: #fff;
+}
+
+/* styles.css re-inverts every canvas in light theme. Inside this already
+   re-inverted editor that would flip Monaco's minimap back to light. */
+:host-context(html[data-theme="light"]) ::ng-deep canvas {
+  filter: none;
 }
 
 /* ---------------- LAYOUT ---------------- */
@@ -122,9 +129,18 @@
 
 /* ---------------- EDITOR ---------------- */
 
+/* Code on the top half, stdin + terminal on the bottom half. Both halves
+   have a fixed share of the height, so output arriving in the terminal
+   scrolls inside it instead of pushing the stdin panel down. */
 .editor-container {
-  @apply flex-1;
-  min-height: 300px;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.io-pane {
+  @apply flex flex-col overflow-hidden;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 /* ---------------- PANELS (stdin + terminal) ---------------- */
@@ -161,18 +177,30 @@
 }
 
 .custom-input-box {
-  @apply block w-full resize-y border-0 border-t border-white/10 bg-[#0b0b0e] px-4 py-3
-         font-mono text-[13px] leading-6 text-zinc-200 outline-none placeholder:text-zinc-600;
+  @apply block w-full resize-none border-0 border-t border-white/10 px-4 py-3
+         font-mono text-[13px] leading-6 outline-none placeholder:text-zinc-600;
+  height: 6.5rem;
+  max-height: 40%;
+  overflow-y: auto;
+  /* Stay dark in both app themes (no browser light-mode field styling). */
+  color-scheme: dark;
+  background-color: #0b0b0e;
+  color: #e4e4e7;
+  -webkit-text-fill-color: #e4e4e7;
+  caret-color: #e4e4e7;
+  scrollbar-color: #3f3f46 transparent;
 }
 
 /* TERMINAL */
 
 .output-panel {
-  @apply shrink-0 border-t border-white/10 bg-black;
+  @apply flex flex-col border-t border-white/10 bg-black;
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .output-header {
-  @apply flex items-center justify-between border-b border-white/10 bg-[#141418] px-4 py-2;
+  @apply flex shrink-0 items-center justify-between border-b border-white/10 bg-[#141418] px-4 py-2;
 }
 
 .term-dot {
@@ -192,7 +220,9 @@
 .term-state.error   { @apply text-red-400; }
 
 .output-body {
-  @apply max-h-56 overflow-y-auto px-4 py-3 font-mono text-[13px] leading-6 text-zinc-300;
+  @apply flex-1 overflow-y-auto px-4 py-3 font-mono text-[13px] leading-6 text-zinc-300;
+  min-height: 0;
+  scrollbar-color: #3f3f46 transparent;
 }
 
 .term-line {
@@ -305,8 +335,58 @@
     @apply w-full justify-end;
   }
 
-  .editor-container {
-    min-height: 220px;
+  :host {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-toolbar {
+    @apply gap-2 px-3 py-2;
+  }
+
+  .toolbar-left {
+    @apply w-full justify-between gap-2;
+  }
+
+  .toolbar-right {
+    @apply gap-2;
+  }
+
+  /* Buttons share the row equally so they're easy to tap. */
+  .reset-btn,
+  .run-btn,
+  .submit-btn {
+    @apply h-9 flex-1 justify-center px-2;
+  }
+
+  .custom-input-toggle,
+  .output-header {
+    @apply px-3;
+  }
+
+  .panel-hint {
+    @apply hidden;
+  }
+
+  .custom-input-box,
+  .output-body {
+    @apply px-3 text-[12px];
+  }
+
+  .custom-input-box {
+    height: 5rem;
+  }
+}
+
+/* Short screens (landscape phones): keep both halves usable. */
+@media (max-height: 560px) {
+  :host {
+    min-height: 360px;
+  }
+
+  .custom-input-box {
+    height: 4rem;
   }
 }
 

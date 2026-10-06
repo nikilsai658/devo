@@ -68,12 +68,17 @@
 
 /* Header right side */
 
+/* Total Tickets box and Raise a Ticket button stretch to one shared height. */
 .header-actions {
-  @apply flex items-center gap-6;
+  @apply flex items-stretch gap-4;
 }
 
 .ticket-count {
-  @apply flex flex-col items-end rounded-xl border border-white/10 bg-zinc-950 px-5 py-3;
+  @apply flex min-h-16 flex-col items-end justify-center rounded-xl border border-white/10 bg-zinc-950 px-5 py-2;
+}
+
+.header-actions .raise-ticket-button-sm {
+  @apply h-auto min-h-16 rounded-xl px-5;
 }
 
 .count-label {
@@ -483,7 +488,11 @@
   }
 
   .ticket-count {
-    @apply w-full flex-row items-center justify-between;
+    @apply min-h-14 flex-1 flex-row items-center justify-between;
+  }
+
+  .header-actions .raise-ticket-button-sm {
+    @apply min-h-14 shrink-0;
   }
 
   .count-value {
@@ -580,5 +589,18 @@
 @media (max-width: 500px) {
   .raise-ticket-button-sm {
     @apply h-9 px-3 text-xs;
+  }
+
+  .header-actions {
+    @apply gap-3;
+  }
+
+  .ticket-count,
+  .header-actions .raise-ticket-button-sm {
+    @apply h-auto min-h-12 px-4;
+  }
+
+  .count-value {
+    @apply text-xl leading-6;
   }
 }

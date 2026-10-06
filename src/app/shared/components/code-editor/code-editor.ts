@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Inject,
   Input,
   OnChanges,
@@ -172,7 +173,6 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges {
         theme: 'tripledot-dark',
         automaticLayout: true,
         fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, 'Courier New', monospace",
-        fontSize: 14,
         lineHeight: 22,
         fontLigatures: true,
         padding: { top: 16, bottom: 16 },
@@ -184,11 +184,28 @@ export class CodeEditorComponent implements AfterViewInit, OnChanges {
         roundedSelection: true,
         bracketPairColorization: { enabled: true },
         minimap: {
-          enabled: true,
+          enabled: !this.isNarrow(),
           renderCharacters: false
-        }
+        },
+        fontSize: this.isNarrow() ? 13 : 14
       }
     );
+  }
+
+  // Phones/narrow panels: no minimap, slightly smaller font, so the code
+  // itself gets the width.
+  @HostListener('window:resize')
+  onResize(): void {
+    if (!this.editor) return;
+    const narrow = this.isNarrow();
+    this.editor.updateOptions({
+      minimap: { enabled: !narrow, renderCharacters: false },
+      fontSize: narrow ? 13 : 14
+    });
+  }
+
+  private isNarrow(): boolean {
+    return this.editorContainer.nativeElement.clientWidth < 600;
   }
 
   private configureMonacoWorkers(): void {

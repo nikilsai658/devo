@@ -50,6 +50,7 @@ import { FacultyCourses } from './shared/components/faculty-courses/faculty-cour
 import { MyCourses } from './shared/components/my-courses/my-courses';
 import { CourseContent } from './shared/components/course-content/course-content';
 import { Materials } from './shared/components/materials/materials';
+import { TaskSubmissions } from './shared/components/task-submissions/task-submissions';
 import { authGuard } from './core/auth/auth-guard';
 import { assignmentGuard } from './core/guards/assignment-guard';
 import { defaultChildRedirect, permissionGuard } from './core/guards/permission-guard';
@@ -205,6 +206,9 @@ const mainChildren: Routes = [
       },
       {
         path:'materials',component:Materials, data: { permission: 'VIEW_MATERIAL' }
+      },
+      {
+        path:'task-submissions',component:TaskSubmissions, data: { permission: 'VIEW_STUDENT_TASK_SUBMISSION' }
       },
       {
         path:'change_password',component:ChangePassword

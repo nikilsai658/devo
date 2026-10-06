@@ -1,0 +1,90 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold" style="color:#fff">Restore Deleted Records</h2>
+        <p class="text-sm text-zinc-400 mt-1">
+            Deleting only hides a record. Pick a type and bring back what was deleted by mistake.
+        </p>
+    </div>
+
+    <ng-container *ngIf="auth.hasPermission('RESTORE_ENTITIES'); else noAccess">
+
+        <!-- Record types -->
+
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button *ngFor="let k of kinds" type="button" (click)="select(k)"
+                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors border cursor-pointer"
+                [ngClass]="k === kind
+                    ? 'bg-(--accent) text-(--on-accent) border-transparent'
+                    : 'bg-white/[0.04] text-zinc-300 border-white/10 hover:bg-white/[0.08]'">
+                {{ label(k) }}
+            </button>
+        </div>
+
+        <!-- Table -->
+
+        <div class="bg-zinc-950 rounded-xl shadow border border-white/10 overflow-x-auto">
+
+            <table class="w-full text-left">
+
+                <thead style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white">
+                    <tr>
+                        <th class="p-3 text-sm font-semibold">Id</th>
+                        <th class="p-3 text-sm font-semibold">Record</th>
+                        <th class="p-3 text-sm font-semibold">Deleted on</th>
+                        <th class="p-3 text-sm font-semibold">Deleted by</th>
+                        <th class="p-3 text-sm font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr *ngFor="let item of items" class="border-t border-white/10 hover:bg-white/[0.04] transition-colors">
+                        <td class="p-3 text-zinc-300">{{ item.id }}</td>
+                        <td class="p-3 text-zinc-100 font-medium">{{ item.label }}</td>
+                        <td class="p-3 text-zinc-300 whitespace-nowrap">{{ item.deletedAt ? (item.deletedAt | date:'medium') : '-' }}</td>
+                        <td class="p-3 text-zinc-400">{{ item.deletedBy || '-' }}</td>
+                        <td class="p-3">
+                            <div class="flex justify-center">
+                                <button type="button" (click)="restore(item)"
+                                    class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-600 hover:text-white cursor-pointer">
+                                    Restore
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="!loading && items.length === 0">
+                        <td colspan="5" class="p-6 text-center text-zinc-500">Nothing deleted here.</td>
+                    </tr>
+
+                    <tr *ngIf="loading">
+                        <td colspan="5" class="p-6 text-center text-zinc-500">Loading...</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Paging -->
+
+        <div *ngIf="totalPages > 1" class="flex items-center justify-between gap-3 mt-4 text-sm text-zinc-400">
+            <span>{{ totalCount }} deleted records</span>
+            <div class="flex items-center gap-2">
+                <button type="button" class="dlg-btn dlg-btn-secondary" [disabled]="page <= 1" (click)="goTo(page - 1)">Previous</button>
+                <span>Page {{ page }} of {{ totalPages }}</span>
+                <button type="button" class="dlg-btn dlg-btn-secondary" [disabled]="page >= totalPages" (click)="goTo(page + 1)">Next</button>
+            </div>
+        </div>
+
+    </ng-container>
+
+    <ng-template #noAccess>
+        <p class="text-zinc-500">You do not have permission to restore records.</p>
+    </ng-template>
+
+</div>

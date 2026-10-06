@@ -9,6 +9,7 @@ import { UserStore } from '../../../core/store/user';
 import { AuthServices } from '../../../features/services/auth/auth-services';
 import { ThemeStore } from '../../../core/store/theme';
 import { clearTokens } from '../../../core/auth/token-storage';
+import { FacultyCourseService } from '../../../features/services/facultycourse/facultycourse-service';
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +22,11 @@ export class Header implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly facultyApi = inject(FacultyCourseService);
+
+  // The "My Courses" link only appears for people who actually have courses assigned.
+  hasAssignedCourses = false;
+  private assignedCoursesChecked = false;
 
   username:string|undefined='';
   collegeLogo = '';
@@ -52,6 +58,17 @@ colleges = [
       }
 
       this.username = user.name;
+
+      if (!this.assignedCoursesChecked && user.role !== 'SuperAdmin') {
+        this.assignedCoursesChecked = true;
+        this.facultyApi.getMyCourses().subscribe({
+          next: (res: any) => {
+            this.hasAssignedCourses = Array.isArray(res?.data) && res.data.length > 0;
+            this.cdr.markForCheck();
+          },
+          error: () => {}
+        });
+      }
 
       const selectedCollege = this.colleges.find(college =>
         college.name.trim().toLowerCase() ===
@@ -157,6 +174,8 @@ colleges = [
     '/main/year',
     '/main/year-updation',
     '/main/assignment',
+    '/main/restore',
+    '/main/faculty-courses',
   ];
 
   private readonly mappingRoutes = [
@@ -215,6 +234,8 @@ colleges = [
       'VIEW_YEAR',
       'UPDATE_YEAR',
       'VIEW_ASSIGNMENT',
+      'RESTORE_ENTITIES',
+      'VIEW_FACULTY_COURSES',
     ].some(permission => this.auth.hasPermission(permission));
   }
 

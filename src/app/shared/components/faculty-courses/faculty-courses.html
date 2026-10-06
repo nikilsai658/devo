@@ -1,0 +1,97 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold" style="color:#fff">Faculty Courses</h2>
+        <p class="text-sm text-zinc-400 mt-1">
+            Choose which courses each staff member is responsible for. Roles marked
+            "own courses only" see just the students and work of these courses.
+        </p>
+    </div>
+
+    <ng-container *ngIf="auth.hasPermission('VIEW_FACULTY_COURSES'); else noAccess">
+
+        <div class="grid gap-4 lg:grid-cols-[22rem_1fr]">
+
+            <!-- Users -->
+
+            <div class="bg-zinc-950 rounded-xl border border-white/10 p-4">
+
+                <input type="text" class="dlg-input mb-3" placeholder="Search by name or email" maxlength="100"
+                       [(ngModel)]="userSearch">
+
+                <label *ngIf="restrictedRoles.size > 0" class="dlg-check-label mb-3">
+                    <input type="checkbox" class="dlg-check" [(ngModel)]="onlyRestrictedRoles">
+                    Only roles limited to assigned courses
+                </label>
+
+                <ul class="space-y-1 overflow-y-auto" style="max-height: calc(100vh - 360px); min-height: 240px">
+                    <li *ngFor="let u of visibleUsers">
+                        <button type="button" (click)="selectUser(u)"
+                            class="w-full text-left px-3 py-2 rounded-lg border transition-colors cursor-pointer"
+                            [ngClass]="selectedUser?.id === u.id
+                                ? 'bg-(--accent)/15 border-(--accent)/50'
+                                : 'border-transparent hover:bg-white/[0.05]'">
+                            <span class="block text-zinc-100 text-sm font-medium">{{ u.fullName }}</span>
+                            <span class="block text-xs text-zinc-500">{{ u.email }} &middot; {{ u.roleName }}</span>
+                        </button>
+                    </li>
+                    <li *ngIf="visibleUsers.length === 0" class="text-sm text-zinc-500 p-3">No users found.</li>
+                </ul>
+
+            </div>
+
+            <!-- Courses -->
+
+            <div class="bg-zinc-950 rounded-xl border border-white/10 p-4">
+
+                <p *ngIf="!selectedUser" class="text-zinc-500 p-6 text-center">Select a user to see their courses.</p>
+
+                <ng-container *ngIf="selectedUser">
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">{{ selectedUser.fullName }}</h3>
+                            <p class="text-xs text-zinc-500">{{ selectedCourseIds.size }} of {{ courses.length }} courses assigned</p>
+                        </div>
+
+                        <div class="flex gap-2" *ngIf="canManage">
+                            <button type="button" class="dlg-btn dlg-btn-secondary" (click)="selectAllVisible()">Select shown</button>
+                            <button type="button" class="dlg-btn dlg-btn-secondary" (click)="clearAll()">Clear</button>
+                            <button type="button" class="dlg-btn dlg-btn-primary" [disabled]="!dirty || saving" (click)="save()">
+                                {{ saving ? 'Saving...' : 'Save' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="text" class="dlg-input mb-3" placeholder="Search courses" maxlength="100" [(ngModel)]="courseSearch">
+
+                    <p *ngIf="loadingCourses" class="text-zinc-500 p-3">Loading...</p>
+
+                    <div *ngIf="!loadingCourses" class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                        <label *ngFor="let c of visibleCourses"
+                            class="dlg-check-label"
+                            [class.opacity-70]="!canManage">
+                            <input type="checkbox" class="dlg-check"
+                                [checked]="selectedCourseIds.has(c.id)"
+                                [disabled]="!canManage"
+                                (change)="toggleCourse(c.id)">
+                            {{ c.name }}
+                        </label>
+                        <p *ngIf="visibleCourses.length === 0" class="text-sm text-zinc-500 p-3">No courses found.</p>
+                    </div>
+
+                </ng-container>
+
+            </div>
+
+        </div>
+
+    </ng-container>
+
+    <ng-template #noAccess>
+        <p class="text-zinc-500">You do not have permission to view faculty courses.</p>
+    </ng-template>
+
+</div>

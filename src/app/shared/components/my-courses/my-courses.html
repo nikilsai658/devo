@@ -1,0 +1,21 @@
+<div class="p-6">
+
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold" style="color:#fff">My Courses</h2>
+        <p class="text-sm text-zinc-400 mt-1">The courses you are responsible for. You see the students and work of these courses.</p>
+    </div>
+
+    <p *ngIf="loading" class="text-zinc-500">Loading...</p>
+
+    <div *ngIf="!loading" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+        <div *ngFor="let c of courses" class="bg-zinc-950 rounded-xl border border-white/10 p-4">
+            <p class="text-zinc-100 font-medium">{{ c.courseName }}</p>
+            <p class="text-xs text-zinc-500 mt-1">Course #{{ c.courseId }}</p>
+        </div>
+
+        <p *ngIf="courses.length === 0" class="text-zinc-500">No courses are assigned to you yet.</p>
+
+    </div>
+
+</div>

@@ -24,7 +24,8 @@ import { Auth } from '../../../core/auth/auth';
 import { RoleService } from '../../../features/services/role/role-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
+
+
 import { ConfirmService } from '../confirm-dailog/confirm';
 import { getAccessToken } from '../../../core/auth/token-storage';
 @Component({
@@ -72,7 +73,8 @@ export class Role implements OnInit {
   requiresCollege: [true],
   requiresDepartment: [true],
   requiresBranch: [true],
-  requiresYear: [true]
+  requiresYear: [true],
+  restrictToAssignedCourses: [false]
 });
 
   }
@@ -222,7 +224,8 @@ export class Role implements OnInit {
       requiresCollege: role.requiresCollege,
       requiresDepartment: role.requiresDepartment,
       requiresBranch: role.requiresBranch,
-      requiresYear: role.requiresYear
+      requiresYear: role.requiresYear,
+      restrictToAssignedCourses: !!role.restrictToAssignedCourses
 
     });
 
@@ -322,7 +325,8 @@ export class Role implements OnInit {
       requiresCollege: true,
       requiresDepartment: true,
       requiresBranch: true,
-      requiresYear: true
+      requiresYear: true,
+      restrictToAssignedCourses: false
 
     });
 

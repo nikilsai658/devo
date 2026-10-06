@@ -149,7 +149,20 @@
             <span *ngIf="!editMode">*</span>
           </label>
 
-          <div class="password-field">
+          <label class="auto-password" *ngIf="!editMode">
+            <input
+              type="checkbox"
+              [checked]="autoPassword"
+              (change)="toggleAutoPassword($any($event.target).checked)"
+            />
+            Generate a password and email it to the user
+          </label>
+
+          <small class="hint" *ngIf="!editMode && autoPassword">
+            The user receives their login by email. Phone number and semester are not saved with this option.
+          </small>
+
+          <div class="password-field" *ngIf="editMode || !autoPassword">
 
             <input
               [type]="showPassword ? 'text' : 'password'"
@@ -214,6 +227,7 @@
             *ngIf="
               submitted &&
               !editMode &&
+              !autoPassword &&
               f['password'].invalid
             "
           >
@@ -240,7 +254,7 @@
             </option>
 
             <option
-              *ngFor="let role of roles"
+              *ngFor="let role of dialogRoles"
               [value]="
                 role.name ||
                 role.roleName

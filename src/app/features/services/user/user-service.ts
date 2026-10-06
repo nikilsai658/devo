@@ -48,6 +48,22 @@ export class UserService {
   createUser(data:any){
     return this.api.POST('User',data);
   }
+  // Creates the user with a random password that the API emails to them. The endpoint reads a
+  // form and has no field for the password, phone number or semester.
+  createUserAutoPassword(data: Record<string, any>){
+    const form = new FormData();
+    const names: Record<string, string> = {
+      fullName: 'FullName', email: 'Email', registerNumber: 'RegisterNumber', roleName: 'RoleName',
+      collegeName: 'CollegeName', departmentName: 'DepartmentName', branchName: 'BranchName', yearNumber: 'YearNumber'
+    };
+    for (const [key, field] of Object.entries(names)) {
+      const value = data[key];
+      if (value !== null && value !== undefined && String(value).trim() !== '') {
+        form.append(field, String(value));
+      }
+    }
+    return this.api.POST('User/create-auto-password', form);
+  }
   updateUser(id:number,data:any){
     return this.api.PUT(`User/${id}`,data);
   }

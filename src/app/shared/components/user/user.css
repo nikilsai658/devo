@@ -864,3 +864,27 @@ tbody td {
 .form-group select[aria-invalid="true"] {
   @apply border-rose-500;
 }
+
+/* Add User: generate the password instead of typing one */
+.auto-password {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: #d4d4d8;
+  cursor: pointer;
+}
+
+.auto-password input {
+  width: auto !important;
+  padding: 0 !important;
+  accent-color: var(--accent);
+}
+
+.hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}

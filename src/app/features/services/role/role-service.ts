@@ -8,6 +8,11 @@ export class RoleService {
   getRoles(){
     return this.api.GET('Role');
   }
+  // The roles the signed-in user is allowed to give to someone (their own role's descendants;
+  // every role for a SuperAdmin).
+  getAssignableRoles(){
+    return this.api.GET('Role/assignable');
+  }
   getRoleById(id:number){
     return this.api.GET(`Role/${id}`);
   }

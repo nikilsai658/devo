@@ -52,7 +52,8 @@ import { RoleService } from '../../../features/services/role/role-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
-
+
+
 import { ConfirmService } from '../confirm-dailog/confirm';
 // A 21-row file takes ~40s on the server; allow plenty of headroom before
 // treating a silent connection as dead.
@@ -112,6 +113,18 @@ export class UserComponent implements OnInit, OnDestroy {
   departments: any[] = [];
   branches: any[] = [];
   roles: any[] = [];
+
+  // Roles the signed-in user may give to someone (shown in the Add/Edit dialog). Until they load,
+  // or if they cannot be loaded, the full list is shown and the API still enforces the rule.
+  assignableRoles: any[] = [];
+  assignableLoaded = false;
+
+  // Add User only: let the API generate the password and email it, instead of typing one.
+  autoPassword = false;
+
+  get dialogRoles(): any[] {
+    return this.assignableLoaded ? this.assignableRoles : this.roles;
+  }
 
   selectedFile: File | null = null;
 
@@ -224,6 +237,8 @@ export class UserComponent implements OnInit, OnDestroy {
     this.loadBranches();
 
     this.loadRoles();
+
+    this.loadAssignableRoles();
 
     this.loadUsers();
 
@@ -782,6 +797,47 @@ export class UserComponent implements OnInit, OnDestroy {
 
   }
 
+  loadAssignableRoles(): void {
+
+    this.roleService.getAssignableRoles().subscribe({
+
+      next: (res: any) => {
+        const list = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
+        this.assignableRoles = list;
+        this.assignableLoaded = true;
+        this.cdr.markForCheck();
+      },
+
+      // "No assignable roles" comes back as an error too: that is a real, empty answer.
+      error: (err) => {
+        if (err?.status === 404) {
+          this.assignableRoles = [];
+          this.assignableLoaded = true;
+        }
+        this.cdr.markForCheck();
+      }
+
+    });
+
+  }
+
+  // Choosing "generate a password" removes the password field from the form's rules.
+  toggleAutoPassword(checked: boolean): void {
+
+    this.autoPassword = checked;
+
+    const control = this.userForm.get('password');
+
+    control?.setValue('');
+    control?.setValidators(checked
+      ? []
+      : [AppValidators.required, AppValidators.strongPassword]);
+    control?.updateValueAndValidity();
+
+    this.cdr.markForCheck();
+
+  }
+
   // ==========================
   // Load Permissions
   // ==========================
@@ -913,8 +969,11 @@ export class UserComponent implements OnInit, OnDestroy {
       payload
     );
 
-    this.userService
-      .createUser(payload)
+    const request = this.autoPassword
+      ? this.userService.createUserAutoPassword(payload)
+      : this.userService.createUser(payload);
+
+    request
       .pipe(
         finalize(() => {
           this.cdr.markForCheck();
@@ -936,8 +995,9 @@ export class UserComponent implements OnInit, OnDestroy {
           );
 
           this.feedback.ok(
-            res?.message ||
-            'User added successfully'
+            this.autoPassword
+              ? 'User added. The password was emailed to them.'
+              : (res?.message || 'User added successfully')
           );
 
           this.resetForm();
@@ -1290,6 +1350,7 @@ export class UserComponent implements OnInit, OnDestroy {
      * password is required again.
      */
 
+    this.autoPassword = false;
     this.userForm.get('password')?.setValidators([AppValidators.required, AppValidators.strongPassword]);
     this.userForm.get('password')?.updateValueAndValidity();
 

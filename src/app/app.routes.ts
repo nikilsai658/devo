@@ -41,6 +41,10 @@ import { SuperadminStudentAssignments } from './shared/components/superadmin-stu
 import { SuperadminStudentAssignmentCode } from './shared/components/superadmin-student-assignment-code/superadmin-student-assignment-code';
 import { SuperadminStudentTasks } from './shared/components/superadmin-student-tasks/superadmin-student-tasks';
 import { YearUpdation } from './shared/components/year-updation/year-updation';
+import { AuditLog } from './shared/components/audit-log/audit-log';
+import { AdminUsers } from './shared/components/admin-users/admin-users';
+import { Deployments } from './shared/components/deployments/deployments';
+import { Monitoring } from './shared/components/monitoring/monitoring';
 import { authGuard } from './core/auth/auth-guard';
 import { assignmentGuard } from './core/guards/assignment-guard';
 import { defaultChildRedirect, permissionGuard } from './core/guards/permission-guard';
@@ -169,6 +173,18 @@ const mainChildren: Routes = [
       },
       {
         path:'superadmin-student-tasks',component:SuperadminStudentTasks,data:{permission:'VIEW_SUPERADMIN_STUDENT_ASSIGNMENTS'}
+      },
+      {
+        path:'audit-log',component:AuditLog, data: { permission: 'VIEW_AUDIT_LOG' }
+      },
+      {
+        path:'admin-users',component:AdminUsers, data: { permission: 'VIEW_ADMIN_USERS' }
+      },
+      {
+        path:'deployments',component:Deployments, data: { permission: 'VIEW_DEPLOYMENTS' }
+      },
+      {
+        path:'monitoring',component:Monitoring, data: { permission: 'VIEW_MONITORING' }
       },
       {
         path:'change_password',component:ChangePassword

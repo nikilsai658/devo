@@ -105,7 +105,7 @@ colleges = [
   }
 
   /* Desktop dropdowns / mobile accordions */
-  openDropdown: 'management' | 'mapping' | null = null;
+  openDropdown: 'management' | 'mapping' | 'platform' | null = null;
 
   get managementOpen(): boolean {
     return this.openDropdown === 'management';
@@ -113,6 +113,14 @@ colleges = [
 
   get mappingOpen(): boolean {
     return this.openDropdown === 'mapping';
+  }
+
+  get platformOpen(): boolean {
+    return this.openDropdown === 'platform';
+  }
+
+  togglePlatform() {
+    this.openDropdown = this.platformOpen ? null : 'platform';
   }
 
   toggleManagement() {
@@ -161,6 +169,13 @@ colleges = [
     '/main/role-permission-mapping',
   ];
 
+  private readonly platformRoutes = [
+    '/main/admin-users',
+    '/main/deployments',
+    '/main/monitoring',
+    '/main/audit-log',
+  ];
+
   private isUnder(routes: string[]): boolean {
     const url = this.router.url.split(/[?#]/)[0];
     return routes.some(route => url === route || url.startsWith(route + '/'));
@@ -168,6 +183,19 @@ colleges = [
 
   isManagementActive(): boolean {
     return this.isUnder(this.managementRoutes);
+  }
+
+  isPlatformActive(): boolean {
+    return this.isUnder(this.platformRoutes);
+  }
+
+  hasAnyPlatformPermission(): boolean {
+    return [
+      'VIEW_ADMIN_USERS',
+      'VIEW_DEPLOYMENTS',
+      'VIEW_MONITORING',
+      'VIEW_AUDIT_LOG',
+    ].some(permission => this.auth.hasPermission(permission));
   }
 
   isMappingActive(): boolean {

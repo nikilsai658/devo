@@ -1,0 +1,95 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold" style="color:#fff">Monitoring</h2>
+            <p class="text-sm text-zinc-400 mt-1">Traffic, errors, databases and server health</p>
+        </div>
+
+        <div class="flex gap-2" *ngIf="auth.hasPermission('VIEW_MONITORING')">
+            <button type="button" (click)="toggleUptime()" class="dlg-btn dlg-btn-secondary">
+                {{ showUptime ? 'Hide' : 'Uptime addresses' }}
+            </button>
+            <a *ngIf="embedUrl" [href]="embedUrl" target="_blank" rel="noopener" class="dlg-btn dlg-btn-secondary">
+                Open in new tab
+            </a>
+        </div>
+
+    </div>
+
+    <ng-container *ngIf="auth.hasPermission('VIEW_MONITORING'); else noAccess">
+
+        <!-- Filters -->
+
+        <div class="bg-zinc-950 rounded-xl shadow border border-white/10 p-4 mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+            <div class="dlg-field">
+                <label class="dlg-label" for="mon-dashboard">Dashboard</label>
+                <select id="mon-dashboard" class="dlg-input" [(ngModel)]="dashboard" (ngModelChange)="loadEmbed()">
+                    <option *ngIf="dashboards.length === 0" value="overview">Colleges</option>
+                    <option *ngFor="let d of dashboards" [value]="d.key">{{ d.title }}</option>
+                </select>
+            </div>
+
+            <div class="dlg-field">
+                <label class="dlg-label" for="mon-college">College code (optional)</label>
+                <input id="mon-college" type="text" class="dlg-input" maxlength="50" placeholder="All colleges"
+                       [(ngModel)]="college" (keyup.enter)="loadEmbed()" (blur)="loadEmbed()">
+            </div>
+
+            <div class="dlg-field">
+                <label class="dlg-label" for="mon-range">Time range</label>
+                <select id="mon-range" class="dlg-input" [(ngModel)]="from" (ngModelChange)="loadEmbed()">
+                    <option *ngFor="let r of ranges" [value]="r.value">{{ r.label }}</option>
+                </select>
+            </div>
+
+            <div class="flex items-end">
+                <button type="button" (click)="loadEmbed()" class="dlg-btn dlg-btn-primary">Reload</button>
+            </div>
+
+        </div>
+
+        <!-- Uptime addresses -->
+
+        <div *ngIf="showUptime" class="bg-zinc-950 rounded-xl border border-white/10 p-4 mb-4">
+            <p class="text-sm text-zinc-400 mb-2">
+                Add each as an HTTPS monitor (5-minute interval, expect HTTP 200) in an outside uptime checker.
+            </p>
+            <ul class="text-sm text-zinc-200 space-y-1 mb-3">
+                <li *ngFor="let t of uptimeTargets"><span class="text-zinc-500">{{ t.name }}</span> {{ t.url }}</li>
+                <li *ngIf="uptimeTargets.length === 0" class="text-zinc-500">No active deployments.</li>
+            </ul>
+            <button *ngIf="uptimeTargets.length" type="button" (click)="copyUptime()" class="dlg-btn dlg-btn-secondary">Copy all</button>
+        </div>
+
+        <!-- Chart -->
+
+        <p *ngIf="error" class="text-rose-400 text-sm mb-3">{{ error }}</p>
+
+        <div class="bg-zinc-950 rounded-xl shadow border border-white/10 overflow-hidden">
+
+            <p *ngIf="loading" class="p-6 text-center text-zinc-500">Loading...</p>
+
+            <iframe *ngIf="frameUrl && !loading" [src]="frameUrl" title="Monitoring dashboard"
+                    class="w-full block" style="height: calc(100vh - 330px); min-height: 520px; border: 0"></iframe>
+
+            <p *ngIf="!frameUrl && !loading && !error" class="p-6 text-center text-zinc-500">No dashboard to show.</p>
+
+        </div>
+
+        <p *ngIf="frameUrl" class="text-xs text-zinc-500 mt-3">
+            The view-only link expires {{ expiresAt | date:'shortTime' }} and is renewed automatically.
+            If the chart stays blank, your browser blocks third-party cookies: use "Open in new tab".
+        </p>
+
+    </ng-container>
+
+    <ng-template #noAccess>
+        <p class="text-zinc-500">You do not have permission to view monitoring.</p>
+    </ng-template>
+
+</div>

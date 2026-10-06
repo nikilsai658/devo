@@ -540,6 +540,104 @@
       </li>
 
 
+      <!-- =========================
+           PLATFORM DROPDOWN (SuperAdmin / operations)
+      ========================= -->
+      <li
+        class="nav-dropdown"
+        *ngIf="hasAnyPlatformPermission()">
+
+        <button
+          type="button"
+          class="nav-link dropdown-toggle"
+          [class.is-active]="isPlatformActive()"
+          [class.is-open]="platformOpen"
+          [attr.aria-expanded]="platformOpen"
+          aria-haspopup="true"
+          (click)="togglePlatform()">
+
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="6" rx="1"/>
+            <rect x="3" y="14" width="18" height="6" rx="1"/>
+            <path d="M7 7h.01M7 17h.01"/>
+          </svg>
+
+          <span>Platform</span>
+
+          <svg class="chevron" viewBox="0 0 24 24">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+
+        </button>
+
+
+        <div
+          class="dropdown-menu"
+          [class.is-open]="platformOpen"
+          role="menu">
+
+          <div class="dropdown-heading">
+            <strong>Platform</strong>
+            <span>Accounts, servers and activity</span>
+          </div>
+
+          <div class="dropdown-list">
+
+            <a
+              *ngIf="auth.hasPermission('VIEW_ADMIN_USERS')"
+              routerLink="/main/admin-users"
+              routerLinkActive="is-active"
+              class="dropdown-item"
+              role="menuitem">
+              <span class="item-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+              </span>
+              <span class="item-label">SuperAdmin Accounts</span>
+            </a>
+
+            <a
+              *ngIf="auth.hasPermission('VIEW_DEPLOYMENTS')"
+              routerLink="/main/deployments"
+              routerLinkActive="is-active"
+              class="dropdown-item"
+              role="menuitem">
+              <span class="item-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><path d="M7 7h.01M7 17h.01"/></svg>
+              </span>
+              <span class="item-label">Deployments</span>
+            </a>
+
+            <a
+              *ngIf="auth.hasPermission('VIEW_MONITORING')"
+              routerLink="/main/monitoring"
+              routerLinkActive="is-active"
+              class="dropdown-item"
+              role="menuitem">
+              <span class="item-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+              </span>
+              <span class="item-label">Monitoring</span>
+            </a>
+
+            <a
+              *ngIf="auth.hasPermission('VIEW_AUDIT_LOG')"
+              routerLink="/main/audit-log"
+              routerLinkActive="is-active"
+              class="dropdown-item"
+              role="menuitem">
+              <span class="item-icon">
+                <svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+              </span>
+              <span class="item-label">Audit Log</span>
+            </a>
+
+          </div>
+
+        </div>
+
+      </li>
+
+
       <!-- Student Assignment Scores -->
       <li *ngIf="auth.hasPermission('UPDATE_STUDENT_ASSIGNMENT')">
         <a

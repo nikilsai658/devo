@@ -1,0 +1,161 @@
+<div class="p-6">
+
+    <!-- Page Header -->
+
+    <div class="flex justify-between items-center mb-6">
+
+        <div>
+            <h2 class="text-2xl font-bold" style="color:#fff" *ngIf="auth.hasPermission('VIEW_ADMIN_USERS')">
+                SuperAdmin Accounts
+            </h2>
+            <p class="text-sm text-zinc-400 mt-1" *ngIf="auth.hasPermission('VIEW_ADMIN_USERS')">
+                People who can manage every college
+            </p>
+        </div>
+
+        <button
+            *ngIf="canManage"
+            type="button"
+            (click)="openAddModal()"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-opacity bg-(--accent) hover:bg-(--accent-hover) text-(--on-accent) shadow-[0_8px_20px_-8px_rgba(var(--accent-rgb),0.8)] cursor-pointer">
+            <span class="text-lg leading-none">+</span>
+            Add SuperAdmin
+        </button>
+
+    </div>
+
+    <!-- Table -->
+
+    <div class="bg-zinc-950 rounded-xl shadow border border-white/10 overflow-x-auto"
+         *ngIf="auth.hasPermission('VIEW_ADMIN_USERS')">
+
+        <table class="w-full text-left">
+
+            <thead style="background-color:#18181b;border-bottom:1px solid rgba(255,255,255,0.08)" class="text-white">
+                <tr>
+                    <th class="p-3 text-sm font-semibold">S.No</th>
+                    <th class="p-3 text-sm font-semibold">Name</th>
+                    <th class="p-3 text-sm font-semibold">Email</th>
+                    <th class="p-3 text-sm font-semibold">Status</th>
+                    <th class="p-3 text-sm font-semibold">Created</th>
+                    <th *ngIf="canManage" class="p-3 text-sm font-semibold text-center">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let admin of admins; index as i"
+                    class="border-t border-white/10 hover:bg-white/[0.04] transition-colors">
+
+                    <td class="p-3 text-zinc-300">{{ i + 1 }}</td>
+                    <td class="p-3 text-zinc-100 font-medium">{{ admin.fullName }}</td>
+                    <td class="p-3 text-zinc-300">{{ admin.email }}</td>
+
+                    <td class="p-3">
+                        <div class="flex flex-wrap gap-1.5">
+                            <span *ngIf="admin.isActive" class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Active</span>
+                            <span *ngIf="!admin.isActive" class="px-2 py-0.5 rounded-full text-xs bg-zinc-500/15 text-zinc-400 border border-zinc-500/30">Inactive</span>
+                            <span *ngIf="admin.isLocked" class="px-2 py-0.5 rounded-full text-xs bg-rose-500/15 text-rose-400 border border-rose-500/30">Locked</span>
+                            <span *ngIf="admin.isFirstLogin" class="px-2 py-0.5 rounded-full text-xs bg-amber-500/15 text-amber-400 border border-amber-500/30">Not signed in yet</span>
+                        </div>
+                    </td>
+
+                    <td class="p-3 text-zinc-400 whitespace-nowrap">{{ admin.createdAt | date:'mediumDate' }}</td>
+
+                    <td *ngIf="canManage" class="p-3">
+                        <div class="flex justify-center gap-2">
+
+                            <button
+                                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-(--accent)/15 border border-(--accent)/50 text-(--accent-text-strong) hover:bg-(--accent) hover:text-(--on-accent) cursor-pointer"
+                                (click)="editAdmin(admin)">
+                                Edit
+                            </button>
+
+                            <button
+                                *ngIf="admin.isLocked"
+                                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-600 hover:text-white cursor-pointer"
+                                (click)="unlock(admin)">
+                                Unlock
+                            </button>
+
+                            <button
+                                class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-600 hover:text-white cursor-pointer"
+                                (click)="deleteAdmin(admin)">
+                                Delete
+                            </button>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                <tr *ngIf="!admins || admins.length === 0">
+                    <td [attr.colspan]="canManage ? 6 : 5" class="p-6 text-center text-zinc-500">
+                        No SuperAdmin accounts found.
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- Add / Edit Dialog -->
+
+    <div *ngIf="showModal" class="dlg-overlay">
+
+        <div class="dlg">
+
+            <div class="dlg-header">
+                <div class="dlg-heading">
+                    <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
+                    <div class="min-w-0">
+                        <h3 class="dlg-title">{{ isEditMode ? 'Edit SuperAdmin' : 'Add SuperAdmin' }}</h3>
+                        <p class="dlg-subtitle">{{ isEditMode ? 'Update the details below and save your changes.' : 'They must change this password when they first sign in.' }}</p>
+                    </div>
+                </div>
+                <button type="button" (click)="closeModal()" class="dlg-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6 6 18" /></svg>
+                </button>
+            </div>
+
+            <form [formGroup]="adminForm" class="dlg-body" (ngSubmit)="save()">
+
+                <div class="dlg-field">
+                    <label class="dlg-label">Full name</label>
+                    <input type="text" formControlName="fullName" maxlength="200" placeholder="e.g. Asha Rao" class="dlg-input">
+                    <app-field-error [control]="adminForm.get('fullName')" label="Full name" />
+                </div>
+
+                <div class="dlg-field">
+                    <label class="dlg-label">Email</label>
+                    <input type="email" formControlName="email" maxlength="256" placeholder="name@company.com" class="dlg-input">
+                    <app-field-error [control]="adminForm.get('email')" label="Email" />
+                </div>
+
+                <div class="dlg-field">
+                    <label class="dlg-label">{{ isEditMode ? 'New password (leave empty to keep the current one)' : 'Password' }}</label>
+                    <input type="password" formControlName="password" maxlength="128" autocomplete="new-password" class="dlg-input">
+                    <app-field-error [control]="adminForm.get('password')" label="Password" />
+                </div>
+
+                <div class="dlg-field" *ngIf="isEditMode">
+                    <label class="dlg-label flex items-center gap-2">
+                        <input type="checkbox" formControlName="isActive">
+                        Active (an inactive account cannot sign in)
+                    </label>
+                </div>
+
+            </form>
+
+            <div class="dlg-footer">
+                <button type="button" (click)="closeModal()" class="dlg-btn dlg-btn-secondary">Cancel</button>
+                <button type="button" (click)="save()" class="dlg-btn dlg-btn-primary">{{ isEditMode ? 'Update' : 'Save' }}</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

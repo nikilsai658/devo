@@ -30,6 +30,14 @@
 
       </div>
 
+      <button
+        *ngIf="auth.hasPermission('VIEW_STUDENT_COURSE_CONTENT')"
+        type="button"
+        (click)="openContent()"
+        class="content-link-btn">
+        <span>Course Content</span>
+      </button>
+
       <div class="assignments-count" *ngIf="showAssignments || showTasks">
 
         <strong>{{ showTasks ? tasks.length : assignments.length }}</strong>

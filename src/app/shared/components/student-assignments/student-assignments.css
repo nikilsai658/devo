@@ -261,3 +261,15 @@
   display: block;
   margin-bottom: 1.5rem;
 }
+
+/* Secondary action: opens the course's learning content */
+.content-link-btn {
+  @apply inline-flex w-full shrink-0 cursor-pointer items-center justify-center gap-2
+         rounded-lg border border-white/15 bg-white/[0.04] px-4 py-2.5
+         text-sm font-medium text-zinc-200 transition duration-200
+         hover:bg-white/[0.1] active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         sm:w-auto;
+}

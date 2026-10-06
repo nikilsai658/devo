@@ -51,6 +51,7 @@ import { MyCourses } from './shared/components/my-courses/my-courses';
 import { CourseContent } from './shared/components/course-content/course-content';
 import { Materials } from './shared/components/materials/materials';
 import { TaskSubmissions } from './shared/components/task-submissions/task-submissions';
+import { StudentContent } from './shared/components/student-content/student-content';
 import { authGuard } from './core/auth/auth-guard';
 import { assignmentGuard } from './core/guards/assignment-guard';
 import { defaultChildRedirect, permissionGuard } from './core/guards/permission-guard';
@@ -75,6 +76,10 @@ const mainChildren: Routes = [
 
       {
         path: 'student-assignments', component: StudentAssignments
+      },
+
+      {
+        path: 'student-content', component: StudentContent, data: { permission: 'VIEW_STUDENT_COURSE_CONTENT' }
       },
 
       {

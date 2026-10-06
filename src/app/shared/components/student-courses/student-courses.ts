@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
+import { Auth } from '../../../core/auth/auth';
 
 @Component({
   selector: 'app-student-courses',
@@ -29,6 +30,7 @@ export class StudentCourses {
     private api: Student,
     private cd: ChangeDetectorRef,
     private router:Router,
+    public auth: Auth,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
@@ -84,6 +86,12 @@ export class StudentCourses {
 
   });
 }
+  openContent(courseId: number, courseName?: string): void {
+    this.router.navigate(['/main/student-content'], {
+      state: { domainId: this.domainId, domainName: this.domainName, courseId, courseName }
+    });
+  }
+
   view(courseId: number, courseName?: string): void {
   this.router.navigate(['/main/student-assignments'], {
     state: { domainId: this.domainId, domainName: this.domainName, courseId, courseName }

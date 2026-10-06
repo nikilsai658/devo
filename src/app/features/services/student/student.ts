@@ -38,5 +38,15 @@ export class Student {
   downloadtask(taskId:number){
     return this.api.GETBlob(`Student/task/${taskId}/download`);
   }
+  // Sections, lessons and files of a course the student is enrolled in.
+  getcoursecontent(domainId:number,courseId:number){
+    return this.api.GET(`Student/domain/${domainId}/course/${courseId}/content`);
+  }
+  downloadmaterial(domainId:number,courseId:number,materialId:number){
+    return this.api.GETBlob(`Student/domain/${domainId}/course/${courseId}/material/${materialId}/download`);
+  }
+  previewmaterial(domainId:number,courseId:number,materialId:number){
+    return this.api.GETBlob(`Student/domain/${domainId}/course/${courseId}/material/${materialId}/preview`);
+  }
 }
 

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Student } from '../../../features/services/student/student';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
+import { Auth } from '../../../core/auth/auth';
 
 @Component({
   selector: 'app-student-assignments',
@@ -41,7 +42,7 @@ export class StudentAssignments implements OnInit {
     return !this.loading && this.assignments.length > 0;
   }
 
-  constructor(private route: ActivatedRoute,private api:Student,private cd:ChangeDetectorRef, private router:Router, @Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(private route: ActivatedRoute,private api:Student,private cd:ChangeDetectorRef, private router:Router, public auth: Auth, @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -52,6 +53,12 @@ export class StudentAssignments implements OnInit {
       this.loadAssignments();
     }
   }
+  openContent(): void {
+    this.router.navigate(['/main/student-content'], {
+      state: { domainId: this.domainId, domainName: this.domainName, courseId: this.courseId, courseName: this.courseName }
+    });
+  }
+
   loadAssignments():void{
    this.api.getstudentcourseById(this.domainId, this.courseId).subscribe({
     next:(res:any)=>{

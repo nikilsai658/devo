@@ -1,0 +1,238 @@
+/* =============================================================
+   COURSE CONTENT (student) — Dark theme  |  Accent: var(--accent)  |  Background: #000
+   Same look as My Assignments / My Courses.
+============================================================= */
+@import "tailwindcss";
+
+:host {
+  @apply block min-h-screen bg-black;
+  background-color: #000;
+}
+
+.content-page {
+  @apply min-h-screen w-full bg-black text-white antialiased;
+  background-color: #000;
+}
+
+.content-container {
+  @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14;
+}
+
+.page-breadcrumb {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.content-header {
+  @apply mb-8 flex flex-col gap-5 border-b border-white/10 pb-6
+         sm:flex-row sm:items-end sm:justify-between;
+}
+
+.page-label {
+  @apply mb-3 inline-flex items-center gap-2 rounded-full border
+         border-(--accent)/40 bg-(--accent)/10 px-3 py-1
+         text-xs font-semibold tracking-wide text-(--accent-text);
+}
+
+.page-label::before {
+  content: "";
+  @apply h-1.5 w-1.5 rounded-full bg-(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.content-title {
+  @apply text-3xl font-bold tracking-tight text-white sm:text-4xl;
+}
+
+.content-subtitle {
+  @apply mt-2 text-sm text-zinc-400;
+}
+
+.content-count {
+  @apply flex items-baseline gap-1.5 self-start rounded-xl border border-white/10
+         bg-zinc-950 px-4 py-2.5 sm:self-auto;
+}
+
+.content-count strong {
+  @apply text-2xl font-bold text-white;
+}
+
+.content-count span {
+  @apply text-sm text-zinc-400;
+}
+
+/* ---------------- SECTIONS ---------------- */
+
+.section-list {
+  @apply flex flex-col gap-3;
+}
+
+.section-card {
+  @apply overflow-hidden rounded-xl border border-white/10 bg-zinc-950 transition duration-300
+         hover:border-white/20;
+}
+
+.section-head {
+  @apply flex w-full cursor-pointer items-center gap-4 border-0 bg-transparent p-4 text-left sm:p-5;
+}
+
+.section-index {
+  @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-lg
+         border border-(--accent)/40 bg-(--accent)/10
+         font-mono text-sm font-semibold text-(--accent-text) transition duration-300;
+}
+
+.section-card.is-open .section-index {
+  @apply border-(--accent) bg-(--accent) text-(--on-accent);
+}
+
+.section-text {
+  @apply min-w-0 flex-1;
+}
+
+.section-name {
+  @apply truncate text-base font-semibold text-white sm:text-lg;
+}
+
+.section-meta {
+  @apply mt-1 text-xs text-zinc-500;
+}
+
+.section-chevron {
+  @apply h-5 w-5 shrink-0 text-zinc-500 transition-transform duration-200;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-card.is-open .section-chevron {
+  @apply rotate-90 text-zinc-300;
+}
+
+.section-body {
+  @apply border-t border-white/10 px-4 py-4 sm:px-5;
+}
+
+.section-description {
+  @apply mb-4 text-sm text-zinc-400;
+}
+
+/* ---------------- LESSONS ---------------- */
+
+.lesson {
+  @apply rounded-lg border border-white/10 bg-black/40 p-4;
+}
+
+.lesson + .lesson {
+  @apply mt-3;
+}
+
+.lesson-top {
+  @apply flex flex-wrap items-baseline gap-x-3 gap-y-1;
+}
+
+.lesson-name {
+  @apply text-sm font-semibold text-white sm:text-base;
+}
+
+.lesson-tag {
+  @apply rounded-md border border-white/10 bg-white/5 px-2 py-0.5
+         text-[11px] font-medium text-zinc-300;
+}
+
+.lesson-description {
+  @apply mt-1 text-sm text-zinc-400;
+}
+
+/* ---------------- MATERIALS ---------------- */
+
+.material-list {
+  @apply mt-3 flex flex-col divide-y divide-white/5 rounded-lg border border-white/10 bg-zinc-950;
+}
+
+.material {
+  @apply flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4;
+}
+
+.material-type {
+  @apply shrink-0 self-start rounded-md border border-(--accent)/40 bg-(--accent)/10 px-2 py-0.5
+         text-[11px] font-semibold text-(--accent-text) sm:self-center;
+}
+
+.material-text {
+  @apply min-w-0 flex-1;
+}
+
+.material-title {
+  @apply truncate text-sm font-medium text-white;
+}
+
+.material-file {
+  @apply truncate text-xs text-zinc-500;
+}
+
+.material-actions {
+  @apply flex shrink-0 gap-2;
+}
+
+.primary-btn {
+  @apply inline-flex shrink-0 cursor-pointer items-center justify-center gap-2
+         rounded-lg border-0 bg-(--accent) px-4 py-2
+         text-sm font-semibold text-(--on-accent)
+         transition duration-200
+         hover:bg-(--accent-hover) active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         disabled:cursor-not-allowed disabled:opacity-50;
+  box-shadow: 0 8px 20px -8px rgba(var(--accent-rgb), 0.8);
+}
+
+.ghost-btn {
+  @apply inline-flex shrink-0 cursor-pointer items-center justify-center gap-2
+         rounded-lg border border-white/15 bg-white/[0.04] px-4 py-2
+         text-sm font-medium text-zinc-200 transition duration-200
+         hover:bg-white/[0.1] active:scale-[0.98]
+         focus-visible:outline-none focus-visible:ring-2
+         focus-visible:ring-(--accent-soft) focus-visible:ring-offset-2
+         focus-visible:ring-offset-black
+         disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.material-note {
+  @apply text-xs text-zinc-500;
+}
+
+/* ---------------- EMPTY / ERROR ---------------- */
+
+.state-box {
+  @apply flex flex-col items-center justify-center rounded-2xl border border-dashed
+         border-white/15 bg-zinc-950 px-6 py-16 text-center;
+}
+
+.state-title {
+  @apply text-lg font-semibold text-white;
+}
+
+.state-text {
+  @apply mt-2 max-w-sm text-sm text-zinc-400;
+}
+
+.skeleton {
+  @apply h-20 animate-pulse rounded-xl border border-white/10 bg-zinc-950;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-card,
+  .section-index,
+  .section-chevron,
+  .primary-btn,
+  .ghost-btn,
+  .skeleton {
+    @apply animate-none transition-none;
+  }
+}

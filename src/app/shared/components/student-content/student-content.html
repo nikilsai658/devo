@@ -1,0 +1,118 @@
+<div class="content-page">
+
+  <div class="content-container">
+
+    <app-breadcrumb class="page-breadcrumb" [items]="breadcrumb"></app-breadcrumb>
+
+    <!-- Header -->
+
+    <div class="content-header">
+
+      <div>
+        <span class="page-label">COURSE CONTENT</span>
+
+        <h1 class="content-title">{{ courseName || 'Course content' }}</h1>
+
+        <p class="content-subtitle">Read through the sections and open the files your teacher shared.</p>
+      </div>
+
+      <div class="content-count" *ngIf="!loading && !error && sections.length">
+        <strong>{{ materialCount }}</strong>
+        <span>{{ materialCount === 1 ? 'File' : 'Files' }} in {{ lessonCount }} {{ lessonCount === 1 ? 'lesson' : 'lessons' }}</span>
+      </div>
+
+    </div>
+
+    <!-- Loading -->
+
+    <div *ngIf="loading" class="section-list">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+
+    <!-- Error -->
+
+    <div *ngIf="!loading && error" class="state-box">
+      <h3 class="state-title">Course content is not available</h3>
+      <p class="state-text">{{ error }}</p>
+    </div>
+
+    <!-- Empty -->
+
+    <div *ngIf="!loading && !error && sections.length === 0" class="state-box">
+      <h3 class="state-title">Nothing here yet</h3>
+      <p class="state-text">Your teacher has not added any content to this course.</p>
+    </div>
+
+    <!-- Sections -->
+
+    <div *ngIf="!loading && !error && sections.length" class="section-list">
+
+      <article *ngFor="let section of sections; let i = index" class="section-card" [class.is-open]="open.has(section.id)">
+
+        <button type="button" class="section-head" (click)="toggle(section.id)" [attr.aria-expanded]="open.has(section.id)">
+
+          <span class="section-index">{{ (i + 1) < 10 ? '0' + (i + 1) : (i + 1) }}</span>
+
+          <span class="section-text">
+            <span class="section-name block">{{ section.name }}</span>
+            <span class="section-meta block">
+              {{ section.lessons.length }} {{ section.lessons.length === 1 ? 'lesson' : 'lessons' }}
+              <ng-container *ngIf="section.durationHours"> &middot; {{ section.durationHours }} h</ng-container>
+            </span>
+          </span>
+
+          <svg class="section-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+
+        </button>
+
+        <div *ngIf="open.has(section.id)" class="section-body">
+
+          <p *ngIf="section.description" class="section-description">{{ section.description }}</p>
+
+          <p *ngIf="section.lessons.length === 0" class="material-note">No lessons in this section yet.</p>
+
+          <div *ngFor="let lesson of section.lessons" class="lesson">
+
+            <div class="lesson-top">
+              <h3 class="lesson-name">{{ lesson.name }}</h3>
+              <span *ngIf="lesson.durationMinutes" class="lesson-tag">{{ lesson.durationMinutes }} min</span>
+            </div>
+
+            <p *ngIf="lesson.description" class="lesson-description">{{ lesson.description }}</p>
+
+            <ul *ngIf="lesson.materials.length" class="material-list">
+
+              <li *ngFor="let material of lesson.materials" class="material">
+
+                <span class="material-type">{{ material.materialType }}</span>
+
+                <span class="material-text">
+                  <span class="material-title block">{{ material.title }}</span>
+                  <span class="material-file block">{{ material.fileName }} &middot; {{ formatSize(material.fileSize) }}</span>
+                </span>
+
+                <span class="material-actions">
+                  <button *ngIf="material.canPreview" type="button" class="ghost-btn" (click)="view(material)">View</button>
+                  <button *ngIf="material.canDownload" type="button" class="primary-btn" (click)="download(material)">Download</button>
+                  <span *ngIf="!material.canPreview && !material.canDownload" class="material-note">Not available</span>
+                </span>
+
+              </li>
+
+            </ul>
+
+            <p *ngIf="lesson.materials.length === 0" class="material-note mt-2">No files in this lesson.</p>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </div>
+
+</div>

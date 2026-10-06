@@ -37,7 +37,8 @@
                             <span class="block text-xs text-zinc-500">{{ u.email }} &middot; {{ u.roleName }}</span>
                         </button>
                     </li>
-                    <li *ngIf="visibleUsers.length === 0" class="text-sm text-zinc-500 p-3">No users found.</li>
+                    <li *ngIf="loadingUsers" class="text-sm text-zinc-500 p-3">Loading users...</li>
+                    <li *ngIf="!loadingUsers && visibleUsers.length === 0" class="text-sm text-zinc-500 p-3">No users found.</li>
                 </ul>
 
             </div>

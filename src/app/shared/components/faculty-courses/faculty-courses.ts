@@ -27,6 +27,8 @@ export class FacultyCourses implements OnInit {
   courseSearch = '';
   onlyRestrictedRoles = true;
 
+  loadingUsers = true;
+
   selectedUser: any = null;
   selectedCourseIds = new Set<number>();
   loadingCourses = false;
@@ -47,6 +49,7 @@ export class FacultyCourses implements OnInit {
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId) || !this.auth.hasPermission('VIEW_FACULTY_COURSES')) {
+      this.loadingUsers = false;
       return;
     }
 
@@ -65,9 +68,11 @@ export class FacultyCourses implements OnInit {
         );
         // With no role marked "own courses only", showing only those would show nobody.
         this.onlyRestrictedRoles = this.restrictedRoles.size > 0;
+        this.loadingUsers = false;
         this.cd.markForCheck();
       },
       error: (err) => {
+        this.loadingUsers = false;
         this.feedback.fail(err, 'Failed to load users and courses');
         this.cd.markForCheck();
       }

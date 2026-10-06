@@ -12,8 +12,13 @@ export class LessonMaterialService {
   getLinks() {
     return this.api.GET('LessonMaterialMap');
   }
+  // This controller (unlike the other link controllers) reads a form, not JSON: a JSON body is
+  // ignored and both ids arrive as 0 ("Lesson not found").
   link(lessonId: number, learningMaterialId: number) {
-    return this.api.POST('LessonMaterialMap', { lessonId, learningMaterialId });
+    const form = new FormData();
+    form.append('LessonId', String(lessonId));
+    form.append('LearningMaterialId', String(learningMaterialId));
+    return this.api.POST('LessonMaterialMap', form);
   }
   unlink(id: number) {
     return this.api.DELETE(`LessonMaterialMap/${id}`);

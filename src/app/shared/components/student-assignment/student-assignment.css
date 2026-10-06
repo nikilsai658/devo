@@ -6,13 +6,16 @@
 
 /* ---------------- ROOT ---------------- */
 
+/* Fill the routed .content frame (which sits below the fixed app header),
+   not the whole viewport — h-screen made the page 106px taller than its
+   frame and pushed the editor past the bottom. */
 :host {
-  @apply block h-screen overflow-hidden bg-black;
+  @apply block h-full overflow-hidden bg-black;
   background-color: #000;
 }
 
 .coding-platform {
-  @apply flex h-screen flex-col bg-black text-white antialiased;
+  @apply flex h-full min-h-0 flex-col bg-black text-white antialiased;
   background-color: #000;
 }
 
@@ -115,21 +118,28 @@
 
 /* ---------------- BODY ---------------- */
 
+/* Desktop: problem (2/5) and editor (3/5) side by side, each exactly the
+   remaining height; only the problem text scrolls. The editor panel clips
+   and isolates its contents so nothing in it can paint over the page. */
 .platform-body {
-  @apply flex flex-1 flex-col overflow-hidden lg:flex-row;
+  @apply flex min-h-0 flex-1 flex-row overflow-hidden;
+}
+
+.platform-header,
+.fullscreen-warning {
+  @apply shrink-0;
 }
 
 .problem-panel {
-  @apply w-full overflow-y-auto border-b border-white/10 bg-black
-         lg:w-2/5 lg:border-b-0 lg:border-r;
+  @apply min-h-0 w-2/5 overflow-y-auto border-r border-white/10 bg-black;
 }
 
 .editor-panel {
-  @apply flex min-h-[400px] w-full flex-col overflow-y-auto bg-zinc-950 lg:w-3/5;
+  @apply relative isolate flex min-h-0 w-3/5 flex-col overflow-hidden bg-zinc-950;
 }
 
 .editor-container {
-  @apply flex h-full flex-col;
+  @apply flex min-h-0 flex-1 flex-col;
 }
 
 .problem-content {
@@ -240,19 +250,22 @@
 
 /* ---------------- TABLET ---------------- */
 
+/* Stacked: the problem sits on top (scrolls itself if long) and the editor
+   below gets a usable fixed height; the body scrolls between them, so the
+   two never overlap. */
 @media (max-width: 1024px) {
   .platform-body {
-    @apply flex-col;
+    @apply flex-col overflow-y-auto;
   }
 
   .problem-panel {
-    width: 100%;
-    height: 45%;
+    @apply w-full flex-none border-r-0 border-b;
+    max-height: 45vh;
   }
 
   .editor-panel {
-    width: 100%;
-    height: 55%;
+    @apply w-full flex-none;
+    height: clamp(460px, 80vh, 900px);
   }
 }
 
@@ -268,11 +281,11 @@
   }
 
   .problem-panel {
-    height: 50%;
+    max-height: 40vh;
   }
 
   .editor-panel {
-    height: 50%;
+    height: clamp(440px, 78vh, 760px);
   }
 }
 

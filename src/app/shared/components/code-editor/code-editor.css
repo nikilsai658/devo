@@ -6,7 +6,7 @@
 :host {
   display: block;
   height: 100%;
-  min-height: 480px;
+  min-height: 0;
   color-scheme: dark;
 }
 
@@ -133,12 +133,16 @@
    have a fixed share of the height, so output arriving in the terminal
    scrolls inside it instead of pushing the stdin panel down. */
 .editor-container {
+  position: relative;
   flex: 1 1 0;
   min-height: 0;
+  /* Monaco sizes itself in pixels and lags a frame behind when the pane
+     shrinks; clip it so it never paints over the stdin/terminal below. */
+  overflow: hidden;
 }
 
 .io-pane {
-  @apply flex flex-col overflow-hidden;
+  @apply relative flex flex-col overflow-hidden;
   flex: 1 1 0;
   min-height: 0;
 }
@@ -334,10 +338,6 @@
   .toolbar-right {
     @apply w-full justify-end;
   }
-
-  :host {
-    min-height: 420px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -379,12 +379,8 @@
   }
 }
 
-/* Short screens (landscape phones): keep both halves usable. */
+/* Short screens (landscape phones): leave the terminal room. */
 @media (max-height: 560px) {
-  :host {
-    min-height: 360px;
-  }
-
   .custom-input-box {
     height: 4rem;
   }

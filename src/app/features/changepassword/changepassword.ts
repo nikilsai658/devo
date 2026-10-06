@@ -9,6 +9,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
 import { AppValidators, FieldError } from '../../shared/validation';
+import { ToastService } from '../../shared/toast/toast';
 @Component({
   selector: 'app-changepassword',
   standalone:true,
@@ -21,7 +22,7 @@ export class Changepassword {
   Form !:FormGroup;
   errorMessage = '';
   loading = false;
-  constructor(private router:Router,private api:AuthServices, private fb:FormBuilder,private cookie:CookieService,private cd:ChangeDetectorRef){
+  constructor(private router:Router,private api:AuthServices, private fb:FormBuilder,private cookie:CookieService,private cd:ChangeDetectorRef,private toast:ToastService){
     this.Form=this.fb.group({
       oldPassword:['',AppValidators.required],
       newPassword:['',[AppValidators.required, AppValidators.strongPassword]],
@@ -44,7 +45,7 @@ export class Changepassword {
         this.api.changepassword(this.Form.value).subscribe({
           next:(res)=>{
             this.loading = false;
-            alert('sucessfully changed password');
+            this.toast.success('Password changed successfully');
             this.router.navigate(['/profile']);
           },
           error: (err) => {

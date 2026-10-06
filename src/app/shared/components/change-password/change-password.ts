@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthServices } from '../../../features/services/auth/auth-services';
 import { AppValidators, FieldError } from '../../validation';
+import { ToastService } from '../../toast/toast';
 
 @Component({
   selector: 'app-change-password',
@@ -27,7 +28,8 @@ export class ChangePassword {
     private fb: FormBuilder,
     private auth: AuthServices,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toast: ToastService
   ) {
     this.Form = this.fb.group(
       {
@@ -57,7 +59,7 @@ export class ChangePassword {
     this.auth.changepassword({ oldPassword, newPassword, confirmPassword }).subscribe({
       next: (res: any) => {
         this.loading = false;
-        alert('Password changed successfully');
+        this.toast.success('Password changed successfully');
         this.Form.reset();
         this.router.navigate(['/main/profile']);
         this.cdr.markForCheck();
@@ -65,7 +67,7 @@ export class ChangePassword {
       error: (err) => {
         this.loading = false;
         console.log('Error:', err);
-        alert(err?.error?.message ?? 'Failed to change password');
+        this.toast.error(err?.error?.message ?? 'Failed to change password');
         this.cdr.markForCheck();
       },
     });

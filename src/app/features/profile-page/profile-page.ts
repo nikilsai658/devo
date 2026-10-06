@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
 import { AppValidators, DigitsOnly, FieldError } from '../../shared/validation';
+import { ToastService } from '../../shared/toast/toast';
 @Component({
   selector: 'app-profile-page',
   imports: [CommonModule,ReactiveFormsModule,InputTextModule,FloatLabelModule,ButtonModule,Logo,FieldError,DigitsOnly],
@@ -20,7 +21,7 @@ export class ProfilePage {
   Form !:FormGroup;
   errorMessage = '';
   loading = false;
-  constructor(private fb:FormBuilder,private router:Router, private cookie:CookieService,private auth:AuthServices,private cd:ChangeDetectorRef){
+  constructor(private fb:FormBuilder,private router:Router, private cookie:CookieService,private auth:AuthServices,private cd:ChangeDetectorRef,private toast:ToastService){
     this.Form=this.fb.group({
       fullName: ['',[AppValidators.required, AppValidators.personName, AppValidators.minLength(3), AppValidators.maxLength(100)]],
       firstName: ['',[AppValidators.required, AppValidators.personName, AppValidators.maxLength(50)]],
@@ -42,7 +43,7 @@ export class ProfilePage {
       this.auth.profileupdate(this.Form.value).subscribe({
         next:(res)=>{
           this.loading = false;
-          alert('updated sucessfully');
+          this.toast.success('Profile updated successfully');
           this.router.navigate(['/main']);
         },error:(err)=>{
           console.log(err);

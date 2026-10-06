@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthServices } from '../../services/auth/auth-services'
 import { UserStore } from '../../../core/store/user';
 import { setTokens } from '../../../core/auth/token-storage';
+import { ToastService } from '../../../shared/toast/toast';
 @Component({
   selector: 'app-login',
   standalone:true,
@@ -27,7 +28,7 @@ export class Login implements OnInit{
   loading = false;
   showSuggestions = false;
   recentUsers: string[] = [];
-   constructor(private fb: FormBuilder, private router:Router,private cookie:CookieService,private auth:AuthServices,private userStore:UserStore,private cd: ChangeDetectorRef,@Inject(PLATFORM_ID) private platformId: Object){
+   constructor(private fb: FormBuilder, private router:Router,private cookie:CookieService,private auth:AuthServices,private userStore:UserStore,private cd: ChangeDetectorRef,private toast: ToastService,@Inject(PLATFORM_ID) private platformId: Object){
     this.Form=this.fb.group({
       userNameOrEmail: ['',Validators.required],
       password: ['',Validators.required],
@@ -64,6 +65,7 @@ export class Login implements OnInit{
          localStorage.setItem('user', JSON.stringify(res.data));
           this.userStore.setUser(res.data);
           setTokens(token, refresh);
+          this.toast.success('Login successful');
          if(res.data.isFirstLogin=== true ){
           this.router.navigate(['/changepassword']);
          }else if(res.data.isFirstLogin=== false && res.data.profileCompleted=== false){

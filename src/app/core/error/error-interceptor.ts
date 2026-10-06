@@ -4,10 +4,10 @@ import {
   HttpRequest
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthServices } from '../../features/services/auth/auth-services';
+import { getRefreshToken, setTokens } from '../auth/token-storage';
 
 // Module-level so concurrent requests share one in-flight refresh call.
 let isRefreshing = false;
@@ -39,7 +39,6 @@ function withAuthHeader(
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
-  const cookie = inject(CookieService);
   const authServices = inject(AuthServices);
 
   // Never attempt a refresh for the login/refresh calls themselves —
@@ -60,7 +59,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      const refreshToken = cookie.get('refresh');
+      const refreshToken = getRefreshToken();
       const userId = getStoredUserId();
 
       if (!refreshToken || !userId) {
@@ -95,11 +94,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             return throwError(() => error);
           }
 
-          cookie.set('token', newAccessToken, 7, '/');
-
-          if (newRefreshToken) {
-            cookie.set('refresh', newRefreshToken, 7, '/');
-          }
+          setTokens(newAccessToken, newRefreshToken);
 
           isRefreshing = false;
           refreshedToken$.next(newAccessToken);

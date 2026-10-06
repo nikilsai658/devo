@@ -29,6 +29,7 @@ import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
 
 import { ConfirmService } from '../confirm-dailog/confirm';
+import { getAccessToken } from '../../../core/auth/token-storage';
 @Component({
   selector: 'app-domaincoursemap',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,7 +88,7 @@ export class DomainCourseMapComponent implements OnInit {
 
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (!this.cookie.get('token')) {
+    if (!getAccessToken()) {
 
       this.router.navigate(['/auth/login']);
 

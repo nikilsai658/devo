@@ -27,6 +27,7 @@ import { Feedback } from '../../feedback/feedback';
 import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
 
 import { ConfirmService } from '../confirm-dailog/confirm';
+import { getAccessToken } from '../../../core/auth/token-storage';
 @Component({
   selector: 'app-college',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,7 +107,7 @@ export class College implements OnInit {
       return;
     }
 
-    const token = this.cookie.get('token');
+    const token = getAccessToken();
 
     if (!token) {
 

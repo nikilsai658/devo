@@ -1,7 +1,7 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { CookieService } from 'ngx-cookie-service';
+import { getAccessToken } from './token-storage';
 
 export const authGuard: CanActivateFn = () => {
   const platformId = inject(PLATFORM_ID);
@@ -10,10 +10,9 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  const cookie = inject(CookieService);
   const router = inject(Router);
 
-  if (cookie.get('token')) {
+  if (getAccessToken()) {
     return true;
   }
 

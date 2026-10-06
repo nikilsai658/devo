@@ -50,6 +50,11 @@ import { Task } from './shared/components/task/task';
 // Order matters: the first route the user has permission for becomes their
 // landing page after login (see defaultChildRedirect).
 const mainChildren: Routes = [
+      // Kept first: only superadmin holds this permission, and without it
+      // superadmin would land on whichever college/student page came earlier.
+      {
+        path:'superamin-colleges', component:SuperAdmin, data: { permission: 'VIEW_SUPERADMIN_COLLEGES' }
+      },
       {
         path: 'student-domain', component: StudentDomain, data: { permission: 'VIEW_STUDENT_DOMAIN' }
       },
@@ -149,9 +154,6 @@ const mainChildren: Routes = [
       },
       {
         path:'student-assignment-scores',component:StudentAssignmentscore, data: { permission: 'UPDATE_STUDENT_ASSIGNMENT' }
-      },
-      {
-        path:'superamin-colleges', component:SuperAdmin, data: { permission: 'VIEW_SUPERADMIN_COLLEGES' }
       },
       {
         path:'superadmin-domains', component:SuperadminDomains,data:{permission:'VIEW_SUPERADMIN_COLLEGE_DOMAINS'}

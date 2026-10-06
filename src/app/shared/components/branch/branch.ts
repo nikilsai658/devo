@@ -26,6 +26,7 @@ import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
 
 import { ConfirmService } from '../confirm-dailog/confirm';
+import { getAccessToken } from '../../../core/auth/token-storage';
 @Component({
   selector: 'app-branch',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,7 +98,7 @@ export class Branch implements OnInit {
       return;
     }
 
-    const token = this.cookie.get('token');
+    const token = getAccessToken();
 
     if (!token) {
 

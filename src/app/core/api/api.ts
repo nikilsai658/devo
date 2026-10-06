@@ -6,6 +6,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { isPlatformBrowser } from '@angular/common';
+import { clearTokens, getAccessToken } from '../auth/token-storage';
 @Injectable({
   providedIn: 'root',
 })
@@ -19,7 +20,7 @@ export class Api {
     return new HttpHeaders();
   }
 
-  const token = this.cookie.get('token');
+  const token = getAccessToken();
 
   if (!token) {
     // No token yet (e.g. the pre-login college-select page) — send the
@@ -39,8 +40,7 @@ export class Api {
 private handleError(err: any, silent = false) {
 
   if (err.status === 401) {
-    this.cookie.delete('token', '/');
-    this.cookie.delete('refresh', '/');
+    clearTokens();
     if (!silent && isPlatformBrowser(this.platformId)) {
       this.router.navigate(['/auth/login']);
     }

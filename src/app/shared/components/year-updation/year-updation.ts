@@ -28,6 +28,7 @@ import { DepartmentService } from '../../../features/services/department/departm
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
+import { getAccessToken } from '../../../core/auth/token-storage';
 
 @Component({
   selector: 'app-year-updation',
@@ -82,7 +83,7 @@ export class YearUpdation implements OnInit {
       return;
     }
 
-    const token = this.cookie.get('token');
+    const token = getAccessToken();
 
     if (!token) {
       this.router.navigate(['/auth/login']);

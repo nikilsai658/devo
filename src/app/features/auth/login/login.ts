@@ -11,6 +11,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServices } from '../../services/auth/auth-services'
 import { UserStore } from '../../../core/store/user';
+import { setTokens } from '../../../core/auth/token-storage';
 @Component({
   selector: 'app-login',
   standalone:true,
@@ -62,8 +63,7 @@ export class Login implements OnInit{
           const refresh=res.data.refreshToken;
          localStorage.setItem('user', JSON.stringify(res.data));
           this.userStore.setUser(res.data);
-          this.cookie.set('token', token, 7, '/');
-          this.cookie.set('refresh', refresh, 7, '/');
+          setTokens(token, refresh);
          if(res.data.isFirstLogin=== true ){
           this.router.navigate(['/changepassword']);
          }else if(res.data.isFirstLogin=== false && res.data.profileCompleted=== false){

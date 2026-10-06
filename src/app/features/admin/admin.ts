@@ -30,6 +30,7 @@ import { ToastService } from '../../shared/toast/toast';
 import { extractSuccessMessage } from '../../shared/feedback/feedback';
 import { Department } from "../../shared/components/department/department";
 import { StudentAssignment } from "../../shared/components/studentassignment/studentassignment";
+import { getAccessToken } from '../../core/auth/token-storage';
 @Component({
   selector: 'app-admin',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,7 +119,7 @@ export class Admin implements OnInit {
     }
 
     // Check login
-    const token = this.cookie.get('token');
+    const token = getAccessToken();
 
     if (!token) {
       this.router.navigate(['/auth/login']);

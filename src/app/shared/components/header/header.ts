@@ -8,6 +8,7 @@ import { Auth } from '../../../core/auth/auth';
 import { UserStore } from '../../../core/store/user';
 import { AuthServices } from '../../../features/services/auth/auth-services';
 import { ThemeStore } from '../../../core/store/theme';
+import { clearTokens } from '../../../core/auth/token-storage';
 @Component({
   selector: 'app-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,8 +69,7 @@ colleges = [
       this.cdr.markForCheck();
 
       this.userStore.clearUser();
-    this.cookie.delete('token','/');
-    this.cookie.delete('refresh','/');
+    clearTokens();
     this.router.navigate(['/auth/login']);
       },
       error:(err:any)=>{

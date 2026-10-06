@@ -146,7 +146,7 @@
 
           <label>
             Password
-            <span *ngIf="!editMode">*</span>
+            <span *ngIf="!editMode && !autoPassword">*</span>
           </label>
 
           <label class="auto-password" *ngIf="!editMode">

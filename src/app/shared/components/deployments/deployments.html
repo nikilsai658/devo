@@ -9,7 +9,7 @@
                 Deployments
             </h2>
             <p class="text-sm text-zinc-400 mt-1" *ngIf="auth.hasPermission('VIEW_DEPLOYMENTS')">
-                One container per college. Changes reach the server at the next sync.
+                One container per college. The server applies changes automatically within a few minutes.
             </p>
         </div>
 
@@ -153,7 +153,7 @@
                     <span class="dlg-icon"><ng-container *ngIf="isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4 11.36-11.3Z" /></svg></ng-container><ng-container *ngIf="!isEditMode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14" /></svg></ng-container></span>
                     <div class="min-w-0">
                         <h3 class="dlg-title">{{ isEditMode ? 'Edit Deployment' : 'Register College' }}</h3>
-                        <p class="dlg-subtitle">The college must already exist. The server applies this at its next sync.</p>
+                        <p class="dlg-subtitle">The college must already exist (and be licensed). When the status is Active, the server starts it within a few minutes.</p>
                     </div>
                 </div>
                 <button type="button" (click)="closeModal()" class="dlg-close" aria-label="Close">
@@ -181,7 +181,7 @@
                 </div>
 
                 <div class="dlg-field">
-                    <label class="dlg-label">Web app address (optional)</label>
+                    <label class="dlg-label">Web app address (required in practice: the address people open the web app on)</label>
                     <input type="text" formControlName="frontendUrl" maxlength="500" placeholder="https://app.tit.example.com" class="dlg-input">
                 </div>
 

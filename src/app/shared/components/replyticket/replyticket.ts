@@ -1,15 +1,6 @@
-import {
-  AfterViewChecked,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import {
@@ -18,6 +9,8 @@ import {
 } from '@angular/router';
 
 import { TicketService } from '../../../features/services/ticket/ticket-service';
+import { Feedback } from '../../../shared/feedback/feedback';
+import { dateLabel, initialsOf, startsNewDay, statusClass } from '../../ticket-chat';
 
 @Component({
   selector: 'app-reply-ticket',
@@ -32,6 +25,10 @@ import { TicketService } from '../../../features/services/ticket/ticket-service'
 })
 export class ReplyTicketComponent
   implements OnInit, OnDestroy, AfterViewChecked {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   @ViewChild('chatScroll')
   chatScroll?: ElementRef<HTMLDivElement>;
@@ -98,13 +95,17 @@ export class ReplyTicketComponent
 
   ngOnInit(): void {
 
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.ticketId = Number(
       this.route.snapshot.paramMap.get('id')
     );
 
     if (!this.ticketId || isNaN(this.ticketId)) {
 
-      console.error('Invalid Ticket ID');
 
       this.router.navigate([
         '/main/mytickets'
@@ -146,11 +147,8 @@ export class ReplyTicketComponent
         },
 
         error: (err) => {
+          this.feedback.fail(err, 'Unable to load this ticket.');
 
-          console.error(
-            'Error loading ticket:',
-            err
-          );
 
           this.loading = false;
 
@@ -178,7 +176,7 @@ export class ReplyTicketComponent
     this.statusPolling = true;
 
     this.ticketService
-      .getTicketById(this.ticketId)
+      .getTicketById(this.ticketId, true)
       .subscribe({
 
         next: (res: any) => {
@@ -198,6 +196,7 @@ export class ReplyTicketComponent
           this.statusPolling = false;
         },
 
+        // Background status refresh: the next poll retries, so no message.
         error: () => {
 
           this.statusPolling = false;
@@ -236,7 +235,9 @@ export class ReplyTicketComponent
     this.ticketService
       .getMessages(
         this.ticketId,
-        this.lastMessageId
+        this.lastMessageId,
+        // After the first load these are background polls.
+        !this.messagesLoading
       )
       .subscribe({
 
@@ -260,15 +261,12 @@ export class ReplyTicketComponent
         },
 
         error: (err) => {
+          if (this.messagesLoading && generation === this.loadGeneration) { this.feedback.fail(err, 'Unable to load the conversation.'); } // Background polls retry silently.
 
           if (generation !== this.loadGeneration) {
             return;
           }
 
-          console.error(
-            'Error loading messages:',
-            err
-          );
 
           this.messagesPolling = false;
 
@@ -370,6 +368,11 @@ export class ReplyTicketComponent
 
     this.pollingId = setInterval(() => {
 
+      // A hidden tab doesn't need live updates; polling resumes when it is shown again.
+      if (document.hidden) {
+        return;
+      }
+
       this.loadMessages();
 
       this.refreshTicketStatus();
@@ -427,6 +430,8 @@ export class ReplyTicketComponent
 
           if (this.isClosed()) {
 
+            this.feedback.fail(null, 'This ticket has been closed, so it no longer accepts replies.');
+
             this.sending = false;
 
             this.forceScrollOnNextLoad = false;
@@ -440,11 +445,8 @@ export class ReplyTicketComponent
         },
 
         error: (err) => {
+          this.feedback.fail(err, 'Your reply was not sent. Please try again.');
 
-          console.error(
-            'Status check failed:',
-            err
-          );
 
           this.sending = false;
 
@@ -481,11 +483,8 @@ export class ReplyTicketComponent
         },
 
         error: (err) => {
+          this.feedback.fail(err, 'Your reply was not sent. Please try again.');
 
-          console.error(
-            'Message send failed:',
-            err
-          );
 
           this.sending = false;
 
@@ -627,19 +626,7 @@ export class ReplyTicketComponent
   }
 
   getInitials(msg: any): string {
-
-    const name = String(
-      msg?.senderName || msg?.senderRole || 'Support'
-    ).trim();
-
-    const parts = name.split(/\s+/).filter(Boolean);
-
-    const initials =
-      parts.length > 1
-        ? parts[0][0] + parts[parts.length - 1][0]
-        : name.slice(0, 2);
-
-    return initials.toUpperCase();
+    return initialsOf(msg?.senderName || msg?.senderRole, 'Support');
   }
 
   // First message of a run from the same side shows name + avatar.
@@ -660,68 +647,17 @@ export class ReplyTicketComponent
   }
 
   showDateDivider(index: number): boolean {
-
-    if (index === 0) {
-      return true;
-    }
-
-    return (
-      this.dayKey(this.messages[index - 1]?.sentAt) !==
-      this.dayKey(this.messages[index]?.sentAt)
-    );
+    return startsNewDay(this.messages, index);
   }
 
   getDateLabel(value: any): string {
-
-    const date = new Date(value);
-
-    if (isNaN(date.getTime())) {
-      return '';
-    }
-
-    const today = new Date();
-
-    const yesterday = new Date();
-
-    yesterday.setDate(today.getDate() - 1);
-
-    if (this.dayKey(date) === this.dayKey(today)) {
-      return 'Today';
-    }
-
-    if (this.dayKey(date) === this.dayKey(yesterday)) {
-      return 'Yesterday';
-    }
-
-    return date.toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
+    return dateLabel(value);
   }
 
-  private dayKey(value: any): string {
 
-    const date = new Date(value);
-
-    return isNaN(date.getTime())
-      ? ''
-      : date.toDateString();
-  }
 
   getStatusClass(): string {
-
-    switch (String(this.ticket?.status || 'open').toLowerCase()) {
-
-      case 'closed':
-        return 'status-closed';
-
-      case 'inprogress':
-        return 'status-inprogress';
-
-      default:
-        return 'status-open';
-    }
+    return statusClass(this.ticket?.status);
   }
 
   trackById(_: number, msg: any): any {

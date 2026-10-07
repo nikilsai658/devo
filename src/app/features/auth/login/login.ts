@@ -7,12 +7,23 @@ import {ButtonModule} from 'primeng/button';
 import {PasswordModule} from 'primeng/password';
 import {FormBuilder,Validators} from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthServices } from '../../services/auth/auth-services'
 import { UserStore } from '../../../core/store/user';
 import { setTokens } from '../../../core/auth/token-storage';
+import { pendingOnboardingStep } from '../../../core/guards/onboarding-guard';
 import { ToastService } from '../../../shared/toast/toast';
+import { extractErrorMessage } from '../../../shared/feedback/feedback';
+import { readStorage, removeStorage, writeStorage } from '../../../core/storage';
+
+const RECENT_USERS_KEY = 'recentUsers';
+const REMEMBER_KEY = 'rememberUsername';
+
+// Only pages inside the app may be returned to after login (no open redirects).
+export function safeReturnUrl(url: string | null | undefined): string | null {
+  return url && /^\/main(\/[^/\\]|$|\?)/.test(url) && !url.startsWith('//') ? url : null;
+}
+
 @Component({
   selector: 'app-login',
   standalone:true,
@@ -23,31 +34,39 @@ import { ToastService } from '../../../shared/toast/toast';
 })
 export class Login implements OnInit{
   Form !:FormGroup;
-  collegecode:any;
+  collegecode: string | null = null;
   errorMessage = '';
   loading = false;
   showSuggestions = false;
+  // Usernames are only remembered when the user opts in: lab computers are shared.
+  rememberMe = false;
   recentUsers: string[] = [];
-   constructor(private fb: FormBuilder, private router:Router,private cookie:CookieService,private auth:AuthServices,private userStore:UserStore,private cd: ChangeDetectorRef,private toast: ToastService,@Inject(PLATFORM_ID) private platformId: Object){
+   constructor(private fb: FormBuilder, private router:Router,private route:ActivatedRoute,private auth:AuthServices,private userStore:UserStore,private cd: ChangeDetectorRef,private toast: ToastService,@Inject(PLATFORM_ID) private platformId: Object){
     this.Form=this.fb.group({
       userNameOrEmail: ['',Validators.required],
       password: ['',Validators.required],
       collegeCode: ['', Validators.required]
     });
-    
+
    }
     ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.collegecode = localStorage.getItem('collegecode');
+      this.collegecode = readStorage('collegecode');
 
       if (this.collegecode) {
         this.Form.patchValue({ collegeCode: this.collegecode });
       }
 
-      this.recentUsers = this.readRecentUsers();
+      this.rememberMe = readStorage(REMEMBER_KEY) === '1';
+      this.recentUsers = this.rememberMe ? this.readRecentUsers() : [];
+
+      // Lists saved before remembering became opt-in are dropped.
+      if (!this.rememberMe) {
+        removeStorage(RECENT_USERS_KEY);
+      }
     }
   }
-     
+
    onSubmit(){
     this.errorMessage = '';
 
@@ -60,25 +79,21 @@ export class Login implements OnInit{
           this.loading = false;
           this.rememberUser(this.Form.value.userNameOrEmail);
 
-          const token=res.data.accessToken;
-          const refresh=res.data.refreshToken;
-         localStorage.setItem('user', JSON.stringify(res.data));
-          this.userStore.setUser(res.data);
-          setTokens(token, refresh);
+          // Tokens go to token storage only; the profile is stored without them.
+          const { accessToken, refreshToken, ...profile } = res.data;
+          setTokens(accessToken, refreshToken);
+          this.userStore.setUser(profile);
           this.toast.success('Login successful');
-         if(res.data.isFirstLogin=== true ){
-          this.router.navigate(['/changepassword']);
-         }else if(res.data.isFirstLogin=== false && res.data.profileCompleted=== false){
-           this.router.navigate(['/profile']);
-         }else{
-         this.router.navigate(['/main']);
-         }
+
+          // First-login steps come first; otherwise back to the page that asked for a login.
+          const returnUrl = safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+          this.router.navigateByUrl(pendingOnboardingStep() ?? returnUrl ?? '/main');
         },error:(err)=>{
-          console.log(err);
 
           this.loading = false;
 
-          this.errorMessage = this.extractErrorMessage(err);
+          const invalid = 'Invalid username or password. Please try again.';
+          this.errorMessage = extractErrorMessage(err, invalid, { 401: invalid });
 
           this.cd.markForCheck();
         }
@@ -108,10 +123,23 @@ export class Login implements OnInit{
     this.saveRecentUsers();
    }
 
+   // Turning it off also forgets every username saved on this device.
+   setRememberMe(on: boolean) {
+    this.rememberMe = on;
+    if (on) {
+      writeStorage(REMEMBER_KEY, '1');
+    } else {
+      removeStorage(REMEMBER_KEY);
+      removeStorage(RECENT_USERS_KEY);
+      this.recentUsers = [];
+    }
+    this.cd.markForCheck();
+   }
+
    private rememberUser(user: string) {
     const name = (user || '').trim();
 
-    if (!name) return;
+    if (!name || !this.rememberMe) return;
 
     this.recentUsers = [name, ...this.recentUsers.filter(u => u !== name)].slice(0, 5);
     this.saveRecentUsers();
@@ -119,7 +147,7 @@ export class Login implements OnInit{
 
    private readRecentUsers(): string[] {
     try {
-      const list = JSON.parse(localStorage.getItem('recentUsers') || '[]');
+      const list = JSON.parse(readStorage(RECENT_USERS_KEY) || '[]');
       return Array.isArray(list) ? list.filter(u => typeof u === 'string') : [];
     } catch {
       return [];
@@ -127,24 +155,6 @@ export class Login implements OnInit{
    }
 
    private saveRecentUsers() {
-    localStorage.setItem('recentUsers', JSON.stringify(this.recentUsers));
-   }
-
-   private extractErrorMessage(err: any): string {
-
-    const body = err?.error;
-
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    return (
-      body?.message ||
-      body?.title ||
-      body?.error ||
-      body?.errorMessage ||
-      'Invalid username or password. Please try again.'
-    );
-
+    writeStorage(RECENT_USERS_KEY, JSON.stringify(this.recentUsers));
    }
 }

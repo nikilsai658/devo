@@ -5,7 +5,7 @@ import { Auth } from '../../../core/auth/auth';
 import { AdminUserService } from '../../../features/services/adminuser/adminuser-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-import { ConfirmService } from '../confirm-dailog/confirm';
+import { ConfirmService } from '../confirm-dialog/confirm';
 
 @Component({
   selector: 'app-admin-users',

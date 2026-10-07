@@ -18,16 +18,14 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { CollegeService } from '../../../features/services/college/college-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-college',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,7 +70,6 @@ export class College implements OnInit {
     private api: CollegeService,
     private superadmin: Superadmin,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -107,16 +104,6 @@ export class College implements OnInit {
       return;
     }
 
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
-    }
-
     // Permission Based View
     if (this.auth.hasPermission('VIEW_COLLEGE')) {
 
@@ -138,7 +125,6 @@ export class College implements OnInit {
         this.cd.markForCheck();
 
 
-        console.log('College Response', res);
 
         this.colleges = this.extractArray(res);
 
@@ -156,15 +142,13 @@ export class College implements OnInit {
 
         this.loadLockedColleges();
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load colleges.');
         this.cd.markForCheck();
 
 
-        console.error(err);
 
         this.colleges = [];
 
@@ -199,15 +183,13 @@ export class College implements OnInit {
 
         });
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load which colleges are locked.');
         this.cd.markForCheck();
 
 
-        console.error('Load Locked Colleges Error:', err);
 
       }
 
@@ -435,8 +417,6 @@ export class College implements OnInit {
         this.feedback.ok('License updated successfully');
 
         this.closeLicenseModal();
-
-        this.cd.detectChanges();
 
       },
 
@@ -688,8 +668,6 @@ export class College implements OnInit {
 
         this.feedback.ok('College locked successfully', res);
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
@@ -727,8 +705,6 @@ export class College implements OnInit {
         college.isLocked = false;
 
         this.feedback.ok('College unlocked successfully', res);
-
-        this.cd.detectChanges();
 
       },
 

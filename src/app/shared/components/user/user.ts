@@ -4,63 +4,32 @@ import {
   OnDestroy,
   ChangeDetectorRef,
   ElementRef,
-  HostListener,
   ViewChild,
   Inject,
-  PLATFORM_ID, ChangeDetectionStrategy
-, inject } from '@angular/core';
-
-import { HttpEventType } from '@angular/common/http';
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  inject
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { A11yModule } from '@angular/cdk/a11y';
-
-import {
-  CommonModule,
-  isPlatformBrowser
-} from '@angular/common';
-
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  FormsModule
-} from '@angular/forms';
-
-import {
-  exhaustMap,
-  filter,
-  finalize,
-  forkJoin,
-  map,
-  of,
-  retry,
-  Subscription,
-  switchMap,
-  takeWhile,
-  tap,
-  timeout,
-  TimeoutError,
-  timer
-} from 'rxjs';
-import { Router } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { catchError, finalize, map, of, Subject, switchMap } from 'rxjs';
 
 import { Auth } from '../../../core/auth/auth';
 import { UserService } from '../../../features/services/user/user-service';
 import { CollegeService } from '../../../features/services/college/college-service';
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { BranchService } from '../../../features/services/branch/branch-service';
+import { CollegedepartService } from '../../../features/services/collegedepartment/collegedepart-service';
+import { DeptbranchService } from '../../../features/services/departmentbranch/deptbranch-service';
 import { RoleService } from '../../../features/services/role/role-service';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Feedback } from '../../feedback/feedback';
-import { AppValidators, DigitsOnly, FieldError, normalizePhone } from '../../validation';
-
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-// A 21-row file takes ~40s on the server; allow plenty of headroom before
-// treating a silent connection as dead.
-const UPLOAD_TIMEOUT_MS = 180_000;
-
-// How often the bulk upload job status is polled while the server works.
-const UPLOAD_POLL_MS = 1000;
+import { AppValidators, normalizePhone } from '../../validation';
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { UserBulkUpload } from '../user-bulk-upload/user-bulk-upload';
 
 @Component({
   selector: 'app-user',
@@ -71,8 +40,7 @@ const UPLOAD_POLL_MS = 1000;
     ReactiveFormsModule,
     FormsModule,
     A11yModule,
-    FieldError,
-    DigitsOnly
+    UserBulkUpload
   ],
   templateUrl: './user.html',
   styleUrls: ['./user.css']
@@ -88,10 +56,11 @@ export class UserComponent implements OnInit, OnDestroy {
     private collegeService: CollegeService,
     private departmentService: DepartmentService,
     private branchService: BranchService,
+    private collegeDepartmentService: CollegedepartService,
+    private departmentBranchService: DeptbranchService,
     private roleService: RoleService,
     private superadmin: Superadmin,
     public auth: Auth,
-    private router: Router,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -126,40 +95,6 @@ export class UserComponent implements OnInit, OnDestroy {
     return this.assignableLoaded ? this.assignableRoles : this.roles;
   }
 
-  selectedFile: File | null = null;
-
-  // ==========================
-  // Bulk Upload Results
-  // ==========================
-
-  uploadId: string | null = null;
-
-  // Kept separate from `loading` (the users table), so a table refresh
-  // can't re-enable the Upload button mid-upload.
-  uploading = false;
-  uploadPhase: 'sending' | 'processing' | null = null;
-  uploadPercent = 0;
-  uploadElapsed = 0;
-  // Latest job status from User/BulkUpload/{jobId}/status (totalRows,
-  // processedRows, successCount, failedCount, percentComplete, …).
-  uploadJob: any = null;
-  // Final counts from the job, shown in the results badges.
-  uploadSummary: { success: number; failed: number } | null = null;
-  // Set when an upload finishes, so the progress bar stays on screen at
-  // 100% with the outcome instead of vanishing.
-  uploadComplete: {
-    total: number | null;
-    success: number | null;
-    failed: number;
-    completed: boolean;
-  } | null = null;
-  private uploadSub: Subscription | null = null;
-  private uploadTimer: ReturnType<typeof setInterval> | null = null;
-
-  uploadResultsLoading = false;
-  showUploadResults = false;
-  successUsers: any[] = [];
-  failedUsers: any[] = [];
 
   // ==========================
   // UI
@@ -172,7 +107,6 @@ export class UserComponent implements OnInit, OnDestroy {
 
   // Inline messages: page/form actions, and the bulk upload card.
   feedback = new Feedback();
-  uploadFeedback = new Feedback();
 
   selectedUserId: number | null = null;
 
@@ -186,18 +120,22 @@ export class UserComponent implements OnInit, OnDestroy {
   // Filters
   // ==========================
 
-  selectedRole = '';
-  selectedCollege = '';
-  selectedDepartment = '';
-  selectedBranch = '';
-  selectedYear: number | null = null;
-  selectedStatus: boolean | null = null;
+  // Separate from userForm (the Add/Edit dialog).
+  filterForm!: FormGroup;
 
-  // ==========================
-  // Permissions
-  // ==========================
+  // Every user returned for the current filters; `users` is this list after
+  // the search box and sorting are applied.
+  private allUsers: any[] = [];
 
-  permissions: string[] = [];
+  // Each request cancels the previous one, so a slow old response can never
+  // replace the result of newer filters.
+  private readonly reload$ = new Subject<void>();
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  // College -> department and department -> branch links, for narrowing the dropdowns.
+  private collegeDepartments: any[] = [];
+  private departmentBranches: any[] = [];
 
   // ==========================
   // Search
@@ -228,7 +166,12 @@ export class UserComponent implements OnInit, OnDestroy {
 
     this.initializeForm();
 
-    this.loadPermissions();
+    // Data is only fetched in the browser: the server has no session to fetch it with.
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.listenForReloads();
 
     this.loadColleges();
 
@@ -236,45 +179,23 @@ export class UserComponent implements OnInit, OnDestroy {
 
     this.loadBranches();
 
+    this.loadMappings();
+
     this.loadRoles();
 
     this.loadAssignableRoles();
 
     this.loadUsers();
 
-    if (isPlatformBrowser(this.platformId)) {
-
-      this.userForm.get('roleName')?.valueChanges.subscribe(() => {
-        this.cdr.markForCheck();
-
+    // The filter bar has its own form, so editing the Add/Edit dialog never
+    // changes the filters or reloads the table.
+    this.filterForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.page = 1;
         this.loadUsers();
       });
 
-      this.userForm.get('collegeName')?.valueChanges.subscribe(() => {
-        this.cdr.markForCheck();
-
-        this.loadUsers();
-      });
-
-      this.userForm.get('departmentName')?.valueChanges.subscribe(() => {
-        this.cdr.markForCheck();
-
-        this.loadUsers();
-      });
-
-      this.userForm.get('branchName')?.valueChanges.subscribe(() => {
-        this.cdr.markForCheck();
-
-        this.loadUsers();
-      });
-
-      this.userForm.get('yearNumber')?.valueChanges.subscribe(() => {
-        this.cdr.markForCheck();
-
-        this.loadUsers();
-      });
-
-    }
   }
 
   // ==========================
@@ -363,14 +284,15 @@ export class UserComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
 
 
-      // Clear first so the same message twice in a row is still read.
+      // Clear first so the same message twice in a row is still read: the empty text must
+      // reach the DOM before the new one, hence two synchronous renders.
       this.srMessage = '';
 
-      this.cdr.detectChanges();
+      this.cdr.detectChanges(); // keep-detect-changes
 
       this.srMessage = message;
 
-      this.cdr.detectChanges();
+      this.cdr.detectChanges(); // keep-detect-changes
 
     }, 400);
 
@@ -486,6 +408,14 @@ export class UserComponent implements OnInit, OnDestroy {
 
     });
 
+    this.filterForm = this.fb.group({
+      roleName: [''],
+      collegeName: [null],
+      departmentName: [null],
+      branchName: [null],
+      yearNumber: [null]
+    });
+
   }
 
   // ==========================
@@ -494,56 +424,48 @@ export class UserComponent implements OnInit, OnDestroy {
 
   loadUsers(): void {
 
-    this.loading = true;
+    this.reload$.next();
 
-    const roleName =
-      this.userForm?.get('roleName')?.value || '';
+  }
 
-    const collegeName =
-      this.userForm?.get('collegeName')?.value || '';
+  private listenForReloads(): void {
 
-    const departmentName =
-      this.userForm?.get('departmentName')?.value || '';
-
-    const branchName =
-      this.userForm?.get('branchName')?.value || '';
-
-    const yearNumber =
-      this.userForm?.get('yearNumber')?.value;
-
-    // No status filter: the list shows active and inactive users, and
-    // the Status column shows which is which. (`isActive` on the form is
-    // only the Add/Edit dialog's field now.)
-    this.userService
-      .getUsers(
-        roleName,
-        collegeName,
-        departmentName,
-        branchName,
-        yearNumber
-      )
+    this.reload$
       .pipe(
-        finalize(() => {
+        switchMap(() => {
+
+          this.loading = true;
           this.cdr.markForCheck();
 
-          this.loading = false;
-          this.cdr.detectChanges();
-        })
+          const filters = this.filterForm.value;
+
+          // No status filter: the list shows active and inactive users, and
+          // the Status column shows which is which.
+          return this.userService
+            .getUsers(
+              filters.roleName || '',
+              filters.collegeName || '',
+              filters.departmentName || '',
+              filters.branchName || '',
+              filters.yearNumber || undefined
+            )
+            .pipe(
+              map((res: any) => ({ ok: true as const, res })),
+              catchError((err: any) => of({ ok: false as const, err }))
+            );
+
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe({
+      .subscribe(result => {
 
-        next: (res: any) => {
-          this.cdr.markForCheck();
+        this.loading = false;
 
+        if (result.ok) {
 
-          console.log(
-            'Users Response:',
-            res
-          );
+          this.allUsers = this.extractArray(result.res);
 
-          this.users = this.extractArray(res);
-
-          this.users.forEach((user: any) => {
+          this.allUsers.forEach((user: any) => {
 
             user.isLocked = false;
 
@@ -551,44 +473,142 @@ export class UserComponent implements OnInit, OnDestroy {
 
           this.loadLockedStudents();
 
-          this.totalRecords =
-            this.users.length;
+        }
+        else {
 
-          const maxPage =
-            Math.max(
-              1,
-              Math.ceil(
-                this.totalRecords /
-                this.pageSize
-              )
-            );
+          this.allUsers = [];
 
-          if (this.page > maxPage) {
-
-            this.page = maxPage;
-
-          }
-
-          this.announceUserCount();
-
-        },
-
-        error: (err) => {
-          this.cdr.markForCheck();
-
-
-          console.error(
-            'Load Users Error:',
-            err
-          );
-
-          this.users = [];
-
-          this.totalRecords = 0;
+          this.feedback.fail(result.err, 'Unable to load users.');
 
         }
 
+        this.applyView();
+
+        this.announceUserCount();
+
+        this.cdr.markForCheck();
+
       });
+
+  }
+
+  // Search box, then sorting, over the loaded users; keeps the page in range.
+  private applyView(): void {
+
+    const search = this.searchText?.trim().toLowerCase() ?? '';
+
+    const fields = ['firstName', 'lastName', 'fullName', 'userName', 'email', 'roleName'];
+
+    const visible = search
+      ? this.allUsers.filter((user: any) =>
+          fields.some(field => String(user?.[field] ?? '').toLowerCase().includes(search)))
+      : [...this.allUsers];
+
+    if (this.sortColumn) {
+
+      const column = this.sortColumn;
+      const direction = this.sortDirection === 'asc' ? 1 : -1;
+
+      visible.sort((a: any, b: any) => {
+        const valueA = a?.[column] ?? '';
+        const valueB = b?.[column] ?? '';
+        if (valueA < valueB) return -direction;
+        if (valueA > valueB) return direction;
+        return 0;
+      });
+
+    }
+
+    this.users = visible;
+
+    this.totalRecords = visible.length;
+
+    this.page = Math.min(this.page, this.totalPages);
+
+  }
+
+  // ==========================
+  // Dropdown narrowing
+  // ==========================
+
+  // College -> department and department -> branch links. Without them (not loaded, no access)
+  // the dropdowns simply show every department / branch.
+  loadMappings(): void {
+
+    this.collegeDepartmentService.getCollegedepartments().subscribe({
+      next: (res: any) => {
+        this.collegeDepartments = this.extractArray(res);
+        this.cdr.markForCheck();
+      },
+      // Optional: without the links the dropdowns list every department.
+      error: () => {}
+    });
+
+    this.departmentBranchService.getDeptbranches().subscribe({
+      next: (res: any) => {
+        this.departmentBranches = this.extractArray(res);
+        this.cdr.markForCheck();
+      },
+      // Optional: without the links the dropdowns list every branch.
+      error: () => {}
+    });
+
+  }
+
+  private nameOf(item: any, key: 'departmentName' | 'branchName'): string {
+
+    return item?.name || item?.[key] || '';
+
+  }
+
+  // Departments linked to the college; every department when none is chosen or nothing is linked.
+  departmentsFor(collegeName: string | null): any[] {
+
+    if (!collegeName) {
+      return this.departments;
+    }
+
+    const linked = new Set(
+      this.collegeDepartments
+        .filter((m: any) => m?.collegeName === collegeName)
+        .map((m: any) => m?.departmentName)
+    );
+
+    return linked.size
+      ? this.departments.filter((d: any) => linked.has(this.nameOf(d, 'departmentName')))
+      : this.departments;
+
+  }
+
+  // Branches linked to the department; every branch when none is chosen or nothing is linked.
+  branchesFor(departmentName: string | null): any[] {
+
+    if (!departmentName) {
+      return this.branches;
+    }
+
+    const linked = new Set(
+      this.departmentBranches
+        .filter((m: any) => m?.departmentName === departmentName)
+        .map((m: any) => m?.branchName)
+    );
+
+    return linked.size
+      ? this.branches.filter((b: any) => linked.has(this.nameOf(b, 'branchName')))
+      : this.branches;
+
+  }
+
+  // A new college / department in the filter bar clears the filters below it.
+  onFilterCollegeChange(): void {
+
+    this.filterForm.patchValue({ departmentName: null, branchName: null }, { emitEvent: false });
+
+  }
+
+  onFilterDepartmentChange(): void {
+
+    this.filterForm.patchValue({ branchName: null }, { emitEvent: false });
 
   }
 
@@ -614,7 +634,6 @@ export class UserComponent implements OnInit, OnDestroy {
                 : [];
 
           // Zoneless app: re-render once the options arrive.
-          this.cdr.detectChanges();
 
         },
 
@@ -622,16 +641,10 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Load Colleges Error:',
-            err
-          );
 
           this.colleges = [];
 
           this.feedback.fail(err, 'Unable to load colleges.');
-
-          this.cdr.detectChanges();
 
         }
 
@@ -660,24 +673,16 @@ export class UserComponent implements OnInit, OnDestroy {
                 ? res
                 : [];
 
-          this.cdr.detectChanges();
-
         },
 
         error: (err) => {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Load Departments Error:',
-            err
-          );
 
           this.departments = [];
 
           this.feedback.fail(err, 'Unable to load departments.');
-
-          this.cdr.detectChanges();
 
         }
 
@@ -706,24 +711,16 @@ export class UserComponent implements OnInit, OnDestroy {
                 ? res
                 : [];
 
-          this.cdr.detectChanges();
-
         },
 
         error: (err) => {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Load Branches Error:',
-            err
-          );
 
           this.branches = [];
 
           this.feedback.fail(err, 'Unable to load branches.');
-
-          this.cdr.detectChanges();
 
         }
 
@@ -745,10 +742,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.log(
-            'Roles Response:',
-            res
-          );
 
           if (Array.isArray(res)) {
 
@@ -771,23 +764,14 @@ export class UserComponent implements OnInit, OnDestroy {
 
           }
 
-          console.log(
-            'Roles:',
-            this.roles
-          );
-
-          this.cdr.detectChanges();
 
         },
 
         error: (err) => {
+          this.feedback.fail(err, 'Unable to load roles.');
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Load Roles Error:',
-            err
-          );
 
           this.roles = [];
 
@@ -835,31 +819,6 @@ export class UserComponent implements OnInit, OnDestroy {
     control?.updateValueAndValidity();
 
     this.cdr.markForCheck();
-
-  }
-
-  // ==========================
-  // Load Permissions
-  // ==========================
-
-  loadPermissions(): void {
-
-    this.permissions =
-      this.auth.getPermissions?.() || [];
-
-  }
-
-  // ==========================
-  // Permission Check
-  // ==========================
-
-  hasPermission(
-    permission: string
-  ): boolean {
-
-    return this.permissions.includes(
-      permission
-    );
 
   }
 
@@ -960,14 +919,13 @@ export class UserComponent implements OnInit, OnDestroy {
         formValue.phoneNumber,
 
       registerNumber:
-        formValue.registerNumber
+        formValue.registerNumber,
+
+      isActive:
+        formValue.isActive ?? true
 
     };
 
-    console.log(
-      'Create User Payload:',
-      payload
-    );
 
     const request = this.autoPassword
       ? this.userService.createUserAutoPassword(payload)
@@ -989,10 +947,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.log(
-            'Create User Response:',
-            res
-          );
 
           this.feedback.ok(
             this.autoPassword
@@ -1010,10 +964,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Create User Error:',
-            err
-          );
 
           this.feedback.fail(err, 'Unable to create user.');
 
@@ -1029,10 +979,6 @@ export class UserComponent implements OnInit, OnDestroy {
 
   editUser(user: any): void {
 
-    console.log(
-      'Editing User:',
-      user
-    );
 
     this.selectedUserId =
       user?.id ??
@@ -1105,14 +1051,10 @@ export class UserComponent implements OnInit, OnDestroy {
 
     });
 
-    console.log(
-      'Edit Role Name:',
-      roleName
-    );
 
     this.showModal = true;
 
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
   }
 
@@ -1126,9 +1068,6 @@ export class UserComponent implements OnInit, OnDestroy {
       this.selectedUserId === null
     ) {
 
-      console.error(
-        'Selected User ID is missing'
-      );
 
       return;
 
@@ -1171,7 +1110,10 @@ export class UserComponent implements OnInit, OnDestroy {
         formValue.phoneNumber,
 
       registerNumber:
-        formValue.registerNumber
+        formValue.registerNumber,
+
+      isActive:
+        formValue.isActive ?? true
 
     };
 
@@ -1190,10 +1132,6 @@ export class UserComponent implements OnInit, OnDestroy {
 
     }
 
-    console.log(
-      'Update User Payload:',
-      payload
-    );
 
     this.loading = true;
 
@@ -1217,10 +1155,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.log(
-            'Update User Response:',
-            res
-          );
 
           this.feedback.ok(
             res?.message ||
@@ -1237,10 +1171,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Update User Error:',
-            err
-          );
 
           this.feedback.fail(err, 'Unable to update user.');
 
@@ -1298,10 +1228,6 @@ export class UserComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Delete User Error:',
-            err
-          );
 
           this.feedback.fail(err, 'Unable to delete user.');
 
@@ -1378,54 +1304,13 @@ export class UserComponent implements OnInit, OnDestroy {
   // Search Users
   // ==========================
 
+  // Filters the loaded users (no reload): each keystroke searches the full
+  // list, so deleting characters brings matches back.
   searchUsers(): void {
 
-    const search =
-      this.searchText
-        ?.trim()
-        .toLowerCase();
-
-    if (!search) {
-
-      this.loadUsers();
-
-      return;
-
-    }
-
-    this.users =
-      (this.users ?? []).filter(
-        (x: any) =>
-
-          x?.firstName
-            ?.toLowerCase()
-            .includes(search) ||
-
-          x?.lastName
-            ?.toLowerCase()
-            .includes(search) ||
-
-          x?.fullName
-            ?.toLowerCase()
-            .includes(search) ||
-
-          x?.userName
-            ?.toLowerCase()
-            .includes(search) ||
-
-          x?.email
-            ?.toLowerCase()
-            .includes(search) ||
-
-          x?.roleName
-            ?.toLowerCase()
-            .includes(search)
-      );
-
-    this.totalRecords =
-      this.users.length;
-
     this.page = 1;
+
+    this.applyView();
 
     this.announceUserCount();
 
@@ -1455,38 +1340,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     }
 
-    this.users =
-      this.users ?? [];
-
-    this.users.sort(
-      (a: any, b: any) => {
-
-        const valueA =
-          a?.[column];
-
-        const valueB =
-          b?.[column];
-
-        if (valueA < valueB) {
-
-          return this.sortDirection === 'asc'
-            ? -1
-            : 1;
-
-        }
-
-        if (valueA > valueB) {
-
-          return this.sortDirection === 'asc'
-            ? 1
-            : -1;
-
-        }
-
-        return 0;
-
-      }
-    );
+    this.applyView();
 
     this.announce(
       `Sorted by ${column === 'fullName' ? 'name' : column === 'roleName' ? 'role' : column}, ` +
@@ -1622,9 +1476,8 @@ export class UserComponent implements OnInit, OnDestroy {
   // College Changed
   // ==========================
 
-  // A new college clears the chosen department/branch. The option lists
-  // themselves stay loaded: they're shared with the filters, and emptying
-  // them (as this used to) left the Branch dropdown blank on both.
+  // A new college clears the chosen department/branch; the dropdowns then
+  // offer only what is linked to it (see departmentsFor / branchesFor).
   onCollegeChange(): void {
 
     // null, not '', so the "Select …" / "All …" placeholder shows.
@@ -1670,9 +1523,12 @@ export class UserComponent implements OnInit, OnDestroy {
 
   changeStatus(user: any): void {
 
+    // isLocked is display state only, not a user field.
+    const { isLocked, ...fields } = user;
+
     const payload = {
 
-      ...user,
+      ...fields,
 
       isActive:
         !user.isActive
@@ -1696,14 +1552,8 @@ export class UserComponent implements OnInit, OnDestroy {
         },
 
         error: (err) => {
+          this.feedback.fail(err, "Unable to change this user's status.");
           this.cdr.markForCheck();
-
-
-          console.error(
-            'Change Status Error:',
-            err
-          );
-
         }
 
       });
@@ -1721,17 +1571,16 @@ export class UserComponent implements OnInit, OnDestroy {
 
   loadLockedStudents(): void {
 
-    this.superadmin.student1ocked().subscribe({
+    this.superadmin.lockedStudents().subscribe({
 
       next: (res: any) => {
         this.cdr.markForCheck();
 
 
-        console.log('Locked Students Response:', res);
 
         const lockedIds = this.extractIds(res, ['studentId', 'StudentId', 'id', 'Id', 'userId', 'UserId']);
 
-        this.users.forEach((user: any) => {
+        this.allUsers.forEach((user: any) => {
 
           const userId = user?.id ?? user?.userId ?? user?.studentId;
 
@@ -1739,15 +1588,13 @@ export class UserComponent implements OnInit, OnDestroy {
 
         });
 
-        this.cdr.detectChanges();
-
       },
 
+      // Lock state needs SuperAdmin access; without it every row just shows "Lock".
       error: (err) => {
         this.cdr.markForCheck();
 
 
-        console.error('Load Locked Students Error:', err);
 
       }
 
@@ -1854,18 +1701,12 @@ export class UserComponent implements OnInit, OnDestroy {
 
           this.feedback.ok('User locked successfully', res);
 
-          this.cdr.detectChanges();
-
         },
 
         error: (err) => {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Lock User Error:',
-            err
-          );
 
           this.feedback.fail(err, 'Unable to lock user.');
 
@@ -1900,18 +1741,12 @@ export class UserComponent implements OnInit, OnDestroy {
 
           this.feedback.ok('User unlocked successfully', res);
 
-          this.cdr.detectChanges();
-
         },
 
         error: (err) => {
           this.cdr.markForCheck();
 
 
-          console.error(
-            'Unlock User Error:',
-            err
-          );
 
           this.feedback.fail(err, 'Unable to unlock user.');
 
@@ -1952,7 +1787,8 @@ export class UserComponent implements OnInit, OnDestroy {
 
   clearFilters(): void {
 
-    this.userForm.patchValue({
+    // One change event: the filterForm subscription goes to page 1 and reloads.
+    this.filterForm.reset({
 
       roleName: '',
 
@@ -1966,497 +1802,9 @@ export class UserComponent implements OnInit, OnDestroy {
 
     });
 
-    this.page = 1;
-
-    this.loadUsers();
-
-  }
-
-  // ==========================
-  // Logout
-  // ==========================
-
-  logout(): void {
-
-    if (
-      isPlatformBrowser(
-        this.platformId
-      )
-    ) {
-
-      localStorage.removeItem(
-        'accessToken'
-      );
-
-      localStorage.removeItem(
-        'refreshToken'
-      );
-
-    }
-
-    this.router.navigate([
-      '/login'
-    ]);
-
-  }
-
-  // ==========================
-  // File Selected
-  // ==========================
-
-  onFileSelected(
-    event: Event
-  ): void {
-
-    const input =
-      event.target as HTMLInputElement;
-
-    if (
-      input.files &&
-      input.files.length > 0
-    ) {
-
-      this.selectedFile =
-        input.files[0];
-
-      console.log(
-        this.selectedFile
-      );
-
-    }
-
-  }
-
-  // ==========================
-  // Upload File
-  // ==========================
-
-  uploadFile(fileInput?: HTMLInputElement): void {
-
-    // Guard against double-clicks that land before the button re-renders
-    // as disabled.
-    if (this.uploading) {
-
-      return;
-
-    }
-
-    if (!this.selectedFile) {
-
-      this.uploadFeedback.fail('Please select a file');
-
-      return;
-
-    }
-
-    this.uploading = true;
-
-    this.uploadPhase = 'sending';
-
-    this.uploadPercent = 0;
-
-    this.uploadElapsed = 0;
-
-    this.uploadJob = null;
-
-    this.uploadSummary = null;
-
-    this.uploadComplete = null;
-
-    this.showUploadResults = false;
-
-    this.successUsers = [];
-
-    this.failedUsers = [];
-
-    this.uploadTimer = setInterval(() => {
-      this.cdr.markForCheck();
-
-
-      this.uploadElapsed++;
-
-      this.cdr.detectChanges();
-
-    }, 1000);
-
-    this.uploadSub = this.userService
-      .uploadUsers(
-        this.selectedFile
-      )
-      .pipe(
-        // `each` resets on every progress event, so this only fires when
-        // the connection goes quiet — not while a big file is sending.
-        timeout({ each: UPLOAD_TIMEOUT_MS }),
-        tap((event: any) => {
-
-          if (event.type !== HttpEventType.UploadProgress) {
-
-            return;
-
-          }
-
-          this.uploadPercent = event.total
-            ? Math.round((100 * event.loaded) / event.total)
-            : 0;
-
-          // Whole file sent — the rest of the wait is the server
-          // creating the users.
-          if (
-            event.total &&
-            event.loaded >= event.total &&
-            this.uploadPhase !== 'processing'
-          ) {
-
-            this.uploadPhase = 'processing';
-
-            this.announce(
-              'File sent. Creating users on the server, this can take a minute or more.'
-            );
-
-          }
-
-          this.cdr.detectChanges();
-
-        }),
-        filter((event: any) => event.type === HttpEventType.Response),
-        // File accepted: poll the job status until the server finishes,
-        // emitting each status so the progress bar can follow along.
-        switchMap((event: any) => {
-
-          const res = event.body;
-
-          console.log(
-            'Upload Response:',
-            res
-          );
-
-          const jobId =
-            res?.data?.jobId ??
-            res?.jobId ??
-            res?.uploadId ??
-            res?.data?.uploadId ??
-            res?.id ??
-            res?.data?.id ??
-            null;
-
-          this.selectedFile = null;
-
-          // Clear the native input too, so the same file can be picked
-          // again and the old name isn't left showing.
-          if (fileInput) {
-
-            fileInput.value = '';
-
-          }
-
-          if (!jobId) {
-
-            return of(null);
-
-          }
-
-          this.uploadId = jobId;
-
-          this.uploadPhase = 'processing';
-
-          return timer(0, UPLOAD_POLL_MS).pipe(
-            exhaustMap(() =>
-              this.userService
-                .progress(jobId)
-                // Ride out a brief network blip instead of losing the job.
-                .pipe(retry({ count: 3, delay: UPLOAD_POLL_MS }))
-            ),
-            map((statusRes: any) => statusRes?.data ?? statusRes),
-            takeWhile((job: any) => !this.isJobDone(job), true)
-          );
-
-        }),
-        finalize(() => {
-          this.cdr.markForCheck();
-
-
-          this.stopUploadTracking();
-
-        })
-      )
-      .subscribe({
-
-        next: (job: any) => {
-          this.cdr.markForCheck();
-
-
-          // No job id in the upload response — nothing to track.
-          if (!job) {
-
-            this.uploadComplete = {
-              total: null,
-              success: null,
-              failed: 0,
-              completed: true
-            };
-
-            this.loadUsers();
-
-            this.uploadFeedback.ok('Users uploaded successfully');
-
-            return;
-
-          }
-
-          this.uploadJob = job;
-
-          this.cdr.detectChanges();
-
-          if (!this.isJobDone(job)) {
-
-            return;
-
-          }
-
-          const result = job.result;
-
-          this.uploadSummary = {
-            success: result?.success ?? job.successCount ?? 0,
-            failed: result?.failed ?? job.failedCount ?? 0
-          };
-
-          const completed =
-            String(job.status).toLowerCase() === 'completed';
-
-          this.uploadComplete = {
-            total:
-              job.totalRows ??
-              this.uploadSummary.success + this.uploadSummary.failed,
-            success: this.uploadSummary.success,
-            failed: this.uploadSummary.failed,
-            completed
-          };
-
-          if (!completed) {
-
-            this.uploadFeedback.fail(
-              job.message || 'Bulk upload did not complete.'
-            );
-
-          }
-
-          this.loadUsers();
-
-          this.loadUploadResults(
-            this.uploadId as string,
-            result?.errors
-          );
-
-        },
-
-        error: (err) => {
-          this.cdr.markForCheck();
-
-
-          console.error(
-            'Upload Error:',
-            err
-          );
-
-          if (err instanceof TimeoutError || err?.status === 504) {
-
-            // The server may still finish the import after we stop
-            // waiting, so re-uploading straight away could create
-            // duplicates. Refresh the list so the admin can check first.
-            this.uploadFeedback.fail(
-              'The upload timed out. The server may still be processing it — ' +
-              'check the user list before uploading the same file again.'
-            );
-
-            this.loadUsers();
-
-            return;
-
-          }
-
-          this.uploadFeedback.fail(err, 'Unable to upload users.');
-
-        }
-
-      });
-
-  }
-
-  // ==========================
-  // Cancel Upload
-  // ==========================
-
-  cancelUpload(): void {
-
-    if (!this.uploading) {
-
-      return;
-
-    }
-
-    // Unsubscribing aborts the HTTP request (finalize resets the state).
-    this.uploadSub?.unsubscribe();
-
-    this.uploadFeedback.fail(
-      'Upload cancelled. If the file had already been sent, some users ' +
-      'may still have been created — check the user list before retrying.'
-    );
-
-    this.loadUsers();
-
-  }
-
-  // A job with no status is treated as finished so an unexpected
-  // response shape can't leave the page polling forever.
-  private isJobDone(job: any): boolean {
-
-    const status = String(job?.status ?? '').toLowerCase();
-
-    return !['pending', 'queued', 'processing', 'inprogress', 'running']
-      .includes(status);
-
-  }
-
-  // Percent of rows the server has processed so far.
-  get uploadJobPercent(): number {
-
-    const job = this.uploadJob;
-
-    if (!job) {
-
-      return 0;
-
-    }
-
-    const percent =
-      job.percentComplete ??
-      (job.totalRows ? (100 * (job.processedRows ?? 0)) / job.totalRows : 0);
-
-    return Math.min(100, Math.max(0, Math.round(percent)));
-
-  }
-
-  // Overall result of the finished upload, drives the summary card's look.
-  get uploadOutcome(): 'success' | 'partial' | 'failed' {
-
-    const done = this.uploadComplete;
-
-    if (!done || (done.completed && !done.failed)) {
-
-      return 'success';
-
-    }
-
-    return done.success ? 'partial' : 'failed';
-
-  }
-
-  // Share of rows created / rejected, for the split bar on the summary card.
-  get uploadSuccessPercent(): number {
-
-    const done = this.uploadComplete;
-
-    if (!done || done.success === null) {
-
-      return 100;
-
-    }
-
-    const total = done.total || done.success + done.failed;
-
-    return total ? Math.round((100 * done.success) / total) : 0;
-
-  }
-
-  get uploadFailedPercent(): number {
-
-    const done = this.uploadComplete;
-
-    if (!done || done.success === null) {
-
-      return 0;
-
-    }
-
-    const total = done.total || done.success + done.failed;
-
-    return total ? Math.round((100 * done.failed) / total) : 0;
-
-  }
-
-  // The status API reports failures as "email - reason" strings.
-  private parseUploadErrors(errors: any): any[] {
-
-    if (!Array.isArray(errors)) {
-
-      return [];
-
-    }
-
-    return errors.map((error: any) => {
-
-      const text = String(error ?? '');
-
-      const index = text.indexOf(' - ');
-
-      if (index === -1) {
-
-        return { email: null, reason: text.trim() };
-
-      }
-
-      return {
-        email: text.slice(0, index).trim() || null,
-        reason: text.slice(index + 3).trim()
-      };
-
-    });
-
-  }
-
-  private stopUploadTracking(): void {
-
-    if (this.uploadTimer) {
-
-      clearInterval(this.uploadTimer);
-
-      this.uploadTimer = null;
-
-    }
-
-    this.uploadSub = null;
-
-    this.uploading = false;
-
-    this.uploadPhase = null;
-
-    // markForCheck, not detectChanges: this also runs from ngOnDestroy,
-    // when the view is already gone.
-    this.cdr.markForCheck();
-
-  }
-
-  // Leaving the page drops the request; warn while one is in flight.
-  @HostListener('window:beforeunload', ['$event'])
-  onBeforeUnload(event: BeforeUnloadEvent): void {
-
-    if (this.uploading) {
-
-      event.preventDefault();
-
-    }
-
   }
 
   ngOnDestroy(): void {
-
-    this.uploadSub?.unsubscribe();
-
-    if (this.uploadTimer) {
-
-      clearInterval(this.uploadTimer);
-
-    }
 
     if (this.srTimer) {
 
@@ -2465,447 +1813,5 @@ export class UserComponent implements OnInit, OnDestroy {
     }
 
   }
-
-  // ==========================
-  // Load Bulk Upload Results
-  // ==========================
-
-  // `errors` are the job status's "email - reason" strings, used for the
-  // failed list when the failed endpoint returns no rows.
-  loadUploadResults(
-    uploadId: string,
-    errors?: any
-  ): void {
-
-    this.uploadResultsLoading = true;
-
-    forkJoin({
-
-      success:
-        this.userService.successusers(
-          uploadId
-        ),
-
-      failed:
-        this.userService.failedusers(
-          uploadId
-        )
-
-    })
-      .pipe(
-        finalize(() => {
-          this.cdr.markForCheck();
-
-
-          this.uploadResultsLoading = false;
-
-          this.showUploadResults = true;
-
-        })
-      )
-      .subscribe({
-
-        next: (res: any) => {
-          this.cdr.markForCheck();
-
-
-          console.log(
-            'Upload Results:',
-            res
-          );
-
-          this.successUsers =
-            this.extractList(
-              res.success
-            );
-
-          this.failedUsers =
-            this.extractList(
-              res.failed
-            );
-
-          if (!this.failedUsers.length) {
-
-            this.failedUsers = this.parseUploadErrors(errors);
-
-          }
-
-          this.announce(
-            `Upload finished. ${this.uploadSummary?.success ?? this.successUsers.length} users created, ` +
-            `${this.uploadSummary?.failed ?? this.failedUsers.length} failed.`
-          );
-
-        },
-
-        error: (err) => {
-          this.cdr.markForCheck();
-
-
-          console.error(
-            'Load Upload Results Error:',
-            err
-          );
-
-          this.successUsers = [];
-
-          this.failedUsers = this.parseUploadErrors(errors);
-
-        }
-
-      });
-
-  }
-
-  // ==========================
-  // Extract List Helper
-  // ==========================
-
-  extractList(res: any): any[] {
-
-    if (Array.isArray(res)) {
-
-      return res;
-
-    }
-
-    if (Array.isArray(res?.data)) {
-
-      return res.data;
-
-    }
-
-    if (Array.isArray(res?.items)) {
-
-      return res.items;
-
-    }
-
-    return [];
-
-  }
-
-  // ==========================
-  // Close Upload Results
-  // ==========================
-
-  closeUploadResults(): void {
-
-    this.showUploadResults = false;
-
-    this.successUsers = [];
-
-    this.failedUsers = [];
-
-    this.uploadSummary = null;
-
-    this.uploadJob = null;
-
-    this.uploadId = null;
-
-  }
-  printSuccessUsers(): void {
-  if (!this.successUsers?.length) {
-    return;
-  }
-
-  const rows = this.successUsers.map((user: any) => `
-    <tr>
-      <td>${this.escapeHtml(user?.fullName ?? user?.name ?? '-')}</td>
-      <td>${this.escapeHtml(user?.email ?? '-')}</td>
-      <td>${this.escapeHtml(user?.roleName ?? user?.role ?? '-')}</td>
-    </tr>
-  `).join('');
-
-  const printWindow = window.open('', '_blank', 'width=1000,height=700');
-
-  if (!printWindow) {
-    this.uploadFeedback.fail('Pop-up blocked. Allow pop-ups for this site to print.');
-    return;
-  }
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Successfully Created Users</title>
-
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          padding: 30px;
-          color: #2F3E46;
-        }
-
-        h1 {
-          margin-bottom: 5px;
-        }
-
-        .subtitle {
-          color: #666;
-          margin-bottom: 25px;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-        }
-
-        th,
-        td {
-          border: 1px solid #ddd;
-          padding: 12px;
-          text-align: left;
-        }
-
-        th {
-          background: #2F3E46;
-          color: white;
-        }
-
-        .success {
-          color: #15803d;
-          font-weight: bold;
-        }
-
-        @media print {
-          body {
-            padding: 10px;
-          }
-        }
-      </style>
-    </head>
-
-    <body>
-
-      <h1>Successfully Created Users</h1>
-
-      <div class="subtitle">
-        Total Successful Users:
-        <strong class="success">
-          ${this.successUsers.length}
-        </strong>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-
-    </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-
-  printWindow.focus();
-
-  setTimeout(() => {
-    this.cdr.markForCheck();
-
-    printWindow.print();
-    printWindow.close();
-  }, 300);
-}
-
-
-printFailedUsers(): void {
-  if (!this.failedUsers?.length) {
-    return;
-  }
-
-  const rows = this.failedUsers.map((user: any) => `
-    <tr>
-      <td>${this.escapeHtml(user?.fullName ?? user?.name ?? '-')}</td>
-      <td>${this.escapeHtml(user?.email ?? '-')}</td>
-      <td>${this.escapeHtml(this.failedReason(user))}</td>
-    </tr>
-  `).join('');
-
-  const printWindow = window.open('', '_blank', 'width=1000,height=700');
-
-  if (!printWindow) {
-    this.uploadFeedback.fail('Pop-up blocked. Allow pop-ups for this site to print.');
-    return;
-  }
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Failed Users</title>
-
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          padding: 30px;
-          color: #2F3E46;
-        }
-
-        h1 {
-          margin-bottom: 5px;
-        }
-
-        .subtitle {
-          color: #666;
-          margin-bottom: 25px;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-        }
-
-        th,
-        td {
-          border: 1px solid #ddd;
-          padding: 12px;
-          text-align: left;
-          vertical-align: top;
-        }
-
-        th {
-          background: #2F3E46;
-          color: white;
-        }
-
-        .failed {
-          color: #dc2626;
-          font-weight: bold;
-        }
-
-        @media print {
-          body {
-            padding: 10px;
-          }
-        }
-      </style>
-    </head>
-
-    <body>
-
-      <h1>Failed Users</h1>
-
-      <div class="subtitle">
-        Total Failed Users:
-        <strong class="failed">
-          ${this.failedUsers.length}
-        </strong>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Reason</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-
-    </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-
-  printWindow.focus();
-
-  setTimeout(() => {
-    this.cdr.markForCheck();
-
-    printWindow.print();
-    printWindow.close();
-  }, 300);
-}
-
-
-/**
- * Download the failed users as a CSV file (opens in Excel).
- */
-exportFailedUsers(): void {
-  if (!this.failedUsers?.length) {
-    return;
-  }
-
-  const header = ['Name', 'Email', 'Reason'];
-
-  const rows = this.failedUsers.map((user: any) => {
-    const reason = this.failedReason(user);
-
-    return [
-      user?.fullName ?? user?.name ?? '',
-      user?.email ?? '',
-      reason === '-' ? '' : reason
-    ];
-  });
-
-  const csv = [header, ...rows]
-    .map(row => row.map(cell => this.csvCell(cell)).join(','))
-    .join('\r\n');
-
-  // BOM so Excel reads UTF-8 names correctly.
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `failed-users${this.uploadId ? '-' + this.uploadId : ''}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-}
-
-
-failedReason(user: any): string {
-  return user?.reason ??
-    user?.error ??
-    user?.errorMessage ??
-    user?.message ??
-    '-';
-}
-
-
-/**
- * Quote a CSV cell and neutralise spreadsheet formula injection.
- */
-private csvCell(value: any): string {
-  let text = String(value ?? '');
-
-  if (/^[=+\-@\t\r]/.test(text)) {
-    text = "'" + text;
-  }
-
-  return `"${text.replace(/"/g, '""')}"`;
-}
-
-
-/**
- * Prevent HTML/content from breaking the print page.
- */
-private escapeHtml(value: any): string {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 }

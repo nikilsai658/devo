@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { TicketService } from '../../../features/services/ticket/ticket-service';
 import { CollegeService } from '../../../features/services/college/college-service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Feedback } from '../../../shared/feedback/feedback';
 import {
   CdkDragDrop,
   DragDropModule,
@@ -24,6 +25,10 @@ interface KanbanColumn {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AllTicketsComponent implements OnInit {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   tickets: any[] = [];
 
@@ -57,6 +62,11 @@ export class AllTicketsComponent implements OnInit {
     this.connectedDropListIds =
       this.statusOptions.map(status => `drop-list-${status}`);
 
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.loadColleges();
 
     this.getTickets();
@@ -83,8 +93,8 @@ export class AllTicketsComponent implements OnInit {
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load colleges for the filter.');
 
-        console.error('Load Colleges Error:', err);
 
         this.colleges = [];
       }
@@ -133,7 +143,6 @@ export class AllTicketsComponent implements OnInit {
 
       error: (error) => {
 
-        console.error('Get tickets error:', error);
 
         this.tickets = [];
         this.columns = [];
@@ -210,10 +219,6 @@ export class AllTicketsComponent implements OnInit {
 
         error: (err) => {
 
-          console.error(
-            'Error updating ticket status:',
-            err
-          );
 
           ticket.status = previousStatus;
 

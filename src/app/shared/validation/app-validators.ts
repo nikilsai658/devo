@@ -38,10 +38,11 @@ export class AppValidators {
     return value.length === 10 ? null : { phone: { actualLength: value.length } };
   };
 
-  // Person / entity names: letters, spaces, dots, apostrophes and hyphens.
+  // Person / entity names: letters of any language (José, Zoë, Siddhārth), spaces, dots,
+  // apostrophes and hyphens.
   static personName: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     if (isEmpty(control.value)) return null;
-    return /^[A-Za-z][A-Za-z .'-]*$/.test(String(control.value).trim()) ? null : { personName: true };
+    return /^\p{L}[\p{L}\p{M} .'-]*$/u.test(String(control.value).trim()) ? null : { personName: true };
   };
 
   // Titles and names of things (colleges, courses, domains...): must contain

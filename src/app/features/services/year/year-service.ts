@@ -30,7 +30,4 @@ export class YearService {
   formData.append('file', file);
     return this.api.POST('Year/promote-with-domains',formData);
   }
-  YearUpdatesingleDomain(data:any){
-    return this.api.POST('Year/promote-single-with-domain',data)
-  }
 }

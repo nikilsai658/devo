@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* =====================================================
    HOST
@@ -676,4 +676,9 @@
     @apply w-9 justify-center px-0;
   }
 
+}
+
+/* College without a bundled logo: its initials in a badge */
+.college-brand-text {
+  @apply rounded-md bg-[#26262b] text-xs font-bold tracking-wide text-[#c4b5fd];
 }

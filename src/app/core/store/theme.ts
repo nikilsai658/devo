@@ -33,7 +33,10 @@ export class ThemeStore {
     const isBrowser = isPlatformBrowser(platformId);
 
     if (isBrowser) {
-      const stored = localStorage.getItem('theme');
+      let stored: string | null = null;
+      try {
+        stored = localStorage.getItem('theme');
+      } catch {}
       if (stored === 'light' || stored === 'dark') {
         this._theme.set(stored);
       }
@@ -59,7 +62,9 @@ export class ThemeStore {
     effect(() => {
       const theme = this._theme();
       if (isBrowser) {
-        localStorage.setItem('theme', theme);
+        try {
+          localStorage.setItem('theme', theme);
+        } catch {}
       }
     });
   }

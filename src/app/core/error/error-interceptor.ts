@@ -4,25 +4,47 @@ import {
   HttpRequest
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { BehaviorSubject, throwError } from 'rxjs';
-import { catchError, filter, switchMap, take } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { AuthServices } from '../../features/services/auth/auth-services';
-import { getRefreshToken, setTokens } from '../auth/token-storage';
+import { isApiRequest } from '../api/api-base';
+import { getAccessToken, getRefreshToken, readStoredUser, setTokens } from '../auth/token-storage';
 
-// Module-level so concurrent requests share one in-flight refresh call.
-let isRefreshing = false;
-const refreshedToken$ = new BehaviorSubject<string | null>(null);
+// Module-level so concurrent 401s share one refresh call. Every waiting request
+// subscribes to the same observable, so they all get the new token — or all get
+// the error when the refresh fails (none is left waiting forever).
+let refreshInFlight: Observable<string> | null = null;
 
-// The refresh endpoint needs the user's id, which login stores in
-// localStorage as part of the 'user' object (TokenResponseDto.userId).
-function getStoredUserId(): string | null {
+function refreshAccessToken(authServices: AuthServices, original: HttpErrorResponse): Observable<string> {
 
-  try {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored)?.userId ?? null : null;
-  } catch {
-    return null;
+  if (refreshInFlight) {
+    return refreshInFlight;
   }
+
+  const refreshToken = getRefreshToken();
+  // The refresh endpoint needs the user's id (TokenResponseDto.userId), kept in the stored profile.
+  const userId = readStoredUser()?.['userId'];
+
+  if (!refreshToken || !userId) {
+    return throwError(() => original);
+  }
+
+  refreshInFlight = authServices.refreshToken(userId, refreshToken).pipe(
+    map((res: any) => {
+      const data = res?.data || res;
+      if (!data?.accessToken) {
+        throw original;
+      }
+      setTokens(data.accessToken, data.refreshToken);
+      return data.accessToken as string;
+    }),
+    finalize(() => {
+      refreshInFlight = null;
+    }),
+    shareReplay({ bufferSize: 1, refCount: false })
+  );
+
+  return refreshInFlight;
 
 }
 
@@ -54,66 +76,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (
         !(error instanceof HttpErrorResponse) ||
         error.status !== 401 ||
-        isAuthRoute
+        isAuthRoute ||
+        // Only the selected college's API is sent a token, so only its 401s mean "token expired".
+        !isApiRequest(req.url)
       ) {
         return throwError(() => error);
       }
 
-      const refreshToken = getRefreshToken();
-      const userId = getStoredUserId();
-
-      if (!refreshToken || !userId) {
-        return throwError(() => error);
+      // Another request already refreshed the token after this one was sent: just retry.
+      const current = getAccessToken();
+      if (current && req.headers.get('Authorization') !== `Bearer ${current}`) {
+        return next(withAuthHeader(req, current));
       }
 
-      if (isRefreshing) {
-
-        // A refresh is already in flight — wait for it, then retry.
-        return refreshedToken$.pipe(
-          filter((token): token is string => token !== null),
-          take(1),
-          switchMap(token => next(withAuthHeader(req, token)))
-        );
-
-      }
-
-      isRefreshing = true;
-      refreshedToken$.next(null);
-
-      return authServices.refreshToken(userId, refreshToken).pipe(
-
-        switchMap((res: any) => {
-
-          const data = res?.data || res;
-
-          const newAccessToken = data?.accessToken;
-          const newRefreshToken = data?.refreshToken;
-
-          if (!newAccessToken) {
-            isRefreshing = false;
-            return throwError(() => error);
-          }
-
-          setTokens(newAccessToken, newRefreshToken);
-
-          isRefreshing = false;
-          refreshedToken$.next(newAccessToken);
-
-          return next(withAuthHeader(req, newAccessToken));
-
-        }),
-
-        catchError((refreshError) => {
-
-          // Refresh token itself is invalid/expired — Api's own
-          // 401 handling will clear cookies and redirect to login.
-          isRefreshing = false;
-          refreshedToken$.next(null);
-
-          return throwError(() => refreshError);
-
-        })
-
+      // If the refresh fails, Api's own 401 handling clears the session and goes to login.
+      return refreshAccessToken(authServices, error).pipe(
+        switchMap(token => next(withAuthHeader(req, token)))
       );
 
     })

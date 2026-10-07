@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +9,8 @@ import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
 import { AppValidators, DigitsOnly, FieldError } from '../../shared/validation';
 import { ToastService } from '../../shared/toast/toast';
+import { extractErrorMessage } from '../../shared/feedback/feedback';
+import { UserStore } from '../../core/store/user';
 @Component({
   selector: 'app-profile-page',
   imports: [CommonModule,ReactiveFormsModule,InputTextModule,FloatLabelModule,ButtonModule,Logo,FieldError,DigitsOnly],
@@ -21,7 +22,7 @@ export class ProfilePage {
   Form !:FormGroup;
   errorMessage = '';
   loading = false;
-  constructor(private fb:FormBuilder,private router:Router, private cookie:CookieService,private auth:AuthServices,private cd:ChangeDetectorRef,private toast:ToastService){
+  constructor(private fb:FormBuilder,private router:Router,private auth:AuthServices,private cd:ChangeDetectorRef,private toast:ToastService,private userStore:UserStore){
     this.Form=this.fb.group({
       fullName: ['',[AppValidators.required, AppValidators.personName, AppValidators.minLength(3), AppValidators.maxLength(100)]],
       firstName: ['',[AppValidators.required, AppValidators.personName, AppValidators.maxLength(50)]],
@@ -41,14 +42,14 @@ export class ProfilePage {
       this.cd.markForCheck();
 
       this.auth.profileupdate(this.Form.value).subscribe({
-        next:(res)=>{
+        next:()=>{
           this.loading = false;
           this.toast.success('Profile updated successfully');
+          this.userStore.patchUser({ profileCompleted: true });
           this.router.navigate(['/main']);
         },error:(err)=>{
-          console.log(err);
           this.loading = false;
-          this.errorMessage = this.extractErrorMessage(err);
+          this.errorMessage = extractErrorMessage(err, 'Unable to update profile. Please try again.');
           this.cd.markForCheck();
         }
       })
@@ -57,21 +58,5 @@ export class ProfilePage {
       this.errorMessage = 'Please correct the highlighted fields and try again.';
       this.cd.markForCheck();
     }
-  }
-
-  private extractErrorMessage(err: any): string {
-    const body = err?.error;
-
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    return (
-      body?.message ||
-      body?.title ||
-      body?.error ||
-      body?.errorMessage ||
-      'Unable to update profile. Please try again.'
-    );
   }
 }

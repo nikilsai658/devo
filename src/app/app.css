@@ -1,1 +1,33 @@
-@import 'tailwindcss'; 
+@reference "tailwindcss";
+
+/* Thin animated bar shown while any request is in flight (see Loading). */
+.global-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.global-progress::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: #8b5cf6;
+  animation: global-progress-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes global-progress-slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-progress::before {
+    animation: none;
+    width: 100%;
+  }
+}

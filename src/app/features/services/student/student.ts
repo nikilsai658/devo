@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Api } from '../../../core/api/api';
+import { RunCodeRequest, SubmitCodeRequest } from '../../../shared/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,10 +20,16 @@ export class Student {
     return this.api.GET(`Student/assignment/${assignmentId}`)
   }
   runCode(sourceCode:string, languageId:number, stdin:string|null){
-    return this.api.POST('Student/run', { sourceCode, languageId, stdin });
+    const body: RunCodeRequest = { sourceCode, languageId, stdin };
+    return this.api.POST('Student/run', body);
   }
-  submitCode(assignmentId:number, sourceCode:string, languageId:number, stdin:string|null){
-    return this.api.POST('Student/submit', { assignmentId, sourceCode, languageId, stdin });
+  // `proctoring` carries the tab-switch / fullscreen-exit counts of the attempt. The API must
+  // store them (SubmitCodeDto: TabSwitchCount, FullscreenExitCount) for faculty to see them;
+  // until it does, ASP.NET ignores the extra fields.
+  submitCode(assignmentId:number, sourceCode:string, languageId:number, stdin:string|null,
+             proctoring: { tabSwitchCount: number; fullscreenExitCount: number } = { tabSwitchCount: 0, fullscreenExitCount: 0 }){
+    const body: SubmitCodeRequest = { assignmentId, sourceCode, languageId, stdin, ...proctoring };
+    return this.api.POST('Student/submit', body);
   }
   getstudenttasks(domainId:number,courseId:number){
     return this.api.GET(`Student/domain/${domainId}/course/${courseId}/tasks`);
@@ -30,10 +37,11 @@ export class Student {
   gettaskbyId(taskId:number){
     return this.api.GET(`Student/task/${taskId}`);
   }
-  uploadtask(taskId:number,file:File){
+  // Emits upload progress events, then the response.
+  uploadtaskWithProgress(taskId:number,file:File){
    const formData = new FormData();
    formData.append('file', file);
-   return this.api.POST(`Student/task/${taskId}/upload`, formData);
+   return this.api.POSTWithProgress(`Student/task/${taskId}/upload`, formData);
   }
   downloadtask(taskId:number){
     return this.api.GETBlob(`Student/task/${taskId}/download`);

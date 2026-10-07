@@ -19,17 +19,16 @@ import {
 } from '@angular/forms';
 
 import { Router, RouterLink } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
-import { CourseAssignmnetService } from '../../../features/services/courseassignment/course-assignmnet-service';
+import { CourseAssignmentService } from '../../../features/services/courseassignment/course-assignment-service';
 import { CourseService } from '../../../features/services/course/course-service';
 import { AssignmentService } from '../../../features/services/assignment/assignment-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-courseassignmentmap',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,10 +71,9 @@ export class CourseAssignmentMapComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private api: CourseAssignmnetService,
+    private api: CourseAssignmentService,
     private courseService: CourseService,
     private assignmentService: AssignmentService,
-    private cookie: CookieService,
     private router: Router,
     public auth: Auth,
     private cd: ChangeDetectorRef,
@@ -88,16 +86,6 @@ export class CourseAssignmentMapComponent implements OnInit {
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
     }
 
     this.loadCourses();
@@ -152,13 +140,11 @@ export class CourseAssignmentMapComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        this.courses = res.data || res.result || res || [];
-
-        this.cd.detectChanges();
+        this.courses = toList(res);
 
       },
 
-      error: err => { this.cd.markForCheck(); return console.log(err); }
+      error: err => { this.feedback.fail(err, 'Unable to load courses.'); this.cd.markForCheck(); }
 
     });
 
@@ -176,13 +162,11 @@ export class CourseAssignmentMapComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        this.assignments = res.data || res.result || res || [];
-
-        this.cd.detectChanges();
+        this.assignments = toList(res);
 
       },
 
-      error: err => { this.cd.markForCheck(); return console.log(err); }
+      error: err => { this.feedback.fail(err, 'Unable to load assignments.'); this.cd.markForCheck(); }
 
     });
 
@@ -204,7 +188,7 @@ export class CourseAssignmentMapComponent implements OnInit {
 
         this.loading = false;
 
-        this.mappings = res.data || res.result || res || [];
+        this.mappings = toList(res);
 
         if (!Array.isArray(this.mappings)) {
 
@@ -214,17 +198,15 @@ export class CourseAssignmentMapComponent implements OnInit {
 
         this.filteredMappings = [...this.mappings];
 
-        this.cd.detectChanges();
-
       },
 
       error: err => {
+        this.feedback.fail(err, 'Unable to load course-assignment mappings.');
         this.cd.markForCheck();
 
 
         this.loading = false;
 
-        console.log(err);
 
       }
 

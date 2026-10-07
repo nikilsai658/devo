@@ -1,4 +1,4 @@
-import { DEFAULT_API_BASE, getApiBase, setApiBase } from './api-base';
+import { DEFAULT_API_BASE, getApiBase, isApiRequest, setApiBase } from './api-base';
 
 describe('api base', () => {
   beforeEach(() => localStorage.removeItem('apibase'));
@@ -24,5 +24,21 @@ describe('api base', () => {
     expect(getApiBase()).toBe(DEFAULT_API_BASE);
     localStorage.setItem('apibase', 'https://evil.test/steal?x=');
     expect(getApiBase()).toBe(DEFAULT_API_BASE);
+  });
+
+  describe('isApiRequest', () => {
+    it('matches only the selected college instance', () => {
+      setApiBase('https://tit.example.test/api');
+      expect(isApiRequest('https://tit.example.test/api/User')).toBe(true);
+      expect(isApiRequest('https://tit.example.test/api')).toBe(true);
+      expect(isApiRequest(DEFAULT_API_BASE + '/College')).toBe(false);
+    });
+
+    it('does not match a look-alike host or path', () => {
+      setApiBase('https://tit.example.test/api');
+      expect(isApiRequest('https://tit.example.test/apix/User')).toBe(false);
+      expect(isApiRequest('https://tit.example.test.evil.test/api/User')).toBe(false);
+      expect(isApiRequest('https://grafana.example.test/d/1')).toBe(false);
+    });
   });
 });

@@ -4,6 +4,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Student } from '../../../features/services/student/student';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 import { Auth } from '../../../core/auth/auth';
+import { writeStorage } from '../../../core/storage';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 @Component({
   selector: 'app-student-assignments',
@@ -14,6 +16,8 @@ import { Auth } from '../../../core/auth/auth';
   styleUrl: './student-assignments.css'
 })
 export class StudentAssignments implements OnInit {
+
+  feedback = new Feedback();
 
   domainId!: number;
   courseId!: number;
@@ -46,10 +50,17 @@ export class StudentAssignments implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.domainId = history.state.domainId;
-      this.courseId = history.state.courseId;
-      this.domainName = history.state.domainName ?? '';
-      this.courseName = history.state.courseName ?? '';
+      this.domainId = history.state?.domainId;
+      this.courseId = history.state?.courseId;
+      this.domainName = history.state?.domainName ?? '';
+      this.courseName = history.state?.courseName ?? '';
+
+      // Opened without coming from a course (bookmark, new tab): start from the domains.
+      if (this.domainId == null || this.courseId == null) {
+        this.router.navigate(['/main/student-domain']);
+        return;
+      }
+
       this.loadAssignments();
     }
   }
@@ -64,19 +75,17 @@ export class StudentAssignments implements OnInit {
     next:(res:any)=>{
       this.cd.markForCheck();
 
-      console.log(res.data)
         this.assignments=Array.isArray(res?.data)?res.data:[];
         if (this.assignments.length === 0) {
           this.loadTasks();
           return;
         }
         this.loading=false;
-        this.cd.detectChanges();
     },error:(err:any)=>{
+      this.feedback.fail(err, 'Unable to load assignments.');
        this.cd.markForCheck();
 
        this.assignments = [];
-       console.log(err);
        this.loadTasks();
     }
    })
@@ -86,7 +95,6 @@ export class StudentAssignments implements OnInit {
     // The list item's id field name isn't fixed, so try the likely ones.
     const taskId = task?.id ?? task?.studentTaskId ?? task?.taskId;
     if (taskId == null) {
-      console.error('Task has no id field, item received:', task);
       return;
     }
     this.router.navigate(['/main/student-task'], {
@@ -102,13 +110,12 @@ export class StudentAssignments implements OnInit {
 
         this.tasks=Array.isArray(res?.data)?res.data:[];
         this.loading=false;
-        this.cd.detectChanges();
-      },error:()=>{
+      },error:(err)=>{
+        this.feedback.fail(err, 'Unable to load tasks.');
         this.cd.markForCheck();
 
         this.tasks=[];
         this.loading=false;
-        this.cd.detectChanges();
       }
     })
   }
@@ -117,7 +124,7 @@ export class StudentAssignments implements OnInit {
 
   // Marks entry as coming from a real "Start" click, so assignmentGuard
   // allows the student-assignment route and the lock/fullscreen can engage.
-  sessionStorage.setItem('activeAssignmentId', id.toString());
+  writeStorage('activeAssignmentId', id.toString(), 'session');
 
   document.documentElement.requestFullscreen?.().catch(() => {
   this.cd.markForCheck();

@@ -1,13 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Router } from '@angular/router';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 type ResultFilter = 'all' | 'passed' | 'notPassed' | 'notStarted';
 
@@ -20,6 +16,10 @@ type ResultFilter = 'all' | 'passed' | 'notPassed' | 'notStarted';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuperadminStudentAssignments implements OnInit {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   assignments: any[] = [];
 
@@ -53,8 +53,13 @@ export class SuperadminStudentAssignments implements OnInit {
 
   ngOnInit(): void {
 
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     // Get data passed through router state
-    const state = history.state;
+    const state = history.state ?? {};
     this.collegeId = state.collegeId;
     this.domainId = state.domainId;
     this.studentId = state.studentId;
@@ -72,7 +77,8 @@ export class SuperadminStudentAssignments implements OnInit {
     ) {
       this.loadStudentAssignments();
     } else {
-      console.error('Required student assignment details are missing.');
+      // Opened without choosing a student first (bookmark, new tab).
+      this.router.navigate(['/main/superadmin-colleges']);
     }
   }
 
@@ -98,11 +104,8 @@ export class SuperadminStudentAssignments implements OnInit {
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Unable to load assignments.');
 
-          console.error(
-            'Error loading student assignments:',
-            error
-          );
 
           this.assignments = [];
 
@@ -177,7 +180,7 @@ export class SuperadminStudentAssignments implements OnInit {
   // ---------------- Navigation ----------------
 
   backToColleges(): void {
-    this.router.navigate(['/main/superamin-colleges']);
+    this.router.navigate(['/main/superadmin-colleges']);
   }
 
   backToDomains(): void {

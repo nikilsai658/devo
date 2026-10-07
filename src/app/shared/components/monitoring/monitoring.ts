@@ -9,6 +9,15 @@ import { Feedback } from '../../feedback/feedback';
 // Grafana links last one hour, so a page left open asks for a new one a little before that.
 const REFRESH_EVERY_MS = 50 * 60 * 1000;
 
+function httpsUrlOrEmpty(value: unknown): string {
+  try {
+    const url = new URL(String(value ?? ''));
+    return url.protocol === 'https:' ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
 @Component({
   selector: 'app-monitoring',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,6 +76,7 @@ export class Monitoring implements OnInit {
         }));
         this.cd.markForCheck();
       },
+      // Optional: the default dashboard still loads; loadEmbed reports its own errors.
       error: () => {}
     });
 
@@ -89,7 +99,8 @@ export class Monitoring implements OnInit {
     }).subscribe({
       next: (res: any) => {
         const data = res?.data ?? {};
-        this.embedUrl = data.url ?? data.Url ?? '';
+        // Only an https link is trusted as an iframe source (never javascript:, data:, ...).
+        this.embedUrl = httpsUrlOrEmpty(data.url ?? data.Url);
         this.expiresAt = data.expiresAt ?? data.ExpiresAt ?? null;
         this.frameUrl = this.embedUrl ? this.sanitizer.bypassSecurityTrustResourceUrl(this.embedUrl) : null;
         this.loading = false;

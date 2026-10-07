@@ -1,12 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CourseTaskService } from './course-task-service';
+import { testProviders } from '../../../../testing/test-providers';
 
 describe('CourseTaskService', () => {
   let service: CourseTaskService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: testProviders() });
     service = TestBed.inject(CourseTaskService);
   });
 

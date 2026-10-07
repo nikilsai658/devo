@@ -35,13 +35,8 @@
 
         <div class="avatar">
 
-          <img
-            *ngIf="selectedImage"
-            [src]="selectedImage"
-            alt="Profile photo">
-
-          <span *ngIf="!selectedImage">
-            {{ u.name?.charAt(0)?.toUpperCase() }}
+          <span aria-hidden="true">
+            {{ (u.name || '?').charAt(0).toUpperCase() }}
           </span>
 
         </div>

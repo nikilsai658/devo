@@ -1,6 +1,5 @@
 import { Component, OnInit, effect, ChangeDetectionStrategy, inject, ChangeDetectorRef, DestroyRef, ElementRef, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CookieService } from 'ngx-cookie-service';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -8,7 +7,7 @@ import { Auth } from '../../../core/auth/auth';
 import { UserStore } from '../../../core/store/user';
 import { AuthServices } from '../../../features/services/auth/auth-services';
 import { ThemeStore } from '../../../core/store/theme';
-import { clearTokens } from '../../../core/auth/token-storage';
+import { clearSession } from '../../../core/auth/token-storage';
 import { FacultyCourseService } from '../../../features/services/facultycourse/facultycourse-service';
 @Component({
   selector: 'app-header',
@@ -30,6 +29,17 @@ export class Header implements OnInit {
 
   username:string|undefined='';
   collegeLogo = '';
+  collegeName = '';
+
+  // Shown in place of a logo for colleges that have none bundled (e.g. 'RVS College' -> 'RC').
+  get collegeInitials(): string {
+    return this.collegeName
+      .split(/\s+/)
+      .filter(word => /^[\p{L}\p{N}]/u.test(word) && !/^(of|and|the|&)$/i.test(word))
+      .slice(0, 2)
+      .map(word => word[0].toUpperCase())
+      .join('');
+  }
 colleges = [
   {
     name: 'Jain University',
@@ -49,7 +59,7 @@ colleges = [
   }
 ];
 
-  constructor(private router:Router,private cookie:CookieService,public auth:Auth,private userStore:UserStore,private api:AuthServices,public themeStore:ThemeStore) {
+  constructor(private router:Router,public auth:Auth,private userStore:UserStore,private api:AuthServices,public themeStore:ThemeStore) {
     effect(() => {
       const user = this.userStore.user();
 
@@ -58,6 +68,7 @@ colleges = [
       }
 
       this.username = user.name;
+      this.collegeName = user.collegeName?.trim() ?? '';
 
       if (!this.assignedCoursesChecked && user.role !== 'SuperAdmin') {
         this.assignedCoursesChecked = true;
@@ -66,6 +77,7 @@ colleges = [
             this.hasAssignedCourses = Array.isArray(res?.data) && res.data.length > 0;
             this.cdr.markForCheck();
           },
+          // Optional: without the answer the "My Courses" link simply stays hidden.
           error: () => {}
         });
       }
@@ -75,27 +87,20 @@ colleges = [
         user.collegeName?.trim().toLowerCase()
       );
 
-      if (selectedCollege) {
-        this.collegeLogo = selectedCollege.logo;
-      }
+      this.collegeLogo = selectedCollege?.logo ?? '';
     });
   }
+  // Revokes every session server-side, but the local sign-out never depends on
+  // that call: a failed or offline request must not leave the user signed in here.
+  // The request already carries the token (added when it is sent), so clearing
+  // it right after subscribing is safe.
   logout(){
-    this.api.logoutAll({}).subscribe({
-      next:(res:any)=>{
-      this.cdr.markForCheck();
+    // The local sign-out below does not depend on this call.
+    this.api.logoutAll({}).subscribe({ error: () => {} });
 
-      this.userStore.clearUser();
-    clearTokens();
+    clearSession();
+    this.userStore.clearUser();
     this.router.navigate(['/auth/login']);
-      },
-      error:(err:any)=>{
-      this.cdr.markForCheck();
-
-      console.log(err);
-      }
-    })
-    
   }
 
   ngOnInit(): void {

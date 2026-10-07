@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@reference "tailwindcss";
 
 
 /* =========================================================
@@ -702,4 +702,25 @@
 
 .mobile-logo {
   display: none;
+}
+
+
+/* =========================================================
+   REMEMBER USERNAME
+========================================================= */
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 14px;
+  color: #918a9e;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.remember-me input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--violet-text);
+  cursor: pointer;
 }

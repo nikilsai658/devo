@@ -9,6 +9,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { setApiBase } from '../../../core/api/api-base';
 import { CollegeService } from '../../services/college/college-service';
+import { writeStorage } from '../../../core/storage';
 @Component({
   selector: 'app-college',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,9 +45,9 @@ export class College implements OnInit {
             }
           },
           error: (err) => {
+            this.fail('Could not load the list of colleges. Please refresh the page.');
             this.cdr.markForCheck();
 
-            console.error(err);
             this.colleges = [];
           }
         });
@@ -75,8 +76,8 @@ export class College implements OnInit {
     }
     private proceed(college: any, apiBase: string){
         setApiBase(apiBase);
-        localStorage.setItem('college',college.name);
-         localStorage.setItem('collegecode',college.code);
+        writeStorage('college', college.name);
+        writeStorage('collegecode', college.code);
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         // Only follow in-app auth paths to avoid open redirects.
         if (returnUrl && returnUrl.startsWith('/auth/')) {

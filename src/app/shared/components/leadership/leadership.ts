@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit,ChangeDetectionStrategy, } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LeadershipService } from '../../../features/services/leadership/leadership-service';
 
 type SortKey = 'rank' | 'assignments' | 'attempts';
@@ -15,6 +15,8 @@ const PAGE_SIZE = 15;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Leadership implements OnInit {
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   leaderboard: any[] = [];
   myRank = 0;
@@ -43,6 +45,11 @@ export class Leadership implements OnInit {
   constructor(private leadershipService: LeadershipService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.getLeaderboard();
   }
 
@@ -63,7 +70,6 @@ export class Leadership implements OnInit {
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error('API Error:', err);
         this.leaderboard = [];
         this.applyView();
         this.loading = false;

@@ -9,6 +9,9 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { ActivatedRoute, Router } from '@angular/router';
 import {AuthServices} from '../../services/auth/auth-services';
 import { AppValidators, FieldError } from '../../../shared/validation';
+import { readStorage } from '../../../core/storage';
+import { extractErrorMessage } from '../../../shared/feedback/feedback';
+import { ToastService } from '../../../shared/toast/toast';
 
 @Component({
   selector: 'app-reset-password',
@@ -19,37 +22,51 @@ import { AppValidators, FieldError } from '../../../shared/validation';
 })
 export class ResetPassword implements OnInit {
   Form !: FormGroup;
-  collegecode:any;
+  collegecode: string | null = null;
   message = '';
   loading = false;
   messageType: 'success' | 'error' = 'error';
-  constructor(private router:Router,private auth:AuthServices , private fb:FormBuilder, private route:ActivatedRoute,private cd: ChangeDetectorRef,@Inject(PLATFORM_ID) private platformId: Object){
+
+  // From the emailed reset link (?userId=...&token=...).
+  userId = '';
+  token = '';
+
+  constructor(private router:Router,private auth:AuthServices , private fb:FormBuilder, private route:ActivatedRoute,private cd: ChangeDetectorRef,private toast: ToastService,@Inject(PLATFORM_ID) private platformId: Object){
     this.Form=this.fb.group({
       newPassword:['',[AppValidators.required, AppValidators.strongPassword]],
       confirmPassword:['',AppValidators.required],
       CollegeCode:['',Validators.required]
     }, { validators: AppValidators.matchFields('newPassword', 'confirmPassword') })
   }
- 
-   userId!:string;
-  token!:string;
+
   ngOnInit(): void {
-     if (isPlatformBrowser(this.platformId)) {
-      this.collegecode = localStorage.getItem('collegecode');
+    if (isPlatformBrowser(this.platformId)) {
+      this.collegecode = readStorage('collegecode');
 
       if (this.collegecode) {
         this.Form.patchValue({ CollegeCode: this.collegecode });
       }
     }
-    this.route.queryParams.subscribe(params=>
-    {
-      this.userId=params['userId'];
-      this.token=params['token'];
+
+    const params = this.route.snapshot.queryParamMap;
+    this.userId = params.get('userId') ?? '';
+    this.token = params.get('token') ?? '';
+
+    if (!this.userId || !this.token) {
+      this.messageType = 'error';
+      this.message = 'This reset link is incomplete. Open the link from the email again, or request a new one.';
     }
-    )
   }
+
   onSubmit(){
    this.message = '';
+
+   if (!this.userId || !this.token) {
+    this.messageType = 'error';
+    this.message = 'This reset link is incomplete. Open the link from the email again, or request a new one.';
+    this.cd.markForCheck();
+    return;
+   }
 
    if(this.Form.valid){
     const body = {
@@ -63,17 +80,13 @@ export class ResetPassword implements OnInit {
     this.auth.resetpassword(body).subscribe({
       next:()=>{
         this.loading = false;
-        this.messageType = 'success';
-        this.message = 'Password changed successfully';
-        this.cd.markForCheck();
-
+        // A toast, because the page is left right away and an inline message would never be seen.
+        this.toast.success('Password changed successfully. Please log in with your new password.');
         this.router.navigate(['/auth/login']);
       },error:(err :any)=>{
-        console.log(err);
-
         this.loading = false;
         this.messageType = 'error';
-        this.message = 'Failed to reset password. Please try again.';
+        this.message = extractErrorMessage(err, 'Failed to reset password. Please try again.');
         this.cd.markForCheck();
       }
     })

@@ -1,16 +1,35 @@
 import { TestBed } from '@angular/core/testing';
 
-import { UserStore } from './user';
+import { User, UserStore } from './user';
 
-describe('User', () => {
-  let service: UserStore;
+describe('UserStore', () => {
+  beforeEach(() => localStorage.clear());
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(UserStore);
+  it('loads the stored profile without tokens from older sessions', () => {
+    localStorage.setItem('user', JSON.stringify({ userId: 'u', name: 'A', accessToken: 'secret' }));
+    const store = TestBed.inject(UserStore);
+    expect(store.user()).toEqual({ userId: 'u', name: 'A' } as unknown as User);
+    expect(localStorage.getItem('user')).not.toContain('secret');
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('starts empty instead of crashing on corrupt storage', () => {
+    localStorage.setItem('user', '{broken');
+    expect(TestBed.inject(UserStore).user()).toBeNull();
+  });
+
+  it('patchUser updates the profile and storage', () => {
+    const store = TestBed.inject(UserStore);
+    store.setUser({ userId: 'u', isFirstLogin: true } as User);
+    store.patchUser({ isFirstLogin: false });
+    expect(store.user()?.isFirstLogin).toBe(false);
+    expect(JSON.parse(localStorage.getItem('user')!).isFirstLogin).toBe(false);
+  });
+
+  it('clearUser removes it', () => {
+    const store = TestBed.inject(UserStore);
+    store.setUser({ userId: 'u' } as User);
+    store.clearUser();
+    expect(store.user()).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
   });
 });

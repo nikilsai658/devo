@@ -1,0 +1,318 @@
+<!-- ==========================
+     UPLOAD USERS
+=========================== -->
+<div class="upload-card">
+
+  <div class="upload-content">
+
+    <input
+      #bulkFileInput
+      type="file"
+      (change)="onFileSelected($event)"
+      accept=".csv,.xlsx,.xls"
+      [disabled]="uploading"
+    />
+
+    <button
+      type="button"
+      class="upload-btn"
+      (click)="uploadFile(bulkFileInput)"
+      [disabled]="uploading || !selectedFile"
+    >
+      {{ uploading ? 'Uploading…' : 'Upload Users' }}
+    </button>
+
+    <span
+      *ngIf="selectedFile"
+      class="file-name"
+    >
+      {{ selectedFile.name }}
+    </span>
+
+  </div>
+
+  <!-- Upload Progress -->
+  <div
+    class="upload-progress"
+    *ngIf="uploading"
+    role="status"
+    aria-live="polite"
+  >
+
+    <div class="upload-progress-text">
+      <span *ngIf="uploadPhase === 'sending'">
+        Sending file… {{ uploadPercent }}%
+      </span>
+      <span *ngIf="uploadPhase === 'processing' && !uploadJob">
+        Creating users on the server — this can take a minute or more
+        for large files. Please keep this page open.
+      </span>
+      <span *ngIf="uploadPhase === 'processing' && uploadJob">
+        Uploaded {{ uploadJob.processedRows ?? 0 }} of
+        {{ uploadJob.totalRows ?? 0 }} users ({{ uploadJobPercent }}%)
+        · Success: {{ uploadJob.successCount ?? 0 }}
+        · Failed: {{ uploadJob.failedCount ?? 0 }}
+      </span>
+      <span class="upload-progress-elapsed">
+        {{ uploadElapsed }}s
+      </span>
+    </div>
+
+    <div
+      class="upload-progress-track"
+      role="progressbar"
+      aria-label="Bulk upload progress"
+      [attr.aria-valuenow]="uploadPhase === 'sending' ? uploadPercent : (uploadJob ? uploadJobPercent : null)"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div
+        class="upload-progress-bar"
+        [class.upload-progress-bar-indeterminate]="uploadPhase === 'processing' && !uploadJob"
+        [style.width.%]="uploadPhase === 'sending' ? uploadPercent : (uploadJob ? uploadJobPercent : null)"
+      ></div>
+    </div>
+
+    <button
+      type="button"
+      class="cancel-btn"
+      (click)="cancelUpload()"
+    >
+      Cancel
+    </button>
+
+  </div>
+
+  <!-- Upload Complete -->
+  <div
+    class="upload-summary"
+    [ngClass]="'upload-summary-' + uploadOutcome"
+    *ngIf="!uploading && uploadComplete as done"
+    role="status"
+    aria-live="polite"
+  >
+
+    <!-- Header -->
+    <div class="upload-summary-header">
+
+      <span class="upload-summary-icon" aria-hidden="true">
+        {{ uploadOutcome === 'success' ? '✓' : uploadOutcome === 'partial' ? '!' : '✕' }}
+      </span>
+
+      <div class="upload-summary-heading">
+
+        <h3 class="upload-summary-title">
+          <ng-container *ngIf="uploadOutcome === 'success'">
+            All users uploaded successfully
+          </ng-container>
+          <ng-container *ngIf="uploadOutcome === 'partial'">
+            Upload completed with some errors
+          </ng-container>
+          <ng-container *ngIf="uploadOutcome === 'failed'">
+            Upload failed
+          </ng-container>
+        </h3>
+
+        <p class="upload-summary-subtitle">
+          <ng-container *ngIf="done.success !== null; else noCounts">
+            {{ done.success }} of {{ done.total }} users created
+            <span *ngIf="done.failed"> · {{ done.failed }} failed</span>
+          </ng-container>
+          <ng-template #noCounts>The file was processed successfully.</ng-template>
+          <span class="upload-summary-time">· {{ uploadElapsed }}s</span>
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="upload-summary-close"
+        aria-label="Dismiss upload summary"
+        (click)="uploadComplete = null"
+      >
+        ✕
+      </button>
+
+    </div>
+
+    <!-- Stats -->
+    <div
+      class="upload-summary-stats"
+      *ngIf="done.success !== null"
+    >
+
+      <div class="upload-stat">
+        <span class="upload-stat-label">Total</span>
+        <span class="upload-stat-value">{{ done.total }}</span>
+      </div>
+
+      <div class="upload-stat upload-stat-success">
+        <span class="upload-stat-label">Uploaded</span>
+        <span class="upload-stat-value">{{ done.success }}</span>
+        <span class="upload-stat-percent">{{ uploadSuccessPercent }}%</span>
+      </div>
+
+      <div class="upload-stat upload-stat-failed">
+        <span class="upload-stat-label">Failed</span>
+        <span class="upload-stat-value">{{ done.failed }}</span>
+        <span class="upload-stat-percent">{{ uploadFailedPercent }}%</span>
+      </div>
+
+    </div>
+
+    <!-- Split bar: uploaded vs failed -->
+    <div
+      class="upload-summary-bar"
+      role="img"
+      [attr.aria-label]="uploadSuccessPercent + '% uploaded, ' + uploadFailedPercent + '% failed'"
+    >
+      <div
+        class="upload-summary-bar-success"
+        [style.width.%]="uploadSuccessPercent"
+      ></div>
+      <div
+        class="upload-summary-bar-failed"
+        [style.width.%]="uploadFailedPercent"
+      ></div>
+    </div>
+
+  </div>
+
+  <!-- Upload Results Loading -->
+  <div
+    class="loading"
+    *ngIf="uploadResultsLoading"
+  >
+    Processing uploaded users...
+  </div>
+
+  <!-- Upload Results -->
+  <div
+    class="upload-results"
+    *ngIf="showUploadResults && !uploadResultsLoading"
+  >
+
+    <div class="upload-results-header">
+
+      <div class="upload-results-summary">
+        <span class="result-badge result-badge-success">
+          Success: {{ uploadSummary?.success ?? successUsers.length }}
+        </span>
+        <span class="result-badge result-badge-failed">
+          Failed: {{ uploadSummary?.failed ?? failedUsers.length }}
+        </span>
+      </div>
+
+      <div class="upload-results-actions">
+
+        <!-- Print Success -->
+        <button
+          type="button"
+          class="print-success-btn"
+          *ngIf="successUsers.length"
+          (click)="printSuccessUsers()"
+        >
+          🖨 Print Success
+        </button>
+
+        <!-- Print Failed -->
+        <button
+          type="button"
+          class="print-failed-btn"
+          *ngIf="failedUsers.length"
+          (click)="printFailedUsers()"
+        >
+          🖨 Print Failed
+        </button>
+
+        <!-- Export Failed -->
+        <button
+          type="button"
+          class="export-failed-btn"
+          *ngIf="failedUsers.length"
+          (click)="exportFailedUsers()"
+        >
+          ⬇ Export Failed (CSV)
+        </button>
+
+        <!-- Close -->
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="closeUploadResults()"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Success Users -->
+    <div class="upload-results-block" *ngIf="successUsers.length">
+
+      <h3 class="upload-results-title upload-results-title-success">
+        Successfully Created Users
+      </h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of successUsers">
+              <td>{{ user?.fullName ?? user?.name ?? '-' }}</td>
+              <td>{{ user?.email ?? '-' }}</td>
+              <td>{{ user?.roleName ?? user?.role ?? '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Failed Users -->
+    <div class="upload-results-block" *ngIf="failedUsers.length">
+
+      <h3 class="upload-results-title upload-results-title-failed">
+        Failed Users
+      </h3>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of failedUsers">
+              <td>{{ user?.fullName ?? user?.name ?? '-' }}</td>
+              <td>{{ user?.email ?? '-' }}</td>
+              <td>{{ failedReason(user) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="!successUsers.length && !failedUsers.length"
+    >
+      No results returned for this upload.
+    </div>
+
+  </div>
+
+</div>
+
+<div class="sr-only" role="status" aria-live="polite">{{ srMessage }}</div>

@@ -21,6 +21,26 @@
 
   </div>
 
+  <!-- ================= LOAD ERROR ================= -->
+
+  <div
+    class="fullscreen-warning"
+    role="alert"
+    *ngIf="loadError">
+
+    <span>{{ loadError }}</span>
+
+    <button
+      type="button"
+      class="resume-btn"
+      (click)="loadAssignment()">
+
+      Retry
+
+    </button>
+
+  </div>
+
   <!-- ================= HEADER ================= -->
 
   <header class="platform-header">
@@ -196,7 +216,7 @@
 
         <section
           class="problem-section"
-          *ngIf="sampleTestCases?.length">
+          *ngIf="sampleTestCases.length">
 
           <h3 class="section-heading">
             Sample Test Case

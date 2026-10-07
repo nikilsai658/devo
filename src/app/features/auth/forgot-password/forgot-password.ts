@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Logo } from '../../../shared/logo/logo';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
@@ -10,6 +10,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthServices } from '../../services/auth/auth-services';
 import { AppValidators, FieldError } from '../../../shared/validation';
+import { readStorage } from '../../../core/storage';
+import { extractErrorMessage, extractSuccessMessage } from '../../../shared/feedback/feedback';
 @Component({
   selector: 'app-forgot-password',
   standalone:true,
@@ -20,9 +22,12 @@ import { AppValidators, FieldError } from '../../../shared/validation';
 })
 export class ForgotPassword implements OnInit {
 
+   private readonly destroyRef = inject(DestroyRef);
+
    Form !:FormGroup
-   collegecode:any;
+   collegecode: string | null = null;
    message = '';
+   loading = false;
    messageType: 'success' | 'error' = 'error';
     constructor(private auth:AuthServices,private fb:FormBuilder,private router:Router,private cd: ChangeDetectorRef,@Inject(PLATFORM_ID) private platformId: Object){
       this.Form=this.fb.group({
@@ -32,7 +37,7 @@ export class ForgotPassword implements OnInit {
     }
     ngOnInit(): void {
       if (isPlatformBrowser(this.platformId)) {
-        this.collegecode = localStorage.getItem('collegecode');
+        this.collegecode = readStorage('collegecode');
 
         if (this.collegecode) {
           this.Form.patchValue({ collegeCode: this.collegecode });
@@ -42,21 +47,30 @@ export class ForgotPassword implements OnInit {
    OnSubmit():void{
     this.message = '';
 
+    if (this.loading) {
+      return;
+    }
+
     if(this.Form.valid){
+      this.loading = true;
+      this.cd.markForCheck();
+
       this.auth.forgotpassword(this.Form.value).subscribe({
         next:(res:any)=>{
+           this.loading = false;
            this.messageType = 'success';
-           this.message = this.extractMessage(res) || 'Request completed successfully';
+           this.message = extractSuccessMessage(res) ?? 'If the email is registered, a reset link has been sent.';
            this.cd.markForCheck();
 
-           setTimeout(() => {
+           // Long enough to read the message; cancelled if the user leaves first.
+           const timer = setTimeout(() => {
              this.router.navigate(['/auth/login']);
-           }, 2000);
+           }, 3000);
+           this.destroyRef.onDestroy(() => clearTimeout(timer));
         },error:(err:any)=>{
-         console.log(err);
-
+         this.loading = false;
          this.messageType = 'error';
-         this.message = this.extractMessage(err?.error) || 'Something went wrong. Please try again.';
+         this.message = extractErrorMessage(err, 'Something went wrong. Please try again.');
          this.cd.markForCheck();
         }
       })
@@ -67,21 +81,5 @@ export class ForgotPassword implements OnInit {
       this.message = 'Please correct the highlighted fields and try again.';
       this.cd.markForCheck();
     }
-   }
-
-   private extractMessage(body: any): string {
-
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    return (
-      body?.message ||
-      body?.title ||
-      body?.error ||
-      body?.errorMessage ||
-      ''
-    );
-
    }
 }

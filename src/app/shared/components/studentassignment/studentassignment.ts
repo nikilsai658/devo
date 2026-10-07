@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit,ChangeDetectionStrategy , inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -10,8 +10,9 @@ import { Studentassignment } from '../../../features/services/studentassignment/
 import { Auth } from '../../../core/auth/auth';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-student-assignment',
   standalone: true,
@@ -21,6 +22,8 @@ import { ConfirmService } from '../confirm-dailog/confirm';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StudentAssignment implements OnInit {
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private confirmDialog = inject(ConfirmService);
 
@@ -42,6 +45,11 @@ export class StudentAssignment implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.getAssignments();
   }
 
@@ -72,11 +80,11 @@ export class StudentAssignment implements OnInit {
   getAssignments(): void {
     this.studentService.getstudentassignment().subscribe({
       next: (res: any) => {
-        this.assignments = res.data || res;
+        this.assignments = toList(res);
         this.cdr.markForCheck();
       },
       error: (err) => {
-        console.error(err);
+        this.feedback.fail(err, 'Unable to load student assignments.');
       }
     });
   }
@@ -87,14 +95,14 @@ export class StudentAssignment implements OnInit {
     this.studentService.getstudentassignmentById(id).subscribe({
       next: (res: any) => {
 
-        const data = res.data || res;
+        const data = res?.data ?? res;
 
         this.assignmentForm.patchValue(data);
         this.selectedId = id;
         this.editMode = true;
         this.cdr.markForCheck();
       },
-      error: (err) => console.error(err)
+      error: (err) => { this.feedback.fail(err, 'Unable to load this submission.'); this.cdr.markForCheck(); }
     });
 
   }
@@ -128,13 +136,11 @@ update(): void {
     isPassed: formValue.isPassed
   };
 
-  console.log(payload);
 
   this.studentService
     .updatestudentassignment(this.selectedId, payload)
     .subscribe({
       next: (res) => {
-        console.log(res);
         this.getAssignments();
         this.cancel();
         this.feedback.ok('Record updated successfully');
@@ -152,7 +158,7 @@ update(): void {
     }
 
     this.studentService
-      .deletestudentassignmnet(id)
+      .deletestudentassignment(id)
       .subscribe({
         next: (res: any) => {
           this.feedback.ok('Record deleted successfully', res);
@@ -190,4 +196,4 @@ update(): void {
     });
   }
 
-}
+}

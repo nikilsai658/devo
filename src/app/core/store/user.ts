@@ -1,10 +1,15 @@
 import { Inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { readStoredUser } from '../auth/token-storage';
 
+export interface Permission {
+  code: string;
+  [key: string]: unknown;
+}
+
+// The signed-in user's profile. Tokens are deliberately not part of it
+// (see token-storage.ts).
 export interface User {
-
-  accessToken: string;
-  refreshToken: string;
 
   userId: string;
   name: string;
@@ -14,7 +19,7 @@ export interface User {
   isFirstLogin: boolean;
   profileCompleted: boolean;
 
-  permissions: any[];
+  permissions: Permission[];
 
   collegeId: number;
   collegeName: string;
@@ -43,25 +48,30 @@ export class UserStore {
 
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     if (isPlatformBrowser(platformId)) {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        this._user.set(JSON.parse(stored));
-      }
+      this._user.set(readStoredUser() as User | null);
     }
   }
 
   setUser(user: User) {
     this._user.set(user);
-    if (typeof localStorage !== 'undefined') {
+    try {
       localStorage.setItem('user', JSON.stringify(user));
+    } catch {}
+  }
+
+  // Updates part of the stored profile (e.g. after the first-login password change).
+  patchUser(changes: Partial<User>) {
+    const current = this._user();
+    if (current) {
+      this.setUser({ ...current, ...changes });
     }
   }
 
   clearUser() {
     this._user.set(null);
-    if (typeof localStorage !== 'undefined') {
+    try {
       localStorage.removeItem('user');
-    }
+    } catch {}
   }
 
 }

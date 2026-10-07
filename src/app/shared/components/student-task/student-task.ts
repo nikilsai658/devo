@@ -1,8 +1,12 @@
-import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy, inject } from '@angular/core';
+import { HttpEventType } from '@angular/common/http';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { extractErrorMessage } from '../../feedback/feedback';
+import { ALLOWED_EXTENSIONS, saveBlobResponse, validateUpload } from '../../material-utils';
 
 @Component({
   selector: 'app-student-task',
@@ -13,6 +17,11 @@ import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
   styleUrl: './student-task.css',
 })
 export class StudentTask implements OnInit {
+  private confirmDialog = inject(ConfirmService);
+
+  // For the file picker's accept filter (same list the API allows).
+  readonly acceptTypes = ALLOWED_EXTENSIONS.join(',');
+
   taskId!: number;
   domainId!: number;
   courseId!: number;
@@ -21,6 +30,8 @@ export class StudentTask implements OnInit {
   task: any = null;
   loading = true;
   uploading = false;
+  uploadPercent = 0;
+  loadError = '';
   downloading = false;
   uploadError = '';
   downloadError = '';
@@ -53,11 +64,11 @@ export class StudentTask implements OnInit {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.taskId = history.state.taskId;
-    this.domainId = history.state.domainId;
-    this.courseId = history.state.courseId;
-    this.domainName = history.state.domainName ?? '';
-    this.courseName = history.state.courseName ?? '';
+    this.taskId = history.state?.taskId;
+    this.domainId = history.state?.domainId;
+    this.courseId = history.state?.courseId;
+    this.domainName = history.state?.domainName ?? '';
+    this.courseName = history.state?.courseName ?? '';
 
     if (this.taskId == null) {
       this.router.navigate(['/main/student-assignments'], { state: this.courseState });
@@ -74,14 +85,13 @@ export class StudentTask implements OnInit {
 
         this.task = res?.data ?? null;
         this.loading = false;
-        this.cd.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.cd.markForCheck();
 
+        this.loadError = err?.status === 404 ? '' : extractErrorMessage(err, 'The task could not be loaded.');
         this.task = null;
         this.loading = false;
-        this.cd.detectChanges();
       }
     });
   }
@@ -90,28 +100,52 @@ export class StudentTask implements OnInit {
     this.router.navigate(['/main/student-assignments'], { state: this.courseState });
   }
 
-  onFileSelected(event: Event): void {
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    this.uploading = true;
     this.uploadError = '';
-    this.api.uploadtask(this.taskId, file).subscribe({
-      next: () => {
-        this.cd.markForCheck();
 
-        this.uploading = false;
-        input.value = '';
-        this.loadTask();
+    // Same type/size rules as the API, checked before anything is sent.
+    const problem = validateUpload(file);
+    if (problem) {
+      this.uploadError = problem;
+      input.value = '';
+      this.cd.markForCheck();
+      return;
+    }
+
+    if (this.task?.hasSubmission && !(await this.confirmDialog.ask(
+      `"${file.name}" will replace the file you already submitted for this task.`,
+      { title: 'Replace your submission?', confirmText: 'Replace', danger: false }
+    ))) {
+      input.value = '';
+      return;
+    }
+
+    this.uploading = true;
+    this.uploadPercent = 0;
+    this.cd.markForCheck();
+
+    this.api.uploadtaskWithProgress(this.taskId, file).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.uploadPercent = Math.round((100 * event.loaded) / event.total);
+          this.cd.markForCheck();
+        }
+        if (event.type === HttpEventType.Response) {
+          this.uploading = false;
+          input.value = '';
+          this.loadTask();
+          this.cd.markForCheck();
+        }
       },
-      error: () => {
-        this.cd.markForCheck();
-
+      error: (err) => {
         this.uploading = false;
-        this.uploadError = 'Upload failed. Please try again.';
+        this.uploadError = extractErrorMessage(err, 'Upload failed. Please try again.');
         input.value = '';
-        this.cd.detectChanges();
+        this.cd.markForCheck();
       }
     });
   }
@@ -122,28 +156,14 @@ export class StudentTask implements OnInit {
     this.downloadError = '';
     this.api.downloadtask(this.taskId).subscribe({
       next: (res: any) => {
-        this.cd.markForCheck();
-
         this.downloading = false;
-        this.cd.detectChanges();
-        const blob: Blob = res.body;
-        const disposition: string = res.headers?.get('content-disposition') ?? '';
-        const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
-        const fileName = match ? decodeURIComponent(match[1]) : (this.task?.taskTitle || 'task');
-
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(url);
+        saveBlobResponse(res, this.task?.taskTitle || 'task');
+        this.cd.markForCheck();
       },
-      error: () => {
-        this.cd.markForCheck();
-
+      error: (err) => {
         this.downloading = false;
-        this.downloadError = 'Download failed. Please try again.';
-        this.cd.detectChanges();
+        this.downloadError = extractErrorMessage(err, 'Download failed. Please try again.');
+        this.cd.markForCheck();
       }
     });
   }

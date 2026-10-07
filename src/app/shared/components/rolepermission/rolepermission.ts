@@ -1,14 +1,6 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectorRef,
-  Inject,
-  PLATFORM_ID, ChangeDetectionStrategy
-, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ChangeDetectionStrategy, inject } from '@angular/core';
 
-import {
-  CommonModule
-} from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import { RouterLink } from '@angular/router';
 
@@ -28,8 +20,8 @@ import { PermissionService } from '../../../features/services/permission/permiss
 import { RolepermissionService } from '../../../features/services/rolepermission/rolepermission-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-rolepermission',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +37,8 @@ import { ConfirmService } from '../confirm-dailog/confirm';
   styleUrls: ['./rolepermission.css']
 })
 export class RolePermissionComponent implements OnInit {
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private confirmDialog = inject(ConfirmService);
 
@@ -86,6 +80,11 @@ export class RolePermissionComponent implements OnInit {
   ngOnInit(): void {
 
     this.buildForm();
+
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
 
     this.loadRoles();
 
@@ -143,11 +142,10 @@ export class RolePermissionComponent implements OnInit {
               ? res.result
               : [];
 
-        this.cd.detectChanges();
-
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load roles.');
         this.cd.markForCheck();
 
 
@@ -179,11 +177,10 @@ export class RolePermissionComponent implements OnInit {
               ? res.result
               : [];
 
-        this.cd.detectChanges();
-
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load permissions.');
         this.cd.markForCheck();
 
 
@@ -241,11 +238,10 @@ export class RolePermissionComponent implements OnInit {
 
           this.currentPage = 1;
 
-          this.cd.detectChanges();
-
         },
 
-        error: () => {
+        error: (err) => {
+          this.feedback.fail(err, 'Unable to load role-permission mappings.');
           this.cd.markForCheck();
 
 

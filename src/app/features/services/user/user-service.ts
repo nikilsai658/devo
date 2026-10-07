@@ -81,7 +81,7 @@ uploadUsers(file: File) {
 
 }
 progress(jobId: string) {
-  return this.api.GET(`User/BulkUpload/${jobId}/status`);
+  return this.api.GET(`User/BulkUpload/${jobId}/status`, undefined, { background: true });
 }
 successusers(uploadId: string) {
   return this.api.GET(`User/BulkUpload/${uploadId}/success`);

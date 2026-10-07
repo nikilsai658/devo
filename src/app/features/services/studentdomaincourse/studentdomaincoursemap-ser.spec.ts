@@ -1,13 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
-import { StudentdomaincoursemapSer } from './studentdomaincoursemap-ser';
+import { StudentdomaincoursemapService } from './studentdomaincoursemap-ser';
+import { testProviders } from '../../../../testing/test-providers';
 
-describe('StudentdomaincoursemapSer', () => {
-  let service: StudentdomaincoursemapSer;
+describe('StudentdomaincoursemapService', () => {
+  let service: StudentdomaincoursemapService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(StudentdomaincoursemapSer);
+    TestBed.configureTestingModule({ providers: testProviders() });
+    service = TestBed.inject(StudentdomaincoursemapService);
   });
 
   it('should be created', () => {

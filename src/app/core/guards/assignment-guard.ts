@@ -1,7 +1,10 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { readStorage } from '../storage';
 
+// An assignment is opened from the student's course list, which records it in sessionStorage.
+// Opened any other way, the student goes back to the start of that flow.
 export const assignmentGuard: CanActivateFn = () => {
   const platformId = inject(PLATFORM_ID);
 
@@ -11,11 +14,9 @@ export const assignmentGuard: CanActivateFn = () => {
 
   const router = inject(Router);
 
-  const assignmentId = sessionStorage.getItem('activeAssignmentId');
-
-  if (assignmentId) {
+  if (readStorage('activeAssignmentId', 'session')) {
     return true;
   }
 
-  return router.createUrlTree(['/student/assignments']);
+  return router.createUrlTree(['/main/student-domain']);
 };

@@ -1,14 +1,6 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectorRef,
-  Inject,
-  PLATFORM_ID, ChangeDetectionStrategy
-, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, PLATFORM_ID, ChangeDetectionStrategy, inject } from '@angular/core';
 
-import {
-  CommonModule
-} from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import { RouterLink } from '@angular/router';
 
@@ -27,8 +19,9 @@ import { BranchService } from '../../../features/services/branch/branch-service'
 import { DeptbranchService} from '../../../features/services/departmentbranch/deptbranch-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-departmentbranch',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +37,8 @@ import { ConfirmService } from '../confirm-dailog/confirm';
   styleUrls: ['./departmentbranch.css']
 })
 export class DepartmentBranchComponent implements OnInit {
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private confirmDialog = inject(ConfirmService);
 
@@ -80,6 +75,11 @@ export class DepartmentBranchComponent implements OnInit {
   ngOnInit(): void {
 
     this.buildForm();
+
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
 
     this.loadDepartments();
     this.loadBranches();
@@ -127,11 +127,10 @@ export class DepartmentBranchComponent implements OnInit {
 
         this.departments = res.data || [];
 
-        this.cd.detectChanges();
-
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load departments.');
         this.cd.markForCheck();
 
 
@@ -157,11 +156,10 @@ export class DepartmentBranchComponent implements OnInit {
 
         this.branches = res.data || [];
 
-        this.cd.detectChanges();
-
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load branches.');
         this.cd.markForCheck();
 
 
@@ -190,15 +188,14 @@ export class DepartmentBranchComponent implements OnInit {
           this.cd.markForCheck();
 
 
-          this.mappings = res.data || [];
+          this.mappings = toList(res);
 
           this.filteredMappings = [...this.mappings];
 
-          this.cd.detectChanges();
-
         },
 
-        error: () => {
+        error: (err) => {
+          this.feedback.fail(err, 'Unable to load department-branch mappings.');
           this.cd.markForCheck();
 
 

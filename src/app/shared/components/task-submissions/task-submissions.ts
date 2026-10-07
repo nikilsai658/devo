@@ -5,7 +5,7 @@ import { Auth } from '../../../core/auth/auth';
 import { StudentTaskSubmissionService } from '../../../features/services/studenttasksubmission/studenttasksubmission-service';
 import { Feedback } from '../../feedback/feedback';
 import { formatSize, saveBlobResponse } from '../../material-utils';
-import { ConfirmService } from '../confirm-dailog/confirm';
+import { ConfirmService } from '../confirm-dialog/confirm';
 
 @Component({
   selector: 'app-task-submissions',
@@ -125,7 +125,8 @@ export class TaskSubmissions implements OnInit {
         this.loadingDetail = false;
         this.cd.markForCheck();
       },
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load the submission details.');
         this.loadingDetail = false;
         this.cd.markForCheck();
       }

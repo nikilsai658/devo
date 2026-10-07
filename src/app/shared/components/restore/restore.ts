@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Auth } from '../../../core/auth/auth';
 import { RestoreService } from '../../../features/services/restore/restore-service';
 import { Feedback } from '../../feedback/feedback';
-import { ConfirmService } from '../confirm-dailog/confirm';
+import { ConfirmService } from '../confirm-dialog/confirm';
 
 @Component({
   selector: 'app-restore',

@@ -2,7 +2,7 @@
    LEADERBOARD — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Light mode inverts the whole app globally (see styles.css).
 ========================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 :host {
   @apply block min-h-screen bg-black;

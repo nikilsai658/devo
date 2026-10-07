@@ -1,17 +1,25 @@
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 
 import { assignmentGuard } from './assignment-guard';
+import { testProviders } from '../../../testing/test-providers';
+
+const run = () => TestBed.runInInjectionContext(() =>
+  assignmentGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
 describe('assignmentGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() => assignmentGuard(...guardParameters));
-
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    sessionStorage.clear();
+    TestBed.configureTestingModule({ providers: testProviders() });
   });
 
-  it('should be created', () => {
-    expect(executeGuard).toBeTruthy();
+  it('allows an assignment started from the course page', () => {
+    sessionStorage.setItem('activeAssignmentId', '12');
+    expect(run()).toBe(true);
+  });
+
+  it('otherwise sends the student to an existing page (the start of the student flow)', () => {
+    const tree = run() as UrlTree;
+    expect(TestBed.inject(Router).serializeUrl(tree)).toBe('/main/student-domain');
   });
 });

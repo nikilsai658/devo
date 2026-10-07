@@ -1,0 +1,422 @@
+/* Bulk upload card and results dialog (split from user.css). */
+@reference "tailwindcss";
+
+/* Dark theme page shell (black background, #6B21D0 accent) */
+:host {
+  display: block;
+  min-height: calc(100vh - 68px);
+  background-color: #000;
+  color: #fff;
+  color-scheme: dark;
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================
+   COMMON CARDS
+========================== */
+
+.form-card,
+.upload-card,
+.filter-card,
+.search-card,
+.table-card {
+  @apply bg-zinc-950 rounded-xl shadow-sm border border-white/10 mb-6;
+}
+
+.cancel-btn {
+  @apply px-5 py-2.5 rounded-lg
+    bg-white/5 text-zinc-300
+    font-medium
+    border border-white/15
+    transition-all duration-200
+    hover:bg-white/10;
+}
+
+/* ==========================
+   UPLOAD
+========================== */
+
+.upload-content {
+  @apply flex flex-wrap items-center gap-4 p-6;
+}
+
+.upload-content input[type="file"] {
+  @apply block text-sm text-zinc-400;
+}
+
+.upload-content input[type="file"]::file-selector-button {
+  @apply mr-4 px-4 py-2
+    rounded-lg border-0
+    bg-white/5 text-zinc-300
+    font-medium cursor-pointer
+    hover:bg-white/15;
+}
+
+.upload-btn {
+  @apply px-5 py-2.5 rounded-lg
+    bg-(--accent) text-(--on-accent)
+    font-medium
+    transition-all duration-200
+    hover:bg-(--accent-hover)
+    disabled:opacity-50
+    disabled:cursor-not-allowed;
+}
+
+.file-name {
+  @apply text-sm text-zinc-400;
+}
+
+.upload-progress {
+  @apply flex flex-col gap-3 px-6 pb-6;
+}
+
+.upload-progress-text {
+  @apply flex items-start justify-between gap-4 text-sm text-zinc-300;
+}
+
+.upload-progress-elapsed {
+  @apply shrink-0 tabular-nums text-zinc-500;
+}
+
+.upload-progress-track {
+  @apply relative h-2 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.upload-progress-bar {
+  @apply h-full rounded-full bg-(--accent) transition-[width] duration-200;
+}
+
+/* The server gives no progress while it creates users, so show motion
+   instead of a fake percentage. */
+.upload-progress-bar-indeterminate {
+  position: absolute;
+  width: 35%;
+  animation: upload-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes upload-indeterminate {
+  from { left: -35%; }
+  to   { left: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-progress-bar-indeterminate {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
+/* ==========================
+   UPLOAD SUMMARY CARD
+========================== */
+
+.upload-summary {
+  --tone: var(--color-emerald-400, #34d399);
+  @apply mx-6 mb-6 flex flex-col gap-4 rounded-xl border p-4 sm:p-5;
+  border-color: color-mix(in oklab, var(--tone) 30%, transparent);
+  background: color-mix(in oklab, var(--tone) 7%, transparent);
+  animation: upload-summary-in 0.25s ease-out;
+}
+
+.upload-summary-partial {
+  --tone: var(--color-amber-400, #fbbf24);
+}
+
+.upload-summary-failed {
+  --tone: var(--color-rose-400, #fb7185);
+}
+
+@keyframes upload-summary-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.upload-summary-header {
+  @apply flex items-start gap-3;
+}
+
+.upload-summary-icon {
+  @apply flex h-10 w-10 shrink-0 items-center justify-center
+    rounded-full text-lg font-bold;
+  color: var(--tone);
+  background: color-mix(in oklab, var(--tone) 15%, transparent);
+}
+
+.upload-summary-heading {
+  @apply min-w-0 flex-1;
+}
+
+.upload-summary-title {
+  @apply text-base font-semibold sm:text-lg;
+  color: var(--tone);
+}
+
+.upload-summary-subtitle {
+  @apply mt-0.5 text-sm text-zinc-400;
+}
+
+.upload-summary-time {
+  @apply tabular-nums text-zinc-500;
+}
+
+.upload-summary-close {
+  @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-lg
+    text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200;
+}
+
+.upload-summary-stats {
+  @apply grid grid-cols-3 gap-2 sm:gap-3;
+}
+
+.upload-stat {
+  @apply flex flex-col gap-0.5 rounded-lg border border-white/10
+    bg-white/5 px-3 py-2.5 sm:px-4 sm:py-3;
+}
+
+.upload-stat-label {
+  @apply text-xs font-medium uppercase tracking-wide text-zinc-500;
+}
+
+.upload-stat-value {
+  @apply text-xl font-semibold tabular-nums text-zinc-100 sm:text-2xl;
+}
+
+.upload-stat-percent {
+  @apply text-xs tabular-nums text-zinc-500;
+}
+
+.upload-stat-success .upload-stat-value {
+  @apply text-emerald-400;
+}
+
+.upload-stat-failed .upload-stat-value {
+  @apply text-rose-400;
+}
+
+.upload-summary-bar {
+  @apply flex h-2.5 w-full overflow-hidden rounded-full bg-white/10;
+}
+
+.upload-summary-bar-success {
+  @apply h-full bg-emerald-500 transition-[width] duration-500;
+}
+
+.upload-summary-bar-failed {
+  @apply h-full bg-rose-500 transition-[width] duration-500;
+}
+
+@media (max-width: 400px) {
+  .upload-summary {
+    @apply mx-4;
+  }
+
+  .upload-summary-stats {
+    @apply grid-cols-1;
+  }
+
+  .upload-stat {
+    @apply flex-row items-baseline justify-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-summary {
+    animation: none;
+  }
+}
+
+.upload-progress .cancel-btn {
+  @apply self-start;
+}
+
+/* ==========================
+   UPLOAD RESULTS
+========================== */
+
+.upload-results {
+  @apply border-t border-white/10 px-6 py-5;
+}
+
+.upload-results-header {
+  @apply flex items-center justify-between flex-wrap gap-3 mb-4;
+}
+
+.upload-results-summary {
+  @apply flex items-center gap-3;
+}
+
+.result-badge {
+  @apply px-3 py-1.5 rounded-full text-xs font-semibold;
+}
+
+.result-badge-success {
+  @apply bg-emerald-500/15 text-emerald-400;
+}
+
+.result-badge-failed {
+  @apply bg-rose-500/15 text-rose-400;
+}
+
+.upload-results-block {
+  @apply mb-6;
+}
+
+.upload-results-block:last-child {
+  @apply mb-0;
+}
+
+.upload-results-title {
+  @apply text-sm font-semibold mb-3;
+}
+
+.upload-results-title-success {
+  @apply text-emerald-400;
+}
+
+.upload-results-title-failed {
+  @apply text-rose-400;
+}
+
+/* ==========================
+   TABLE
+========================== */
+
+.table-wrapper {
+  @apply w-full overflow-x-auto;
+}
+
+table {
+  @apply w-full min-w-[1100px] border-collapse;
+}
+
+thead {
+  background-color: #18181b;
+}
+
+thead th {
+  @apply px-5 py-3.5
+    text-left text-xs font-semibold
+    uppercase tracking-wide
+    text-white
+    whitespace-nowrap;
+}
+
+tbody tr {
+  @apply border-b border-white/10
+    transition-colors duration-150;
+}
+
+tbody tr:hover {
+  @apply bg-black;
+}
+
+tbody td {
+  @apply px-5 py-4
+    text-sm text-zinc-300
+    whitespace-nowrap;
+}
+
+/* ==========================
+   LOADING
+========================== */
+
+.loading {
+  @apply flex items-center justify-center
+    min-h-[200px]
+    text-sm text-zinc-400;
+}
+
+/* ==========================
+   EMPTY STATE
+========================== */
+
+.empty-state {
+  @apply py-12 text-center
+    text-sm text-zinc-400;
+}
+
+@media (max-width: 768px) {
+
+  .upload-content {
+    @apply flex-col items-start;
+  }
+}
+.upload-results-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.print-success-btn,
+.print-failed-btn,
+.export-failed-btn {
+  border: none;
+  padding: 9px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.print-success-btn {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.print-success-btn:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.print-failed-btn {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.print-failed-btn:hover {
+  background: rgba(244, 63, 94, 0.25);
+}
+
+.export-failed-btn {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.export-failed-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+@media (max-width: 768px) {
+  .upload-results-actions {
+    width: 100%;
+  }
+
+  .print-success-btn,
+  .print-failed-btn,
+  .export-failed-btn,
+  .upload-results-actions .cancel-btn {
+    flex: 1;
+  }
+}
+
+/* Clear focus ring for keyboard users on every control on this page
+   (mouse clicks don't trigger :focus-visible on buttons). */
+.user-page button:focus-visible,
+.user-page input[type="file"]:focus-visible,
+.user-page .table-wrapper:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

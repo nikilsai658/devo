@@ -4,7 +4,7 @@
    Status colours stay semantic: green = open, amber = in progress,
    slate = closed.
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 
 /* =========================================================

@@ -6,7 +6,11 @@ import {Api} from '../../../core/api/api';
 export class CollegeService {
   constructor(private api:Api){}
  getcollege(){
-    return this.api.GET('College');
+    return this.api.GET('College', undefined, { useDefaultBase: true });
+  }
+  // The API address of the instance that serves a college ({ data: { apiBase } }, or data null).
+  resolveapibase(code:string){
+    return this.api.GET(`Deployment/resolve/${encodeURIComponent(code)}`, undefined, { useDefaultBase: true });
   }
   getcollegebyid(id:any){
     return this.api.GET(`College/${id}`);

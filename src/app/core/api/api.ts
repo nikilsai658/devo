@@ -1,4 +1,4 @@
-import { API_BASE } from './api-base';
+import { DEFAULT_API_BASE, getApiBase } from './api-base';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable, throwError ,catchError} from 'rxjs';
@@ -52,7 +52,7 @@ private handleError(err: any, silent = false) {
  POST(url: string, payload: any, options?: { silent?: boolean }) {
 
   return this.http.post(
-    `${API_BASE}/${url}`,
+    `${getApiBase()}/${url}`,
     payload,
     { headers: this.getHeaders() }
   ).pipe(
@@ -67,7 +67,7 @@ private handleError(err: any, silent = false) {
 POSTWithProgress(url: string, payload: any) {
 
   return this.http.post(
-    `${API_BASE}/${url}`,
+    `${getApiBase()}/${url}`,
     payload,
     {
       headers: this.getHeaders(),
@@ -81,8 +81,11 @@ POSTWithProgress(url: string, payload: any) {
   );
 
 }
-GET(url: string, params?: any) {
-  return this.http.get(`${API_BASE}/${url}`, {
+// `useDefaultBase` is for pre-login lookups (the college list, finding a college's host): they must
+// not depend on the instance of a previously chosen college being up.
+GET(url: string, params?: any, options?: { useDefaultBase?: boolean }) {
+  const base = options?.useDefaultBase ? DEFAULT_API_BASE : getApiBase();
+  return this.http.get(`${base}/${url}`, {
     headers: this.getHeaders(),
     params: params
   }).pipe(
@@ -90,7 +93,7 @@ GET(url: string, params?: any) {
   );
 }
   GETBlob(url: string) {
-    return this.http.get(`${API_BASE}/${url}`, {
+    return this.http.get(`${getApiBase()}/${url}`, {
       headers: this.getHeaders(),
       responseType: 'blob',
       observe: 'response'
@@ -100,13 +103,13 @@ GET(url: string, params?: any) {
   }
 
   PUT(url: string, payload: any) {
-    return this.http.put(`${API_BASE}/${url}`,payload,{  headers: this.getHeaders()  }).pipe(
+    return this.http.put(`${getApiBase()}/${url}`,payload,{  headers: this.getHeaders()  }).pipe(
       catchError((err) => this.handleError(err))
     )
   }
 
   DELETE(url: string) {
-    return this.http.delete(`${API_BASE}/${url}`,{  headers: this.getHeaders()  }).pipe(
+    return this.http.delete(`${getApiBase()}/${url}`,{  headers: this.getHeaders()  }).pipe(
       catchError((err) => this.handleError(err))
     )
 

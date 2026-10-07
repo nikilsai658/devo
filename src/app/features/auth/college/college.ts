@@ -7,6 +7,7 @@ import { FormGroup } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
+import { setApiBase } from '../../../core/api/api-base';
 import { CollegeService } from '../../services/college/college-service';
 @Component({
   selector: 'app-college',
@@ -51,9 +52,18 @@ export class College implements OnInit {
     }
     onSubmit(){
       if(this.form.valid){
-        localStorage.setItem('college',this.form.value.college.name);
-         localStorage.setItem('collegecode',this.form.value.college.code);
-          console.log(this.form.value);
+        const college = this.form.value.college;
+        // Find the instance that serves this college; without one the default instance is used.
+        this.api.resolveapibase(college.code).subscribe({
+          next: (res: any) => this.proceed(college, res?.data?.apiBase ?? null),
+          error: () => this.proceed(college, null)
+        });
+      }
+    }
+    private proceed(college: any, apiBase: string | null){
+        setApiBase(apiBase);
+        localStorage.setItem('college',college.name);
+         localStorage.setItem('collegecode',college.code);
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         // Only follow in-app auth paths to avoid open redirects.
         if (returnUrl && returnUrl.startsWith('/auth/')) {
@@ -61,6 +71,5 @@ export class College implements OnInit {
         } else {
           this.router.navigate(['auth/login']);
         }
-      }
     }
 }

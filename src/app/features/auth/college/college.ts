@@ -20,6 +20,7 @@ export class College implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   form !:FormGroup;
+  errorMessage = '';
    colleges: any[] | undefined;
     selectedcollege: any | undefined ;
   constructor(private fb:FormBuilder, private router:Router,private route:ActivatedRoute,private api:CollegeService) {
@@ -53,14 +54,26 @@ export class College implements OnInit {
     onSubmit(){
       if(this.form.valid){
         const college = this.form.value.college;
-        // Find the instance that serves this college; without one the default instance is used.
+        this.errorMessage = '';
+        // Every college runs in its own instance; there is no fallback to another college's instance.
         this.api.resolveapibase(college.code).subscribe({
-          next: (res: any) => this.proceed(college, res?.data?.apiBase ?? null),
-          error: () => this.proceed(college, null)
+          next: (res: any) => {
+            const apiBase = res?.data?.apiBase;
+            if (apiBase) {
+              this.proceed(college, apiBase);
+            } else {
+              this.fail('This college is not available yet. Please contact your administrator.');
+            }
+          },
+          error: () => this.fail('Could not reach the server. Please try again in a moment.')
         });
       }
     }
-    private proceed(college: any, apiBase: string | null){
+    private fail(message: string){
+        this.errorMessage = message;
+        this.cdr.markForCheck();
+    }
+    private proceed(college: any, apiBase: string){
         setApiBase(apiBase);
         localStorage.setItem('college',college.name);
          localStorage.setItem('collegecode',college.code);

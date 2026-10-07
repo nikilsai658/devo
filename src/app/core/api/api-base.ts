@@ -8,8 +8,9 @@ export const DEFAULT_API_BASE = isDevMode()
 const KEY = 'apibase';
 
 // Each college runs in its own container with its own host. When the user picks a college, the
-// address the registry gives for it is remembered here and every later call goes to it. With nothing
-// remembered (or no deployment registered for the college) the default instance is used.
+// address the registry gives for it is remembered here and every later call goes to it. The default
+// is used only for pre-login lookups (college list, host lookup) and by sessions that started before
+// this existed; a college without an active deployment cannot be selected (see the college page).
 export function getApiBase(): string {
   try {
     const stored = localStorage.getItem(KEY);

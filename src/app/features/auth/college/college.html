@@ -90,6 +90,9 @@
             styleClass="login-button">
           </p-button>
 
+          <!-- ERROR -->
+          <p class="login-error" [class.visible]="errorMessage">{{ errorMessage }}</p>
+
         </form>
 
       </div>

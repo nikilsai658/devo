@@ -18,15 +18,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-branch',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,7 +77,6 @@ export class Branch implements OnInit {
   constructor(
     private api: BranchService,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -96,16 +93,6 @@ export class Branch implements OnInit {
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
     }
 
     if (this.auth.hasPermission('VIEW_BRANCH')) {
@@ -128,7 +115,6 @@ export class Branch implements OnInit {
         this.cd.markForCheck();
 
 
-        console.log('Branch Response', res);
 
         if (Array.isArray(res)) {
 
@@ -154,15 +140,13 @@ export class Branch implements OnInit {
 
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load branches.');
         this.cd.markForCheck();
 
 
-        console.error(err);
 
         this.branches = [];
 

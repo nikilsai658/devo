@@ -20,15 +20,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { AssignmentService } from '../../../features/services/assignment/assignment-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
 
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-assignment',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,7 +61,6 @@ export class AssignmentComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private api: AssignmentService,
-    private cookie: CookieService,
     private router: Router,
     public auth: Auth,
     private cd: ChangeDetectorRef,
@@ -105,13 +102,6 @@ export class AssignmentComponent implements OnInit {
     });
 
     if (!isPlatformBrowser(this.platformId)) return;
-
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
 
     if (this.auth.hasPermission('VIEW_ASSIGNMENT')) {
       this.loadAssignments();
@@ -201,17 +191,15 @@ export class AssignmentComponent implements OnInit {
           this.assignments = [];
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load assignments.');
         this.cd.markForCheck();
 
 
         this.loading = false;
 
-        console.log(err);
 
       }
 

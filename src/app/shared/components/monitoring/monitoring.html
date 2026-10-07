@@ -75,6 +75,7 @@
             <p *ngIf="loading" class="p-6 text-center text-zinc-500">Loading...</p>
 
             <iframe *ngIf="frameUrl && !loading" [src]="frameUrl" title="Monitoring dashboard"
+                    sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="no-referrer"
                     class="w-full block" style="height: calc(100vh - 330px); min-height: 520px; border: 0"></iframe>
 
             <p *ngIf="!frameUrl && !loading && !error" class="p-6 text-center text-zinc-500">No dashboard to show.</p>

@@ -3,7 +3,7 @@
    Split layout: message + actions on the left, 404 visual on the right.
    Light mode inverts the whole app globally (see styles.css).
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 :host {
   display: block;

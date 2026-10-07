@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserStore } from '../store/user';
+import { Permission, User, UserStore } from '../store/user';
 
 @Injectable({
   providedIn: 'root'
@@ -8,13 +8,13 @@ export class Auth {
 
   constructor(private userStore: UserStore) {}
 
-  getUser() {
+  getUser(): User | null {
 
     return this.userStore.user();
 
   }
 
-  getPermissions(): any[] {
+  getPermissions(): Permission[] {
 
     return this.userStore.user()?.permissions ?? [];
 

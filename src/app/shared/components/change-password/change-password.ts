@@ -66,7 +66,6 @@ export class ChangePassword {
       },
       error: (err) => {
         this.loading = false;
-        console.log('Error:', err);
         this.toast.error(err?.error?.message ?? 'Failed to change password');
         this.cdr.markForCheck();
       },

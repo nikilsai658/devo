@@ -2,7 +2,7 @@
    MY COURSES — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Numbered list layout (distinct from the Domains card grid).
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* ---------------- PAGE ---------------- */
 

@@ -40,32 +40,40 @@
       </button>
 
 
-      <!-- College Logo -->
+      <!-- College Logo (or its name when no logo is bundled for it) -->
       <a
-        *ngIf="collegeLogo"
-        routerLink="/main/student-domain"
-        class="college-brand">
+        *ngIf="collegeLogo || collegeName"
+        routerLink="/main"
+        class="college-brand"
+        [class.college-brand-text]="!collegeLogo"
+        [title]="collegeName">
 
         <img
+          *ngIf="collegeLogo; else noCollegeLogo"
           [src]="collegeLogo"
-          alt="College Logo">
+          [alt]="collegeName || 'College logo'">
+
+        <ng-template #noCollegeLogo>
+          <span aria-hidden="true">{{ collegeInitials }}</span>
+          <span class="sr-only">{{ collegeName }}</span>
+        </ng-template>
 
       </a>
 
 
       <div
-        *ngIf="collegeLogo"
+        *ngIf="collegeLogo || collegeName"
         class="header-divider">
       </div>
 
 
       <!-- TripleDot Logo -->
       <a
-        routerLink="/main/student-domain"
+        routerLink="/main"
         class="technex-brand">
 
         <img
-          src="../../../../assets/images/tripledot-logo.jpeg"
+          src="assets/images/tripledot-logo.jpeg"
           alt="TripleDot">
 
         <div class="technex-title">
@@ -743,7 +751,7 @@
       <!-- College Tracking -->
       <li *ngIf="auth.hasPermission('VIEW_SUPERADMIN_COLLEGES')">
         <a
-          routerLink="/main/superamin-colleges"
+          routerLink="/main/superadmin-colleges"
           routerLinkActive="is-active"
           class="nav-link">
 

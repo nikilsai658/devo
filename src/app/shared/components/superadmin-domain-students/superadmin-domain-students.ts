@@ -1,13 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Router } from '@angular/router';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 @Component({
   selector: 'app-superadmin-domain-students',
@@ -18,6 +14,10 @@ import { Router } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuperadminDomainStudents implements OnInit {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   students: any[] = [];
 
@@ -39,14 +39,22 @@ export class SuperadminDomainStudents implements OnInit {
 
   ngOnInit(): void {
 
-    this.collegeId = history.state.collegeId;
-    this.domainId = history.state.domainId;
-    this.domainName = history.state.domainName ?? '';
-    this.collegeName = history.state.collegeName ?? '';
-
-    if (this.collegeId && this.domainId) {
-      this.loadDomainStudents();
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
     }
+
+    this.collegeId = history.state?.collegeId;
+    this.domainId = history.state?.domainId;
+    this.domainName = history.state?.domainName ?? '';
+    this.collegeName = history.state?.collegeName ?? '';
+
+    if (!this.collegeId || !this.domainId) {
+      this.router.navigate(['/main/superadmin-colleges']);
+      return;
+    }
+
+    this.loadDomainStudents();
   }
 
   loadDomainStudents(): void {
@@ -70,11 +78,8 @@ export class SuperadminDomainStudents implements OnInit {
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Unable to load students.');
 
-          console.error(
-            'Error loading domain students:',
-            error
-          );
 
           this.students = [];
 
@@ -145,7 +150,7 @@ export class SuperadminDomainStudents implements OnInit {
   // ---------------- Navigation ----------------
 
   backToColleges(): void {
-    this.router.navigate(['/main/superamin-colleges']);
+    this.router.navigate(['/main/superadmin-colleges']);
   }
 
   backToDomains(): void {

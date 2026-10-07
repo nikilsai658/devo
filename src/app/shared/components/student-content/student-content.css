@@ -2,7 +2,7 @@
    COURSE CONTENT (student) — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Same look as My Assignments / My Courses.
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 :host {
   @apply block min-h-screen bg-black;

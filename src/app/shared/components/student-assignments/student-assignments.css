@@ -2,7 +2,7 @@
    MY ASSIGNMENTS — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Numbered list layout, matching the My Courses page.
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* ---------------- PAGE ---------------- */
 

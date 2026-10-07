@@ -19,16 +19,15 @@ import {
 } from '@angular/forms';
 
 import { Router, RouterLink } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { StudentdomaincoursemapService } from '../../../features/services/studentdomaincourse/studentdomaincoursemap-ser';
 import { DomainServices } from '../../../features/services/domain/domain-services';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-studentdomainmap',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,7 +74,6 @@ export class StudentDomainMapComponent implements OnInit {
     private fb: FormBuilder,
     private api: StudentdomaincoursemapService,
     private domainService: DomainServices,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -87,16 +85,6 @@ export class StudentDomainMapComponent implements OnInit {
     this.buildForm();
 
     if (!isPlatformBrowser(this.platformId)) return;
-
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
-    }
 
 
     this.loadDomains();
@@ -143,13 +131,11 @@ export class StudentDomainMapComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        this.domains = res.data || res.result || res || [];
-
-        this.cd.detectChanges();
+        this.domains = toList(res);
 
       },
 
-      error: err => { this.cd.markForCheck(); return console.log(err); }
+      error: err => { this.feedback.fail(err, 'Unable to load domains.'); this.cd.markForCheck(); }
 
     });
 
@@ -171,7 +157,7 @@ export class StudentDomainMapComponent implements OnInit {
 
         this.loading = false;
 
-        this.mappings = res.data || res.result || res || [];
+        this.mappings = toList(res);
 
         if (!Array.isArray(this.mappings)) {
 
@@ -183,17 +169,15 @@ export class StudentDomainMapComponent implements OnInit {
 
         this.currentPage = 1;
 
-        this.cd.detectChanges();
-
       },
 
       error: err => {
+        this.feedback.fail(err, 'Unable to load student-domain mappings.');
         this.cd.markForCheck();
 
 
         this.loading = false;
 
-        console.log(err);
 
       }
 

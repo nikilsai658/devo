@@ -1,18 +1,20 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectorRef, Component, HostListener, Inject, OnDestroy, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CodeEditorComponent, CodeSubmission } from '../code-editor/code-editor';
 import { Location } from '@angular/common';
-import { AssignmentLockService, AssignmentViolation } from '../../../features/services/assignment-lock-service/assignemt-lock-service';
+import { AssignmentLockService, AssignmentViolation } from '../../../features/services/assignment-lock-service/assignment-lock-service';
 import { Subscription } from 'rxjs';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
+import { extractErrorMessage } from '../../feedback/feedback';
+import { readStorage, removeStorage, writeStorage } from '../../../core/storage';
 @Component({
   selector: 'app-student-assignment',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone:true,
-  imports: [CommonModule, ReactiveFormsModule, CodeEditorComponent, RouterLink, Breadcrumb],
+  imports: [CommonModule, ReactiveFormsModule, CodeEditorComponent, Breadcrumb],
   templateUrl: './student-assignment.html',
   styleUrl: './student-assignment.css',
 })
@@ -58,6 +60,8 @@ export class StudentAssignment implements OnInit, OnDestroy{
     return this.lockService.fullscreenExitCount;
   }
 
+  loadError = '';
+
   isRunning = false;
   isSubmitting = false;
 
@@ -72,7 +76,7 @@ export class StudentAssignment implements OnInit, OnDestroy{
   lastViolation: AssignmentViolation | null = null;
   private violationSubscription?: Subscription;
 
-  constructor(private route:ActivatedRoute, private router:Router,private api:Student,private cd:ChangeDetectorRef,private location:Location,private lockService:AssignmentLockService, @Inject(PLATFORM_ID) private platformId: Object){}
+  constructor(private router:Router,private api:Student,private cd:ChangeDetectorRef,private location:Location,private lockService:AssignmentLockService, @Inject(PLATFORM_ID) private platformId: Object){}
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadFromState(history.state);
@@ -90,7 +94,7 @@ export class StudentAssignment implements OnInit, OnDestroy{
 
       this.lockService.stopLock();
 
-      sessionStorage.removeItem('activeAssignmentId');
+      removeStorage('activeAssignmentId', 'session');
 
       if (document.fullscreenElement) {
         document.exitFullscreen?.().catch(() => {
@@ -111,7 +115,7 @@ export class StudentAssignment implements OnInit, OnDestroy{
       this.showFullscreenWarning = !document.fullscreenElement;
     }
 
-    this.cd.detectChanges();
+    this.cd.markForCheck();
   }
 
   resumeFullscreen(): void {
@@ -119,12 +123,24 @@ export class StudentAssignment implements OnInit, OnDestroy{
     this.showFullscreenWarning = false;
   }
 
+  // The id comes with the navigation; when that state is missing it is recovered
+  // from the marker the course page set when the student pressed Start.
   private loadFromState(state: any): void {
-    this.assignmentId = state.Id;
-    if (state.assignmentIds) {
+    const fromSession = Number(readStorage('activeAssignmentId', 'session'));
+
+    this.assignmentId = Number(state?.Id) || fromSession;
+
+    if (!this.assignmentId) {
+      this.router.navigate(['/main/student-domain']);
+      return;
+    }
+
+    writeStorage('activeAssignmentId', String(this.assignmentId), 'session');
+
+    if (state?.assignmentIds) {
       this.assignmentIds = state.assignmentIds;
     }
-    if (state.domainId != null) {
+    if (state?.domainId != null) {
       this.trail = {
         domainId: state.domainId,
         domainName: state.domainName ?? '',
@@ -135,17 +151,19 @@ export class StudentAssignment implements OnInit, OnDestroy{
     this.loadAssignment();
   }
   loadAssignment():void{
+    this.loadError = '';
     this.api.getstudentassignmentId(this.assignmentId).subscribe({
          next:(res:any)=>{
         this.cd.markForCheck();
 
         this.assignment = res.data?.[0] ?? null;
-        this.cd.detectChanges();
+        if (!this.assignment) {
+          this.loadError = 'This assignment could not be found.';
+        }
     },error:(err:any)=>{
-        this.cd.markForCheck();
-
         this.assignment = null;
-       console.log(err);
+        this.loadError = extractErrorMessage(err, 'The assignment could not be loaded.');
+        this.cd.markForCheck();
     }
     })
   }
@@ -180,7 +198,6 @@ export class StudentAssignment implements OnInit, OnDestroy{
 
           this.isRunning = false;
 
-          this.cd.detectChanges();
         },
 
         error: (err: any) => {
@@ -191,7 +208,6 @@ export class StudentAssignment implements OnInit, OnDestroy{
 
           this.isRunning = false;
 
-          this.cd.detectChanges();
         }
 
       });
@@ -214,6 +230,11 @@ export class StudentAssignment implements OnInit, OnDestroy{
         submission.sourceCode,
         submission.languageId,
         submission.stdin,
+        // Proctoring events of this attempt, so faculty can see them with the submission.
+        {
+          tabSwitchCount: this.lockService.tabSwitchCount,
+          fullscreenExitCount: this.lockService.fullscreenExitCount
+        }
       )
       .subscribe({
 
@@ -229,7 +250,6 @@ export class StudentAssignment implements OnInit, OnDestroy{
 
           this.isSubmitting = false;
 
-          this.cd.detectChanges();
         },
 
         error: (err: any) => {
@@ -240,7 +260,6 @@ export class StudentAssignment implements OnInit, OnDestroy{
 
           this.isSubmitting = false;
 
-          this.cd.detectChanges();
         }
 
       });

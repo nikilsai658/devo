@@ -1,13 +1,4 @@
-import {
-  AfterViewChecked,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 
 import {
   ActivatedRoute,
@@ -19,7 +10,9 @@ import {
   FormsModule
 } from '@angular/forms';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Feedback } from '../../../shared/feedback/feedback';
+import { dateLabel, initialsOf, startsNewDay, statusClass } from '../../ticket-chat';
 
 import {
   TicketService
@@ -44,6 +37,10 @@ import {
 })
 export class SupportTicketDetailsComponent
   implements OnInit, OnDestroy, AfterViewChecked {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   @ViewChild('chatScrollContainer')
   chatScrollContainer?: ElementRef<HTMLDivElement>;
@@ -152,6 +149,11 @@ export class SupportTicketDetailsComponent
 
   ngOnInit(): void {
 
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     this.route.paramMap.subscribe(params => {
 
       const id = Number(params.get('id'));
@@ -200,6 +202,11 @@ export class SupportTicketDetailsComponent
 
     this.pollHandle = setInterval(() => {
 
+      // A hidden tab doesn't need live updates; polling resumes when it is shown again.
+      if (document.hidden) {
+        return;
+      }
+
       this.pollMessages();
 
       this.refreshTicketStatus();
@@ -241,7 +248,7 @@ export class SupportTicketDetailsComponent
     const generation = this.loadGeneration;
 
     this.ticketService
-      .getMessages(this.ticketId, this.lastMessageId)
+      .getMessages(this.ticketId, this.lastMessageId, true)
       .subscribe({
 
         next: (res: any) => {
@@ -265,6 +272,7 @@ export class SupportTicketDetailsComponent
         },
 
         error: (error) => {
+          if (this.messagesLoading && generation === this.loadGeneration) { this.feedback.fail(error, 'Unable to load the conversation.'); } // Background polls retry silently.
 
           if (generation !== this.loadGeneration) {
 
@@ -272,10 +280,6 @@ export class SupportTicketDetailsComponent
 
           }
 
-          console.error(
-            'Poll messages error:',
-            error
-          );
 
           this.polling = false;
 
@@ -312,7 +316,7 @@ export class SupportTicketDetailsComponent
     const generation = this.statusGeneration;
 
     this.ticketService
-      .getTicketById(this.ticketId)
+      .getTicketById(this.ticketId, true)
       .subscribe({
 
         next: (res: any) => {
@@ -334,6 +338,7 @@ export class SupportTicketDetailsComponent
 
         },
 
+        // Background status refresh: the next poll retries, so no message.
         error: () => {
 
           this.statusPolling = false;
@@ -563,18 +568,7 @@ export class SupportTicketDetailsComponent
   }
 
   getInitials(name: any): string {
-
-    const text = String(name || '?').trim();
-
-    const parts = text.split(/\s+/).filter(Boolean);
-
-    const initials =
-      parts.length > 1
-        ? parts[0][0] + parts[parts.length - 1][0]
-        : text.slice(0, 2);
-
-    return initials.toUpperCase();
-
+    return initialsOf(name);
   }
 
   // First message of a run from the same sender shows name + avatar.
@@ -598,63 +592,14 @@ export class SupportTicketDetailsComponent
   }
 
   showDateDivider(index: number): boolean {
-
-    if (index === 0) {
-
-      return true;
-
-    }
-
-    return (
-      this.dayKey(this.messages[index - 1]?.sentAt) !==
-      this.dayKey(this.messages[index]?.sentAt)
-    );
-
+    return startsNewDay(this.messages, index);
   }
 
   getDateLabel(value: any): string {
-
-    const date = new Date(value);
-
-    if (isNaN(date.getTime())) {
-
-      return '';
-
-    }
-
-    const yesterday = new Date();
-
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (this.dayKey(date) === this.dayKey(new Date())) {
-
-      return 'Today';
-
-    }
-
-    if (this.dayKey(date) === this.dayKey(yesterday)) {
-
-      return 'Yesterday';
-
-    }
-
-    return date.toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-
+    return dateLabel(value);
   }
 
-  private dayKey(value: any): string {
 
-    const date = new Date(value);
-
-    return isNaN(date.getTime())
-      ? ''
-      : date.toDateString();
-
-  }
 
   isClosed(): boolean {
 
@@ -664,20 +609,7 @@ export class SupportTicketDetailsComponent
   }
 
   getStatusClass(): string {
-
-    switch (String(this.ticket?.status || 'open').toLowerCase()) {
-
-      case 'closed':
-        return 'status-closed';
-
-      case 'inprogress':
-        return 'status-inprogress';
-
-      default:
-        return 'status-open';
-
-    }
-
+    return statusClass(this.ticket?.status);
   }
 
   trackById(_: number, msg: any): any {
@@ -747,10 +679,6 @@ export class SupportTicketDetailsComponent
 
         next: (res: any) => {
 
-          console.log(
-            'Ticket response:',
-            res
-          );
 
           this.ticket =
             res?.data || res;
@@ -768,10 +696,6 @@ export class SupportTicketDetailsComponent
 
         error: (error) => {
 
-          console.error(
-            'Get ticket error:',
-            error
-          );
 
           this.errorMessage =
             'Unable to load ticket details.';
@@ -891,10 +815,6 @@ export class SupportTicketDetailsComponent
 
         next: (res: any) => {
 
-          console.log(
-            'Reply response:',
-            res
-          );
 
 
           this.message = '';
@@ -918,11 +838,8 @@ export class SupportTicketDetailsComponent
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Your reply was not sent. Please try again.');
 
-          console.error(
-            'Send reply error:',
-            error
-          );
 
 
           this.sending = false;
@@ -976,10 +893,6 @@ export class SupportTicketDetailsComponent
 
         next: (res: any) => {
 
-          console.log(
-            'Status updated:',
-            res
-          );
 
 
           this.updatingStatus = false;
@@ -989,11 +902,8 @@ export class SupportTicketDetailsComponent
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Unable to change the ticket status.');
 
-          console.error(
-            'Status update error:',
-            error
-          );
 
 
           this.updatingStatus = false;
@@ -1050,10 +960,6 @@ export class SupportTicketDetailsComponent
 
         next: (res: any) => {
 
-          console.log(
-            'Ticket closed:',
-            res
-          );
 
 
           this.updatingStatus = false;
@@ -1063,11 +969,8 @@ export class SupportTicketDetailsComponent
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Unable to close the ticket.');
 
-          console.error(
-            'Close ticket error:',
-            error
-          );
 
 
           this.updatingStatus = false;

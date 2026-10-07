@@ -18,7 +18,6 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { RoleService } from '../../../features/services/role/role-service';
@@ -26,8 +25,7 @@ import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
 
 
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-role',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,7 +58,6 @@ export class Role implements OnInit {
   constructor(
     private api: RoleService,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -85,16 +82,9 @@ export class Role implements OnInit {
       return;
     }
 
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
     if (!this.auth.hasPermission('VIEW_ROLE')) {
       this.feedback.fail('You do not have permission to view Roles.');
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/main']);
       return;
     }
 
@@ -122,15 +112,13 @@ export class Role implements OnInit {
         } else {
           this.roles = [];
         }
-        
-        this.cd.detectChanges();
 
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load roles.');
         this.cd.markForCheck();
 
-        console.error(err);
         this.roles = [];
       }
 

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, 
 import { Student } from '../../../features/services/student/student';
 import { Router } from '@angular/router';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 @Component({
   selector: 'app-student-domain',
@@ -13,6 +14,8 @@ import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
   changeDetection:ChangeDetectionStrategy.OnPush
 })
 export class StudentDomain implements OnInit {
+
+  feedback = new Feedback();
 
   domain: any[] = [];
   loading = false;
@@ -45,7 +48,8 @@ export class StudentDomain implements OnInit {
 
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load your domains.');
 
         this.domain = [];
         this.loading = false;

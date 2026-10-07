@@ -18,15 +18,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { DomainServices } from '../../../features/services/domain/domain-services';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-domain',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +59,6 @@ export class DomainComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private api:DomainServices,
-    private cookie: CookieService,
     private router: Router,
     public auth: Auth,
     private cd: ChangeDetectorRef,
@@ -79,13 +76,6 @@ export class DomainComponent implements OnInit {
     }, { validators: AppValidators.range('eligibleFromYear', 'eligibleToYear') });
 
     if (!isPlatformBrowser(this.platformId)) return;
-
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
 
     this.loadDomains();
   }
@@ -116,16 +106,15 @@ export class DomainComponent implements OnInit {
           this.domains = [];
         }
 
-        this.cd.detectChanges();
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load domains.');
         this.cd.markForCheck();
 
 
         this.loading = false;
 
-        console.error(err);
 
       }
 

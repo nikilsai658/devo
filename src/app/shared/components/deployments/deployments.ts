@@ -5,7 +5,7 @@ import { Auth } from '../../../core/auth/auth';
 import { DeploymentService } from '../../../features/services/deployment/deployment-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-import { ConfirmService } from '../confirm-dailog/confirm';
+import { ConfirmService } from '../confirm-dialog/confirm';
 
 @Component({
   selector: 'app-deployments',
@@ -87,6 +87,7 @@ export class Deployments implements OnInit {
         this.summary = res?.data ?? null;
         this.cd.markForCheck();
       },
+      // The summary cards are optional; the list reports its own errors.
       error: () => {
         this.summary = null;
         this.cd.markForCheck();

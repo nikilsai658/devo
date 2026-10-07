@@ -1,9 +1,7 @@
-import { isDevMode } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
-// `ng serve` talks to a local API; production builds talk to the deployed college instance.
-export const DEFAULT_API_BASE = isDevMode()
-  ? 'http://localhost:5000/api'
-  : 'https://college-a.178-104-255-148.sslip.io/api';
+// Set per build configuration in src/environments (local API for `ng serve`, the deployed one otherwise).
+export const DEFAULT_API_BASE = environment.defaultApiBase;
 
 const KEY = 'apibase';
 
@@ -18,6 +16,14 @@ export function getApiBase(): string {
   } catch {
     return DEFAULT_API_BASE;
   }
+}
+
+// True for requests to the selected college's instance — the only host that may receive the token.
+// The default instance is used for anonymous pre-login lookups and gets no token: a session belongs
+// to one college and must not be presented to another college's server.
+export function isApiRequest(url: string): boolean {
+  const base = getApiBase();
+  return url === base || url.startsWith(base + '/') || url.startsWith(base + '?');
 }
 
 export function setApiBase(base: string | null): void {

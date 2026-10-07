@@ -2,9 +2,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, 
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Student } from '../../../features/services/student/student';
-import { Feedback } from '../../feedback/feedback';
-import { extractErrorMessage } from '../../feedback/feedback';
-import { formatSize, saveBlobResponse } from '../../material-utils';
+import { Feedback, extractErrorMessage } from '../../feedback/feedback';
+import { formatSize, previewableBlob, saveBlobResponse, showBlobInTab } from '../../material-utils';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 
 @Component({
@@ -122,7 +121,14 @@ export class StudentContent implements OnInit {
           this.cd.markForCheck();
           return;
         }
-        tab.location.href = URL.createObjectURL(blob);
+        const safe = previewableBlob(blob);
+        if (!safe) {
+          tab.close();
+          this.feedback.fail(null, 'This file type cannot be previewed. Use Download instead.');
+          this.cd.markForCheck();
+          return;
+        }
+        showBlobInTab(tab, safe);
       },
       error: (err) => {
         tab?.close();

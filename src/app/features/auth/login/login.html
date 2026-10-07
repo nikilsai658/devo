@@ -146,6 +146,13 @@
           </div>
 
 
+          <!-- REMEMBER USERNAME (off by default: lab computers are shared) -->
+          <label class="remember-me">
+            <input type="checkbox" [checked]="rememberMe" (change)="setRememberMe($any($event.target).checked)" />
+            <span>Remember my username on this device</span>
+          </label>
+
+
           <!-- LOGIN BUTTON -->
           <p-button
             label="Login"

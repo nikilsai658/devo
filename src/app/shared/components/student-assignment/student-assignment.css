@@ -2,7 +2,7 @@
    ASSIGNMENT WORKSPACE — Dark theme  |  Accent: var(--accent)  |  Background: #000
    Matches the My Courses / My Assignments pages.
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* ---------------- ROOT ---------------- */
 

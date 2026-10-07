@@ -18,15 +18,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { CourseService } from '../../../features/services/course/course-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-course',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +57,6 @@ export class Course implements OnInit {
   constructor(
     private api: CourseService,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -76,13 +73,6 @@ export class Course implements OnInit {
     });
 
     if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
       return;
     }
 
@@ -116,14 +106,13 @@ export class Course implements OnInit {
         else {
           this.courses = [];
         }
-        this.cd.detectChanges();
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load courses.');
         this.cd.markForCheck();
 
 
-        console.error(err);
         this.courses = [];
 
       }

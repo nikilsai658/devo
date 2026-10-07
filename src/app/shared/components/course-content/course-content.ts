@@ -13,7 +13,7 @@ import { LessonService } from '../../../features/services/lesson/lesson-service'
 import { MaterialService } from '../../../features/services/material/material-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-import { ConfirmService } from '../confirm-dailog/confirm';
+import { ConfirmService } from '../confirm-dialog/confirm';
 import {
   ALLOWED_EXTENSIONS, MATERIAL_TYPES, MAX_UPLOAD_MB, formatSize, guessMaterialType, saveBlobResponse, validateUpload
 } from '../../material-utils';

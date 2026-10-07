@@ -3,7 +3,9 @@ import {
   OnInit,
   ChangeDetectorRef,
   Inject,
-  PLATFORM_ID, ChangeDetectionStrategy
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+  inject
 } from '@angular/core';
 
 import {
@@ -17,8 +19,6 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 
-import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { finalize } from 'rxjs';
 
 import { Auth } from '../../../core/auth/auth';
@@ -28,7 +28,8 @@ import { DepartmentService } from '../../../features/services/department/departm
 import { BranchService } from '../../../features/services/branch/branch-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-import { getAccessToken } from '../../../core/auth/token-storage';
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { validateSpreadsheet } from '../../material-utils';
 
 @Component({
   selector: 'app-year-updation',
@@ -43,6 +44,8 @@ import { getAccessToken } from '../../../core/auth/token-storage';
   styleUrls: ['./year-updation.css']
 })
 export class YearUpdation implements OnInit {
+
+  private confirmDialog = inject(ConfirmService);
 
   promoteFeedback = new Feedback();
   uploadFeedback = new Feedback();
@@ -59,17 +62,12 @@ export class YearUpdation implements OnInit {
   selectedFile: File | null = null;
   uploadLoading = false;
 
-  singlePromoteForm!: FormGroup;
-  singlePromoteLoading = false;
-
   constructor(
     private yearService: YearService,
     private collegeService: CollegeService,
     private departmentService: DepartmentService,
     private branchService: BranchService,
     private fb: FormBuilder,
-    private cookie: CookieService,
-    private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -80,13 +78,6 @@ export class YearUpdation implements OnInit {
     this.buildForm();
 
     if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
       return;
     }
 
@@ -118,20 +109,6 @@ export class YearUpdation implements OnInit {
 
     }, { validators: AppValidators.differentFrom('fromYearId', 'toYearId') });
 
-    this.singlePromoteForm = this.fb.group({
-
-      collegeName: [''],
-
-      collegeCode: [''],
-
-      studentEmail: ['', [AppValidators.required, AppValidators.email, AppValidators.maxLength(100)]],
-
-      domainName: ['', AppValidators.required],
-
-      toYearId: ['', [AppValidators.required, AppValidators.integer, AppValidators.min(1)]]
-
-    });
-
   }
 
   //==============================
@@ -159,14 +136,12 @@ export class YearUpdation implements OnInit {
           this.colleges = [];
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.promoteFeedback.fail(err, 'Unable to load colleges.');
         this.cd.markForCheck();
 
-        console.error(err);
         this.colleges = [];
       }
 
@@ -199,14 +174,12 @@ export class YearUpdation implements OnInit {
           this.departments = [];
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.promoteFeedback.fail(err, 'Unable to load departments.');
         this.cd.markForCheck();
 
-        console.error(err);
         this.departments = [];
       }
 
@@ -239,14 +212,12 @@ export class YearUpdation implements OnInit {
           this.branches = [];
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.promoteFeedback.fail(err, 'Unable to load branches.');
         this.cd.markForCheck();
 
-        console.error(err);
         this.branches = [];
       }
 
@@ -274,7 +245,8 @@ export class YearUpdation implements OnInit {
   // Promote Year
   //==============================
 
-  promoteYear(): void {
+  // Promotion moves every matching student and cannot be undone here, so it is confirmed first.
+  async promoteYear(): Promise<void> {
 
     if (!this.auth.hasPermission('UPDATE_YEAR')) {
       this.promoteFeedback.fail('You do not have permission to promote years.');
@@ -289,6 +261,16 @@ export class YearUpdation implements OnInit {
     }
 
     const raw = this.promoteForm.value;
+
+    const scope = [raw.collegeName, raw.departmentId && 'the selected department', raw.branchId && 'the selected branch']
+      .filter(Boolean).join(', ') || 'all colleges';
+
+    if (!(await this.confirmDialog.ask(
+      `Every student in year ${raw.fromYearId} (${scope}) will be moved to year ${raw.toYearId}. This cannot be undone from here.`,
+      { title: 'Promote students?', confirmText: 'Promote' }
+    ))) {
+      return;
+    }
 
     const payload = {
       fromYearId: Number(raw.fromYearId),
@@ -336,7 +318,7 @@ export class YearUpdation implements OnInit {
 
   }
 
-  uploadPromoteFile(): void {
+  async uploadPromoteFile(fileInput?: HTMLInputElement): Promise<void> {
 
     if (!this.auth.hasPermission('UPDATE_YEAR')) {
       this.uploadFeedback.fail('You do not have permission to promote years.');
@@ -345,6 +327,19 @@ export class YearUpdation implements OnInit {
 
     if (!this.selectedFile) {
       this.uploadFeedback.fail('Please select a file');
+      return;
+    }
+
+    const problem = validateSpreadsheet(this.selectedFile);
+    if (problem) {
+      this.uploadFeedback.fail(problem);
+      return;
+    }
+
+    if (!(await this.confirmDialog.ask(
+      `Every student listed in "${this.selectedFile.name}" will be promoted with their domains. This cannot be undone from here.`,
+      { title: 'Promote students from this file?', confirmText: 'Promote' }
+    ))) {
       return;
     }
 
@@ -359,6 +354,10 @@ export class YearUpdation implements OnInit {
 
           this.uploadFeedback.ok('Students promoted successfully');
           this.selectedFile = null;
+          // Clear the picker too, so the same file is not promoted twice by accident.
+          if (fileInput) {
+            fileInput.value = '';
+          }
         },
 
         error: (err) => {
@@ -368,63 +367,6 @@ export class YearUpdation implements OnInit {
         }
 
       });
-
-  }
-
-  //==============================
-  // Promote Single Student With Domain
-  //==============================
-
-  /*promoteSingleWithDomain(): void {
-
-    if (!this.auth.hasPermission('UPDATE_YEAR')) {
-      alert('You do not have permission to promote years.');
-      return;
-    }
-
-    if (this.singlePromoteForm.invalid) {
-      this.singlePromoteForm.markAllAsTouched();
-      return;
-    }
-
-    const raw = this.singlePromoteForm.value;
-
-    const payload = {
-      collegeName: raw.collegeName || '',
-      collegeCode: raw.collegeCode || '',
-      studentEmail: raw.studentEmail,
-      domainName: raw.domainName,
-      toYearId: Number(raw.toYearId)
-    };
-
-    this.singlePromoteLoading = true;
-
-    this.yearService.YearUpdatesingleDomain(payload)
-      .pipe(finalize(() => this.singlePromoteLoading = false))
-      .subscribe({
-
-        next: () => {
-          alert('Student Promoted Successfully');
-          this.resetSinglePromoteForm();
-        },
-
-        error: (err) => {
-          console.error(err);
-        }
-
-      });
-
-  }*/
-
-  resetSinglePromoteForm(): void {
-
-    this.singlePromoteForm.reset({
-      collegeName: '',
-      collegeCode: '',
-      studentEmail: '',
-      domainName: '',
-      toYearId: ''
-    });
 
   }
 

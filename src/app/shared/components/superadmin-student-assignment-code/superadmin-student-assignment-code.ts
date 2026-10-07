@@ -1,12 +1,9 @@
-import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  OnInit, ChangeDetectionStrategy
-} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
+import { saveBlob } from '../../material-utils';
 
 // Judge0 language ids used by the code editor (see code-editor.ts).
 const LANGUAGES: Record<number, { name: string; ext: string }> = {
@@ -26,6 +23,8 @@ const LANGUAGES: Record<number, { name: string; ext: string }> = {
   styleUrl: './superadmin-student-assignment-code.css',
 })
 export class SuperadminStudentAssignmentCode implements OnInit {
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   collegeId!: number;
   domainId!: number;
@@ -56,8 +55,13 @@ export class SuperadminStudentAssignmentCode implements OnInit {
 
   ngOnInit(): void {
 
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
+
     // Get values from router state
-    const state = history.state;
+    const state = history.state ?? {};
     this.collegeId = state.collegeId;
     this.domainId = state.domainId;
     this.studentId = state.studentId;
@@ -68,6 +72,12 @@ export class SuperadminStudentAssignmentCode implements OnInit {
     this.studentEmail = state.studentEmail ?? '';
     this.registerNumber = state.registerNumber ?? '';
     this.assignmentTitle = state.assignmentTitle ?? '';
+
+    // Opened without choosing a submission first (bookmark, new tab).
+    if (!this.collegeId || !this.domainId || !this.studentId || !this.assignmentId) {
+      this.router.navigate(['/main/superadmin-colleges']);
+      return;
+    }
 
     this.getAssignmentCode();
   }
@@ -106,19 +116,16 @@ export class SuperadminStudentAssignmentCode implements OnInit {
           this.codeLines = (this.sourceCode || '').replace(/\r\n/g, '\n').split('\n');
 
           this.loading = false;
-          this.cd.markForCheck();
         },
 
         error: (err) => {
           this.cd.markForCheck();
 
 
-          console.error('Failed to load assignment code:', err);
 
           this.error = 'Failed to load assignment code.';
           this.loading = false;
 
-          this.cd.markForCheck();
         }
       });
   }
@@ -175,7 +182,6 @@ export class SuperadminStudentAssignmentCode implements OnInit {
 
         this.copied = false;
         this.copyFailed = false;
-        this.cd.markForCheck();
       }, 2000);
     };
 
@@ -210,18 +216,13 @@ export class SuperadminStudentAssignmentCode implements OnInit {
     const safeStudent = (this.studentName || 'student').replace(/[^\w-]+/g, '_');
     const safeTitle = this.title.replace(/[^\w-]+/g, '_');
     const blob = new Blob([this.sourceCode], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${safeStudent}_${safeTitle}.${this.language.ext}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    saveBlob(blob, `${safeStudent}_${safeTitle}.${this.language.ext}`);
   }
 
   // ---------------- Navigation ----------------
 
   backToColleges(): void {
-    this.router.navigate(['/main/superamin-colleges']);
+    this.router.navigate(['/main/superadmin-colleges']);
   }
 
   backToDomains(): void {

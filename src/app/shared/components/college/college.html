@@ -22,7 +22,7 @@
                 </p>
 
                 <h2 class="text-3xl font-bold text-white">
-                    {{ colleges?.length || 0 }}
+                    {{ colleges.length || 0 }}
                 </h2>
 
             </div>
@@ -209,7 +209,7 @@
 
                     <!-- Empty State -->
 
-                    <tr *ngIf="colleges?.length === 0">
+                    <tr *ngIf="colleges.length === 0">
 
                         <td
                             [attr.colspan]="4 + (auth.hasPermission('UPDATE_COLLEGE') ? 1 : 0) + (auth.hasPermission('MANAGE_COLLEGE_LICENSING') ? 1 : 0) + ((auth.hasPermission('UPDATE_COLLEGE') || auth.hasPermission('DELETE_COLLEGE')) ? 1 : 0)"

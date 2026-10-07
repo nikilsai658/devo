@@ -3,7 +3,7 @@
    Matches the Change Password / My Courses pages.
    Light mode inverts the whole app globally (see styles.css).
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* ---------------- PAGE ---------------- */
 

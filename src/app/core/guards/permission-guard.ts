@@ -1,29 +1,16 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateChildFn, Route, Router, Routes } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { readStoredUser } from '../auth/token-storage';
 
-// Reads localStorage directly rather than going through UserStore/Auth —
-// UserStore populates its signal after the first render (afterNextRender)
-// to keep SSR hydration stable, but this guard runs during route
-// resolution, before that render happens. It needs the permissions
-// synchronously, so it can't depend on the deferred signal.
+// Reads the stored profile directly rather than going through UserStore/Auth:
+// this guard runs during route resolution and needs the permissions
+// synchronously, independent of when the store's signal is populated.
 function getStoredPermissions(): any[] {
 
-  try {
+  const permissions = readStoredUser()?.['permissions'];
 
-    const stored = localStorage.getItem('user');
-
-    if (!stored) {
-      return [];
-    }
-
-    return JSON.parse(stored)?.permissions ?? [];
-
-  } catch {
-
-    return [];
-
-  }
+  return Array.isArray(permissions) ? permissions : [];
 
 }
 

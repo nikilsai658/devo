@@ -42,7 +42,7 @@ export class Superadmin {
   studentunlock(studentId:any,data:any){
     return this.api.POST(`SuperAdmin/student/${studentId}/unlock`,data);
   }
-  student1ocked(){
+  lockedStudents(){
     return this.api.GET(`SuperAdmin/students/locked`);
   }
   collegelocked(){

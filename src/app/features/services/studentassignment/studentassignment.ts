@@ -19,7 +19,7 @@ export class Studentassignment {
     return this.api.PUT(`StudentAssignment/${id}`, data);
   }
 
-  deletestudentassignmnet(id: number) {
+  deletestudentassignment(id: number) {
     return this.api.DELETE(`StudentAssignment/${id}`);
   }
 }

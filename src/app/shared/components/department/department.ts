@@ -4,12 +4,10 @@ import { DepartmentService } from '../../../features/services/department/departm
 import { Router } from '@angular/router';
 import { Auth } from '../../../core/auth/auth';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CookieService } from 'ngx-cookie-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-department',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,7 +38,6 @@ export class Department {
   constructor(
     private api: DepartmentService,
     private fb: FormBuilder,
-    private cookie:CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -59,13 +56,6 @@ export class Department {
     }
 
     // Check login
-    const token = getAccessToken();
-
-    if (!token) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
     // Load departments
     if (this.auth.hasPermission('VIEW_DEPARTMENT')) {
       this.loadDepartments();
@@ -77,7 +67,6 @@ export class Department {
   //=====================================
 loadDepartments(): void {
 
-  console.log('loadDepartments called');
 
   this.api.getDepartments().subscribe({
 
@@ -85,7 +74,6 @@ loadDepartments(): void {
       this.cd.markForCheck();
 
 
-      console.log('Department Response:', res);
 
       // Case 1: API returns an array
       if (Array.isArray(res)) {
@@ -103,20 +91,16 @@ loadDepartments(): void {
       }
 
       else {
-        console.error('Department API is not returning an array.', res);
         this.departments = [];
       }
 
-      console.log('Departments Array:', this.departments);
-
-      this.cd.detectChanges();
 
     },
 
     error: (err) => {
+      this.feedback.fail(err, 'Unable to load departments.');
       this.cd.markForCheck();
 
-      console.error(err);
       this.departments = [];
     }
 
@@ -172,7 +156,6 @@ loadDepartments(): void {
         this.cd.markForCheck();
 
 
-        console.log(res);
 
         this.departmentForm.reset();
 
@@ -318,4 +301,4 @@ loadDepartments(): void {
     this.showModal = false;
 
   }
-}
+}

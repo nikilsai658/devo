@@ -27,8 +27,8 @@ import { CourseService } from '../../../features/services/course/course-service'
 import { TaskService } from '../../../features/services/task/task-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-course-task',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -124,10 +124,10 @@ export class CourseTask implements OnInit {
         this.cd.markForCheck();
 
         this.courses = this.toArray(res);
-        this.cd.detectChanges();
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load courses.');
         this.cd.markForCheck();
 
         this.courses = [];
@@ -149,10 +149,10 @@ export class CourseTask implements OnInit {
         this.cd.markForCheck();
 
         this.tasks = this.toArray(res);
-        this.cd.detectChanges();
       },
 
-      error: () => {
+      error: (err) => {
+        this.feedback.fail(err, 'Unable to load tasks.');
         this.cd.markForCheck();
 
         this.tasks = [];
@@ -176,7 +176,6 @@ export class CourseTask implements OnInit {
         this.cd.markForCheck();
 
         this.loading = false;
-        this.cd.detectChanges();
       }))
       .subscribe({
 
@@ -190,7 +189,8 @@ export class CourseTask implements OnInit {
 
         },
 
-        error: () => {
+        error: (err) => {
+          this.feedback.fail(err, 'Unable to load course-task mappings.');
           this.cd.markForCheck();
 
 

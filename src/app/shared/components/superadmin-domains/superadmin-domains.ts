@@ -1,14 +1,8 @@
-import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Inject,
-  OnInit,
-  PLATFORM_ID
-} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 @Component({
   selector: 'app-superadmin-domains',
@@ -19,6 +13,10 @@ import { Superadmin } from '../../../features/services/superadmin/superadmin';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuperadminDomains implements OnInit {
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   domains: any[] = [];
 
@@ -54,7 +52,7 @@ export class SuperadminDomains implements OnInit {
   }
 
   backToColleges(): void {
-    this.router.navigate(['/main/superamin-colleges']);
+    this.router.navigate(['/main/superadmin-colleges']);
   }
 
   constructor(
@@ -65,16 +63,27 @@ export class SuperadminDomains implements OnInit {
   ) {}
 
   ngOnInit(): void {
+      // Data needs the browser session (and router state); the server renders the empty page.
+      if (!this.isBrowser) {
+        return;
+      }
+
       // Get collegeId from router state
-    this.collegeId = history.state.collegeId;
-    this.collegeName = history.state.collegeName ?? '';
+    this.collegeId = history.state?.collegeId;
+    this.collegeName = history.state?.collegeName ?? '';
+
+    // Opened without choosing a college first (bookmark, new tab).
+    if (!this.collegeId) {
+      this.router.navigate(['/main/superadmin-colleges']);
+      return;
+    }
+
     this.loadCollegeDomains();
   }
 
   loadCollegeDomains(): void {
 
     if (!this.collegeId) {
-      console.error('College ID is missing');
       return;
     }
 
@@ -84,7 +93,6 @@ export class SuperadminDomains implements OnInit {
 
       next: (res: any) => {
 
-        console.log('College Domains Response:', res);
 
         if (res?.isFailure) {
           this.domains = [];
@@ -95,7 +103,6 @@ export class SuperadminDomains implements OnInit {
 
         this.domains = res?.data ?? [];
 
-        console.log('Domains:', this.domains);
 
         this.loading = false;
 
@@ -104,8 +111,8 @@ export class SuperadminDomains implements OnInit {
       },
 
       error: (error) => {
+        this.feedback.fail(error, 'Unable to load domains.');
 
-        console.error('Failed to load college domains:', error);
 
         this.domains = [];
         this.loading = false;
@@ -117,7 +124,6 @@ export class SuperadminDomains implements OnInit {
 
   viewDomain(domain: any): void {
 
-    console.log('Selected Domain:', domain);
 
     this.router.navigate(
       ['/main/superadmin-domain-students'],

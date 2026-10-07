@@ -5,6 +5,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Breadcrumb, BreadcrumbItem } from '../breadcrumb/breadcrumb';
 import { Auth } from '../../../core/auth/auth';
+import { Feedback } from '../../../shared/feedback/feedback';
 
 @Component({
   selector: 'app-student-courses',
@@ -14,6 +15,8 @@ import { Auth } from '../../../core/auth/auth';
   styleUrl: './student-courses.css',
 })
 export class StudentCourses {
+
+  feedback = new Feedback();
    courses: any[] = [];
   loading = false;
   domainId!: number ;
@@ -37,8 +40,8 @@ export class StudentCourses {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.domainId = history.state.domainId;
-    this.domainName = history.state.domainName ?? '';
+    this.domainId = history.state?.domainId;
+    this.domainName = history.state?.domainName ?? '';
 
     if (this.domainId == null) {
       this.router.navigate(['/main/student-domain']);
@@ -71,17 +74,15 @@ export class StudentCourses {
         : allCourses;
 
       this.loading = false;
-      this.cd.detectChanges();
     },
 
     error: (err) => {
+      this.feedback.fail(err, 'Unable to load your courses.');
       this.cd.markForCheck();
 
-      console.error('Courses API error:', err);
 
       this.courses = [];
       this.loading = false;
-      this.cd.detectChanges();
     }
 
   });

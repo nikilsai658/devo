@@ -26,8 +26,9 @@ import { CollegeService } from '../../../features/services/college/college-servi
 import { DepartmentService } from '../../../features/services/department/department-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-collegedepartment',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -112,7 +113,6 @@ export class CollegeDepartmentComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        console.log('College Response', res);
 
         if (Array.isArray(res)) {
 
@@ -138,15 +138,13 @@ export class CollegeDepartmentComponent implements OnInit {
 
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load colleges.');
         this.cd.markForCheck();
 
 
-        console.error(err);
 
         this.colleges = [];
 
@@ -160,7 +158,6 @@ export class CollegeDepartmentComponent implements OnInit {
   //=====================================
 loadDepartments(): void {
 
-  console.log('loadDepartments called');
 
   this.departmentService.getDepartments().subscribe({
 
@@ -168,7 +165,6 @@ loadDepartments(): void {
       this.cd.markForCheck();
 
 
-      console.log('Department Response:', res);
 
       // Case 1: API returns an array
       if (Array.isArray(res)) {
@@ -186,20 +182,16 @@ loadDepartments(): void {
       }
 
       else {
-        console.error('Department API is not returning an array.', res);
         this.departments = [];
       }
 
-      console.log('Departments Array:', this.departments);
-
-      this.cd.detectChanges();
 
     },
 
     error: (err) => {
+      this.feedback.fail(err, 'Unable to load departments.');
       this.cd.markForCheck();
 
-      console.error(err);
       this.departments = [];
     }
 
@@ -224,15 +216,14 @@ loadDepartments(): void {
           this.cd.markForCheck();
 
 
-          this.mappings = res.data || [];
+          this.mappings = toList(res);
 
           this.filteredMappings = [...this.mappings];
 
-          this.cd.detectChanges();
-
         },
 
-        error: () => {
+        error: (err) => {
+          this.feedback.fail(err, 'Unable to load college-department mappings.');
           this.cd.markForCheck();
 
 
@@ -410,4 +401,4 @@ async delete(id: number): Promise<void> {
 
   }
 
-}
+}

@@ -19,7 +19,6 @@ import {
 } from '@angular/forms';
 
 import { Router, RouterLink } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { DomaincourseService } from '../../../features/services/domaincourse/domaincourse-service';
@@ -27,9 +26,9 @@ import { DomainServices } from '../../../features/services/domain/domain-service
 import { CourseService } from '../../../features/services/course/course-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
+import { toList } from '../../models/api-response.model';
 @Component({
   selector: 'app-domaincoursemap',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,7 +74,6 @@ export class DomainCourseMapComponent implements OnInit {
     private api: DomaincourseService,
     private domainService: DomainServices,
     private courseService: CourseService,
-    private cookie: CookieService,
     private router: Router,
     public auth: Auth,
     private cd: ChangeDetectorRef,
@@ -87,14 +85,6 @@ export class DomainCourseMapComponent implements OnInit {
     this.buildForm();
 
     if (!isPlatformBrowser(this.platformId)) return;
-
-    if (!getAccessToken()) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
-    }
 
     this.loadDomains();
 
@@ -146,9 +136,7 @@ export class DomainCourseMapComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        this.domains = res.data || res.result || res || [];
-
-        this.cd.detectChanges();
+        this.domains = toList(res);
 
       }
 
@@ -168,9 +156,7 @@ export class DomainCourseMapComponent implements OnInit {
         this.cd.markForCheck();
 
 
-        this.courses = res.data || res.result || res || [];
-
-        this.cd.detectChanges();
+        this.courses = toList(res);
 
       }
 
@@ -194,7 +180,7 @@ export class DomainCourseMapComponent implements OnInit {
 
         this.loading = false;
 
-        this.mappings = res.data || res.result || res || [];
+        this.mappings = toList(res);
 
         if (!Array.isArray(this.mappings)) {
 
@@ -204,17 +190,15 @@ export class DomainCourseMapComponent implements OnInit {
 
         this.filteredMappings = [...this.mappings];
 
-        this.cd.detectChanges();
-
       },
 
       error: err => {
+        this.feedback.fail(err, 'Unable to load domain-course mappings.');
         this.cd.markForCheck();
 
 
         this.loading = false;
 
-        console.log(err);
 
       }
 

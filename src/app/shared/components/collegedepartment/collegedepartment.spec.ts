@@ -1,22 +1,34 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpTestingController } from '@angular/common/http/testing';
 
-import { Collegedepartment } from './collegedepartment';
+import { CollegeDepartmentComponent } from './collegedepartment';
+import { signIn, testProviders } from '../../../../testing/test-providers';
 
-describe('Collegedepartment', () => {
-  let component: Collegedepartment;
-  let fixture: ComponentFixture<Collegedepartment>;
+describe('CollegeDepartmentComponent', () => {
+  let fixture: ComponentFixture<CollegeDepartmentComponent>;
 
   beforeEach(async () => {
+    localStorage.clear();
+    signIn();
+
     await TestBed.configureTestingModule({
-      imports: [Collegedepartment],
+      imports: [CollegeDepartmentComponent],
+      providers: testProviders(),
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Collegedepartment);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture = TestBed.createComponent(CollegeDepartmentComponent);
+    fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  afterEach(() => {
+    // Requests the page made on load are answered empty, so nothing is left in flight.
+    const http = TestBed.inject(HttpTestingController);
+    http.match(() => true).forEach(req => req.flush({ data: [] }));
+    localStorage.clear();
+  });
+
+  it('should create and render', () => {
+    expect(fixture.componentInstance).toBeTruthy();
+    expect(fixture.nativeElement).toBeTruthy();
   });
 });

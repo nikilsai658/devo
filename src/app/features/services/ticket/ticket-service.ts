@@ -20,8 +20,9 @@ export class TicketService {
 
     return this.api.GET('Ticket', params);
   }
-  getTicketById(id:number){
-    return this.api.GET(`Ticket/${id}`);
+  // `background`: a polling refresh (no global progress bar).
+  getTicketById(id:number, background = false){
+    return this.api.GET(`Ticket/${id}`, undefined, { background });
   }
   getticketmy(){
     return this.api.GET('Ticket/my');
@@ -32,12 +33,10 @@ export class TicketService {
   updateTicketstatus(id:number,data:any){
     return this.api.PUT(`Ticket/${id}/status`,data);
   }
-  getMessages(ticketId: number, afterId: number = 0) {
-  return this.api.GET(
-    `Ticket/${ticketId}/messages?afterId=${afterId}`
-  );
-}
-replyTicket(ticketId: number, message: string) {
-  return this.api.POST(`Ticket/${ticketId}/reply`,{ message});
-}
+  getMessages(ticketId: number, afterId: number = 0, background = false) {
+    return this.api.GET(`Ticket/${ticketId}/messages`, { afterId }, { background });
+  }
+  replyTicket(ticketId: number, message: string) {
+    return this.api.POST(`Ticket/${ticketId}/reply`, { message });
+  }
 }

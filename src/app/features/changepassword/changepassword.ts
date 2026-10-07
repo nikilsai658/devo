@@ -5,11 +5,15 @@ import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { AuthServices } from '../services/auth/auth-services';
 import { Logo } from '../../shared/logo/logo';
 import { AppValidators, FieldError } from '../../shared/validation';
 import { ToastService } from '../../shared/toast/toast';
+import { extractErrorMessage } from '../../shared/feedback/feedback';
+import { UserStore } from '../../core/store/user';
+import { pendingOnboardingStep } from '../../core/guards/onboarding-guard';
+
+// First-login password change (the in-app one is shared/components/change-password).
 @Component({
   selector: 'app-changepassword',
   standalone:true,
@@ -22,7 +26,7 @@ export class Changepassword {
   Form !:FormGroup;
   errorMessage = '';
   loading = false;
-  constructor(private router:Router,private api:AuthServices, private fb:FormBuilder,private cookie:CookieService,private cd:ChangeDetectorRef,private toast:ToastService){
+  constructor(private router:Router,private api:AuthServices, private fb:FormBuilder,private cd:ChangeDetectorRef,private toast:ToastService,private userStore:UserStore){
     this.Form=this.fb.group({
       oldPassword:['',AppValidators.required],
       newPassword:['',[AppValidators.required, AppValidators.strongPassword]],
@@ -43,15 +47,16 @@ export class Changepassword {
         this.cd.markForCheck();
 
         this.api.changepassword(this.Form.value).subscribe({
-          next:(res)=>{
+          next:()=>{
             this.loading = false;
             this.toast.success('Password changed successfully');
-            this.router.navigate(['/profile']);
+            this.userStore.patchUser({ isFirstLogin: false });
+            // Next first-login step (profile), or straight into the app when the profile is done.
+            this.router.navigateByUrl(pendingOnboardingStep() ?? '/main');
           },
           error: (err) => {
-            console.log('Error:', err);
             this.loading = false;
-            this.errorMessage = this.extractErrorMessage(err);
+            this.errorMessage = extractErrorMessage(err, 'Unable to change password. Please try again.');
             this.cd.markForCheck();
           }
         }
@@ -61,21 +66,5 @@ export class Changepassword {
         this.errorMessage = 'Please correct the highlighted fields and try again.';
         this.cd.markForCheck();
       }
-  }
-
-  private extractErrorMessage(err: any): string {
-    const body = err?.error;
-
-    if (typeof body === 'string' && body.trim()) {
-      return body;
-    }
-
-    return (
-      body?.message ||
-      body?.title ||
-      body?.error ||
-      body?.errorMessage ||
-      'Unable to change password. Please try again.'
-    );
   }
 }

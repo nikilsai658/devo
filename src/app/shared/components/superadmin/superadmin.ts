@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Feedback } from '../../../shared/feedback/feedback';
 @Component({
   selector: 'app-superadmin',
   imports: [CommonModule],
@@ -10,6 +11,10 @@ import { CommonModule } from '@angular/common';
   changeDetection:ChangeDetectionStrategy.OnPush
 })
 export class SuperAdmin implements OnInit{
+
+  feedback = new Feedback();
+
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
  
 colleges:any[]=[];
 loading=false;
@@ -33,6 +38,11 @@ constructor(private api:Superadmin,
   @Inject(PLATFORM_ID) private platformId:Object
 ){}
  ngOnInit(): void {
+   // Data needs the browser session (and router state); the server renders the empty page.
+   if (!this.isBrowser) {
+     return;
+   }
+
    this.loadsuperadmincolleges();
  }
  loadsuperadmincolleges():void{
@@ -43,7 +53,8 @@ constructor(private api:Superadmin,
       this.loading=false;
       this.cd.markForCheck()
     },
-    error:()=>{
+    error:(err)=>{
+      this.feedback.fail(err, 'Unable to load colleges.');
       this.colleges=[];
       this.loading=false;
       this.cd.markForCheck();

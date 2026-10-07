@@ -6,7 +6,7 @@
    @reference "../../styles.css";).
    Tailwind v3: delete the @reference line.
 ============================================================= */
-@import "tailwindcss";
+@reference "tailwindcss";
 
 /* ---------------- PAGE ---------------- */
 

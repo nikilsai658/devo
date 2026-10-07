@@ -18,15 +18,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { PermissionService } from '../../../features/services/permission/permission-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-permission',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +57,6 @@ export class Permission implements OnInit {
   constructor(
     private api: PermissionService,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -77,16 +74,6 @@ export class Permission implements OnInit {
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
     }
 
     if (this.auth.hasPermission('VIEW_PERMISSION')) {
@@ -121,11 +108,9 @@ export class Permission implements OnInit {
         else
           this.permissions = [];
 
-        this.cd.detectChanges();
-
       },
 
-      error: err => { this.cd.markForCheck(); return console.error(err); }
+      error: err => { this.feedback.fail(err, 'Unable to load permissions.'); this.cd.markForCheck(); }
 
     });
 

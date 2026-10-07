@@ -18,15 +18,13 @@ import {
 } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 
 import { Auth } from '../../../core/auth/auth';
 import { YearService } from '../../../features/services/year/year-service';
 import { Feedback } from '../../feedback/feedback';
 import { AppValidators, FieldError } from '../../validation';
-
-import { ConfirmService } from '../confirm-dailog/confirm';
-import { getAccessToken } from '../../../core/auth/token-storage';
+
+import { ConfirmService } from '../confirm-dialog/confirm';
 @Component({
   selector: 'app-year',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +57,6 @@ export class Year implements OnInit {
   constructor(
     private api: YearService,
     private fb: FormBuilder,
-    private cookie: CookieService,
     private router: Router,
     private cd: ChangeDetectorRef,
     public auth: Auth,
@@ -78,16 +75,6 @@ export class Year implements OnInit {
 
     if (!isPlatformBrowser(this.platformId)) {
       return;
-    }
-
-    const token = getAccessToken();
-
-    if (!token) {
-
-      this.router.navigate(['/auth/login']);
-
-      return;
-
     }
 
     if (this.auth.hasPermission('VIEW_YEAR')) {
@@ -134,15 +121,13 @@ export class Year implements OnInit {
 
         }
 
-        this.cd.detectChanges();
-
       },
 
       error: (err) => {
+        this.feedback.fail(err, 'Unable to load years.');
         this.cd.markForCheck();
 
 
-        console.error(err);
 
         this.years = [];
 

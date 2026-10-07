@@ -87,8 +87,8 @@
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" opacity=".3" />
             <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
           </svg>
-          {{ uploading ? 'Uploading...' : (task.hasSubmission ? 'Re-upload' : 'Upload') }}
-          <input type="file" hidden [disabled]="uploading" (change)="onFileSelected($event)" />
+          {{ uploading ? 'Uploading ' + uploadPercent + '%...' : (task.hasSubmission ? 'Re-upload' : 'Upload') }}
+          <input type="file" hidden [accept]="acceptTypes" [disabled]="uploading" (change)="onFileSelected($event)" />
         </label>
       </div>
 
@@ -105,8 +105,8 @@
             d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
         </svg>
       </span>
-      <h2>Task not found</h2>
-      <p>This task may have been removed or is no longer available.</p>
+      <h2>{{ loadError ? 'Task could not be loaded' : 'Task not found' }}</h2>
+      <p>{{ loadError || 'This task may have been removed or is no longer available.' }}</p>
       <button type="button" class="btn btn-primary" (click)="back()">Back to course</button>
     </div>
 

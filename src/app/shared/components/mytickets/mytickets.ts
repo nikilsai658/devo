@@ -1,11 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   FormsModule,
   ReactiveFormsModule
@@ -45,6 +40,8 @@ interface KanbanColumn {
 })
 export class MyTicketComponent implements OnInit {
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   // =====================================
   // TICKETS
   // =====================================
@@ -78,6 +75,11 @@ export class MyTicketComponent implements OnInit {
 
     this.connectedDropListIds =
       this.statusOptions.map(status => `drop-list-${status}`);
+
+    // Data needs the browser session (and router state); the server renders the empty page.
+    if (!this.isBrowser) {
+      return;
+    }
 
     this.getMyTickets();
 
@@ -117,10 +119,6 @@ export class MyTicketComponent implements OnInit {
 
         error: (err) => {
 
-          console.error(
-            'Error getting tickets:',
-            err
-          );
 
 
           this.tickets = [];
@@ -202,10 +200,6 @@ export class MyTicketComponent implements OnInit {
 
         error: (err) => {
 
-          console.error(
-            'Error updating ticket status:',
-            err
-          );
 
           ticket.status = previousStatus;
 

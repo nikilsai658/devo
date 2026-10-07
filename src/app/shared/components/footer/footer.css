@@ -1,4 +1,0 @@
-@reference "tailwindcss";
-.footer{
-    @apply w-full bg-[#0a2136] shadow-md text-white text-center py-4;
-}

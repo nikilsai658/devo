@@ -83,7 +83,7 @@ export class FieldError implements OnChanges, OnDestroy {
       case 'phone':
         return `${label} must be exactly 10 digits (${e.actualLength} entered).`;
       case 'personName':
-        return `${label} can contain letters, spaces, dots and hyphens only.`;
+        return `${label} can contain letters, spaces, dots, apostrophes and hyphens only.`;
       case 'title':
         return `${label} must include letters and cannot contain special symbols.`;
       case 'code':

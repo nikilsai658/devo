@@ -10,6 +10,8 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Superadmin } from '../../../features/services/superadmin/superadmin';
 import { Router } from '@angular/router';
+import { Feedback } from '../../../shared/feedback/feedback';
+import { saveBlobResponse } from '../../material-utils';
 
 type SubmissionFilter = 'all' | 'submitted' | 'notSubmitted';
 
@@ -22,6 +24,8 @@ type SubmissionFilter = 'all' | 'submitted' | 'notSubmitted';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuperadminStudentTasks implements OnInit {
+
+  feedback = new Feedback();
 
   tasks: any[] = [];
 
@@ -63,14 +67,14 @@ export class SuperadminStudentTasks implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
 
     // Get data passed through router state
-    this.collegeId = history.state.collegeId;
-    this.domainId = history.state.domainId;
-    this.studentId = history.state.studentId;
-    this.studentName = history.state.studentName ?? '';
-    this.studentEmail = history.state.studentEmail ?? '';
-    this.registerNumber = history.state.registerNumber ?? '';
-    this.domainName = history.state.domainName ?? '';
-    this.collegeName = history.state.collegeName ?? '';
+    this.collegeId = history.state?.collegeId;
+    this.domainId = history.state?.domainId;
+    this.studentId = history.state?.studentId;
+    this.studentName = history.state?.studentName ?? '';
+    this.studentEmail = history.state?.studentEmail ?? '';
+    this.registerNumber = history.state?.registerNumber ?? '';
+    this.domainName = history.state?.domainName ?? '';
+    this.collegeName = history.state?.collegeName ?? '';
 
     if (
       this.collegeId &&
@@ -79,7 +83,8 @@ export class SuperadminStudentTasks implements OnInit {
     ) {
       this.loadStudentTasks();
     } else {
-      console.error('Required student task details are missing.');
+      // Opened without choosing a student first (bookmark, new tab).
+      this.router.navigate(['/main/superadmin-colleges']);
     }
   }
 
@@ -105,8 +110,8 @@ export class SuperadminStudentTasks implements OnInit {
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'Unable to load tasks.');
 
-          console.error('Error loading student tasks:', error);
 
           this.tasks = [];
 
@@ -134,25 +139,15 @@ export class SuperadminStudentTasks implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-          const blob: Blob = res.body;
-          const disposition: string = res.headers?.get('content-disposition') ?? '';
-          const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(disposition);
-          const fileName = match ? decodeURIComponent(match[1]) : (task.taskTitle || task.title || 'task');
-
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
-          a.click();
-          URL.revokeObjectURL(url);
+          saveBlobResponse(res, task.taskTitle || task.title || 'task');
 
           this.downloadingId = null;
           this.cd.markForCheck();
         },
 
         error: (error) => {
+          this.feedback.fail(error, 'The file could not be downloaded.');
 
-          console.error('Error downloading task:', error);
 
           this.downloadingId = null;
           this.failedId = task.taskId;
@@ -206,7 +201,7 @@ export class SuperadminStudentTasks implements OnInit {
   // ---------------- Navigation ----------------
 
   backToColleges(): void {
-    this.router.navigate(['/main/superamin-colleges']);
+    this.router.navigate(['/main/superadmin-colleges']);
   }
 
   backToDomains(): void {

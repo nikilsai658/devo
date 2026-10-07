@@ -29,7 +29,7 @@ export class College implements OnInit {
    })
   }
     ngOnInit() {
-        this.api.getcollege().subscribe({
+        this.api.getcollegeforlogin().subscribe({
           next: (res: any) => {
             this.cdr.markForCheck();
 

@@ -6,6 +6,10 @@ import {Api} from '../../../core/api/api';
 export class CollegeService {
   constructor(private api:Api){}
  getcollege(){
+    return this.api.GET('College');
+  }
+  // Before login (the college picker): the default instance answers, so a stopped college cannot block the list.
+  getcollegeforlogin(){
     return this.api.GET('College', undefined, { useDefaultBase: true });
   }
   // The API address of the instance that serves a college ({ data: { apiBase } }, or data null).

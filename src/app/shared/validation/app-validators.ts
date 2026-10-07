@@ -88,6 +88,11 @@ export class AppValidators {
     return missing.length ? { strongPassword: { missing } } : null;
   };
 
+  static noSpecialEnvChars(control: AbstractControl): ValidationErrors | null {
+    const v = control.value as string;
+    return v && /[\s"'#\\`]/.test(v) ? { pattern: true } : null;
+  }
+
   static minLength = (n: number) => Validators.minLength(n);
   static maxLength = (n: number) => Validators.maxLength(n);
   static min = (n: number) => Validators.min(n);

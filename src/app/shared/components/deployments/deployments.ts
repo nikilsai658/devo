@@ -50,6 +50,8 @@ export class Deployments implements OnInit {
       hostname: ['', [AppValidators.required, AppValidators.maxLength(255)]],
       frontendUrl: ['', [AppValidators.maxLength(500)]],
       collegeConnectionString: ['', [AppValidators.required, AppValidators.maxLength(2000)]],
+      firstAdminEmail: ['', [AppValidators.email, AppValidators.maxLength(200)]],
+      firstAdminPassword: ['', [AppValidators.minLength(8), AppValidators.maxLength(100), AppValidators.noSpecialEnvChars]],
       imageTag: ['', [AppValidators.maxLength(100)]],
       memoryLimitMb: [400, [AppValidators.min(128), AppValidators.max(8192)]],
       status: ['Planned'],
@@ -128,6 +130,7 @@ export class Deployments implements OnInit {
     this.selectedId = 0;
     this.deploymentForm.reset({
       collegeCode: '', containerName: '', hostname: '', frontendUrl: '', collegeConnectionString: '',
+      firstAdminEmail: '', firstAdminPassword: '',
       imageTag: '', memoryLimitMb: 400, status: 'Planned', notes: ''
     });
     this.setCreateRules(true);
@@ -143,6 +146,7 @@ export class Deployments implements OnInit {
       hostname: d.hostname,
       frontendUrl: d.frontendUrl ?? '',
       collegeConnectionString: '',
+      firstAdminEmail: '', firstAdminPassword: '',
       imageTag: d.imageTag,
       memoryLimitMb: d.memoryLimitMb,
       status: d.status,
@@ -178,11 +182,18 @@ export class Deployments implements OnInit {
 
     const body = this.payload();
 
+    // The first admin needs both an email and a password (the server rejects half of it anyway).
+    if (!!body.firstAdminEmail !== !!body.firstAdminPassword) {
+      this.feedback.fail(null, 'Give both the first admin\'s email and password, or leave both empty.');
+      this.cd.markForCheck();
+      return;
+    }
+
     if (!this.isEditMode) {
       this.api.createDeployment(body).subscribe({
         next: (res: any) => {
           this.closeModal();
-          this.feedback.ok('Deployment registered. Run sync.sh on the server to apply it.', res);
+          this.feedback.ok('Deployment registered. Once its status is Active the server starts it automatically within a few minutes.', res);
           this.load();
         },
         error: (err) => {
@@ -199,7 +210,7 @@ export class Deployments implements OnInit {
     this.api.updateDeployment(this.selectedId, body).subscribe({
       next: (res: any) => {
         this.closeModal();
-        this.feedback.ok('Deployment updated. Run sync.sh on the server to apply it.', res);
+        this.feedback.ok('Deployment updated. The server applies the change automatically within a few minutes.', res);
         this.load();
       },
       error: (err) => {

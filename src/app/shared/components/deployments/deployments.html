@@ -193,6 +193,15 @@
                 </div>
 
                 <div class="dlg-field">
+                    <label class="dlg-label">{{ isEditMode ? 'Change the first admin (leave empty to keep)' : 'First admin of the college (optional)' }}</label>
+                    <input type="email" formControlName="firstAdminEmail" maxlength="200" placeholder="admin@college.edu" autocomplete="off" class="dlg-input">
+                    <app-field-error [control]="deploymentForm.get('firstAdminEmail')" label="Email" />
+                    <input type="text" formControlName="firstAdminPassword" maxlength="100" placeholder="Temporary password (8+ characters, no spaces or # ' &quot; \ `)" autocomplete="off" class="dlg-input" style="margin-top:8px">
+                    <app-field-error [control]="deploymentForm.get('firstAdminPassword')" label="Password" />
+                    <p class="hint" style="margin-top:6px;opacity:.7;font-size:12px">The admin is created when the college starts for the first time and has none. They must change the password at first login. Stored encrypted.</p>
+                </div>
+
+                <div class="dlg-field">
                     <label class="dlg-label">Image tag (optional)</label>
                     <input type="text" formControlName="imageTag" maxlength="100" placeholder="latest" class="dlg-input">
                 </div>
